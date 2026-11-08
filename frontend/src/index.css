@@ -1,0 +1,48 @@
+@import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-quartz.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-obsidian-950 text-slate-100 antialiased selection:bg-paypal-blue selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+  }
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0f18;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* AG Grid Dark Theme Customization */
+.ag-theme-quartz-dark {
+  --ag-background-color: #0e1522;
+  --ag-header-background-color: #0a0f18;
+  --ag-odd-row-background-color: #0e1522;
+  --ag-even-row-background-color: #111a2a;
+  --ag-border-color: #1e293b;
+  --ag-row-hover-color: #1a263c;
+  --ag-selected-row-background-color: #1e3a5f;
+  --ag-foreground-color: #e2e8f0;
+  --ag-secondary-foreground-color: #94a3b8;
+  --ag-header-foreground-color: #cbd5e1;
+  --ag-font-family: inherit;
+  --ag-font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+}
