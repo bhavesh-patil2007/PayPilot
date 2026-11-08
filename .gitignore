@@ -1,0 +1,18 @@
+# Dependencies and build output
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/
+
+# Local tool state
+.vite/
+frontend/.vite/
+.agents/
+.DS_Store
+
+# Logs and local environment files
+*.log
+.env
+.env.*
+!.env.example
