@@ -23,6 +23,8 @@ import {
   Puzzle,
   Menu,
   X,
+  FileText,
+  Calendar,
 } from 'lucide-react';
 
 export interface HeaderProps {
@@ -68,6 +70,28 @@ export const NAV_DROPDOWN_GROUPS: NavDropdownGroup[] = [
     ],
   },
   {
+    id: 'defense',
+    title: 'Defense',
+    items: [
+      {
+        id: 'disputes',
+        label: 'Dispute Defense Studio',
+        icon: ShieldAlert,
+        description: 'Traceable evidence case & response workflow',
+        badge: () => 'PayPal',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      },
+      {
+        id: 'vendor-invoices',
+        label: 'Invoice Fraud Shield',
+        icon: FileText,
+        description: 'Pre-payment 3-way PO & beneficiary verification',
+        badge: () => 'Shield',
+        badgeColor: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
+      },
+    ],
+  },
+  {
     id: 'recovery',
     title: 'Recovery',
     items: [
@@ -101,6 +125,14 @@ export const NAV_DROPDOWN_GROUPS: NavDropdownGroup[] = [
     id: 'projections',
     title: 'Projections',
     items: [
+      {
+        id: 'obligations',
+        label: 'Smart Obligation Scheduler',
+        icon: CalendarClock,
+        description: 'Cash-aware payment planning & reserve protection',
+        badge: () => 'Twin',
+        badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+      },
       {
         id: 'commitments',
         label: 'Commitments',
@@ -236,6 +268,7 @@ export const Header: React.FC<HeaderProps> = ({
     const found = g.items.find((i) => i.id === activeRoute);
     if (found) {
       if (g.id === 'operations') currentGroup = 'Overview & Operations';
+      else if (g.id === 'defense') currentGroup = 'Defense & Verification';
       else if (g.id === 'recovery') currentGroup = 'Recovery & Ground Truth';
       else if (g.id === 'projections') currentGroup = 'Projections & Resilience';
       else if (g.id === 'tools') currentGroup = 'Governance & Tools';
