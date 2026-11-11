@@ -15,6 +15,7 @@ import {
   Share2,
   Settings,
   RefreshCw,
+  FileText,
 } from 'lucide-react';
 
 export interface SidebarProps {
@@ -49,6 +50,25 @@ export const NAV_GROUPS: NavGroupDef[] = [
     ],
   },
   {
+    title: 'Defense & Pre-Payment',
+    items: [
+      {
+        id: 'disputes',
+        label: 'Dispute Defense',
+        icon: ShieldAlert,
+        badge: () => '2 cases',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      },
+      {
+        id: 'vendor-invoices',
+        label: 'Invoice Fraud Shield',
+        icon: FileText,
+        badge: () => 'Hold',
+        badgeColor: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
+      },
+    ],
+  },
+  {
     title: 'Recovery & Ground Truth',
     items: [
       {
@@ -77,6 +97,13 @@ export const NAV_GROUPS: NavGroupDef[] = [
   {
     title: 'Projections & Resilience',
     items: [
+      {
+        id: 'obligations',
+        label: 'Obligation Scheduler',
+        icon: CalendarClock,
+        badge: () => 'Twin',
+        badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+      },
       {
         id: 'commitments',
         label: 'Commitments',

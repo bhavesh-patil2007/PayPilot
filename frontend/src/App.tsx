@@ -23,6 +23,9 @@ import {
   TeamSharingView,
   SponsorIntegrationsView,
   SettingsView,
+  DisputeDefenseView,
+  InvoiceFraudShieldView,
+  ObligationSchedulerView,
 } from './views';
 
 export default function App() {
@@ -73,6 +76,12 @@ export default function App() {
         return <SponsorIntegrationsView />;
       case 'settings':
         return <SettingsView />;
+      case 'disputes':
+        return <DisputeDefenseView />;
+      case 'vendor-invoices':
+        return <InvoiceFraudShieldView />;
+      case 'obligations':
+        return <ObligationSchedulerView />;
       default:
         return <CommandCenterView />;
     }

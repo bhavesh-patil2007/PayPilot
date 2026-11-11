@@ -20,7 +20,10 @@ export type AppRoute =
   | 'approvals'
   | 'team-sharing'
   | 'sponsor-integrations'
-  | 'settings';
+  | 'settings'
+  | 'disputes'
+  | 'vendor-invoices'
+  | 'obligations';
 
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'CAD' | 'INR';
 
@@ -645,4 +648,204 @@ export interface ThreeSceneController<T = any> {
   onPointerMove?(normalizedX: number, normalizedY: number, event: PointerEvent): void;
   onPointerClick?(normalizedX: number, normalizedY: number, event: PointerEvent): void;
   destroy(): void;
+}
+
+// ----------------------------------------------------------------------------
+// 15. Module 13: Dispute Defense Studio Types (Section 1.5)
+// ----------------------------------------------------------------------------
+
+export interface DisputeEvidenceItem {
+  id: string;
+  workspace_id: string;
+  dispute_id: string;
+  source_record_id?: string | null;
+  evidence_type:
+    | 'proof_of_delivery'
+    | 'order_confirmation'
+    | 'customer_communication'
+    | 'refund_policy'
+    | 'invoice'
+    | 'tracking_event'
+    | 'other';
+  storage_uri: string;
+  extracted_text?: string | null;
+  evidence_status: 'available' | 'missing' | 'weak' | 'review_required';
+  created_at: string;
+  metadata_json?: Record<string, any>;
+}
+
+export interface EvidenceChecklistItem {
+  category: string;
+  required: boolean;
+  status: 'available' | 'missing' | 'weak' | 'review_required';
+  description: string;
+  linked_evidence_id?: string | null;
+}
+
+export interface TimelineEvent {
+  date: string;
+  event_type: string;
+  description: string;
+  source_record_id?: string | null;
+  verified: boolean;
+}
+
+export interface DisputeItem {
+  id: string;
+  workspace_id: string;
+  provider: string;
+  provider_dispute_id: string;
+  payment_id?: string | null;
+  reason_code: string;
+  disputed_amount: number;
+  currency: string;
+  status: 'UNDER_REVIEW' | 'WAITING_FOR_BUYER' | 'WAITING_FOR_SELLER' | 'RESOLVED' | 'OPEN' | 'INQUIRY';
+  response_due_at: string;
+  provider_created_at: string;
+  synced_at: string;
+  evidence_count: number;
+  missing_critical_count: number;
+}
+
+export interface DisputeDetail extends DisputeItem {
+  evidence: DisputeEvidenceItem[];
+  checklist: EvidenceChecklistItem[];
+  timeline: TimelineEvent[];
+  ai_case_brief?: string | null;
+  draft_response?: string | null;
+  contraindications: string[];
+}
+
+// ----------------------------------------------------------------------------
+// 16. Module 14: Vendor & Invoice Fraud Shield Types (Section 2.5)
+// ----------------------------------------------------------------------------
+
+export interface InvoiceLineItem {
+  id?: string | null;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  tax_amount: number;
+  line_total: number;
+  matched_po_line_id?: string | null;
+}
+
+export interface InvoiceFinding {
+  id: string;
+  finding_type:
+    | 'duplicate_candidate'
+    | 'po_mismatch'
+    | 'beneficiary_changed'
+    | 'price_variance'
+    | 'vendor_impersonation'
+    | 'unusual_amount';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  description: string;
+  evidence_json: Record<string, any>;
+  status: 'open' | 'verified_safe' | 'confirmed_fraud' | 'dismissed';
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+}
+
+export interface SupplierInvoiceItem {
+  id: string;
+  workspace_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  invoice_number: string;
+  invoice_date: string;
+  due_date: string;
+  currency: string;
+  total_amount: number;
+  document_uri?: string | null;
+  extraction_status: 'pending' | 'extracted' | 'failed';
+  risk_status: 'clear' | 'review_required' | 'hold' | 'approved' | 'rejected';
+  po_number?: string | null;
+  po_amount?: number | null;
+  findings: InvoiceFinding[];
+  critical_findings_count: number;
+  created_at: string;
+}
+
+export interface SupplierInvoiceDetail extends SupplierInvoiceItem {
+  line_items: InvoiceLineItem[];
+  destination_account?: string | null;
+  destination_routing?: string | null;
+  destination_bank_name?: string | null;
+  verified_destination_account?: string | null;
+  beneficiary_verified: boolean;
+  three_way_match_status: 'matched' | 'partial_mismatch' | 'po_missing' | 'unmatched';
+}
+
+// ----------------------------------------------------------------------------
+// 17. Module 15: Smart Obligation Scheduler Types (Section 3.5)
+// ----------------------------------------------------------------------------
+
+export interface ObligationItem {
+  id: string;
+  workspace_id: string;
+  source_type:
+    | 'supplier_invoice'
+    | 'purchase_order'
+    | 'recurring_expense'
+    | 'payroll'
+    | 'tax'
+    | 'loan'
+    | 'manual';
+  source_id?: string | null;
+  payee_id?: string | null;
+  payee_name: string;
+  amount: number;
+  currency: string;
+  due_date: string;
+  earliest_pay_date: string;
+  latest_pay_date: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  late_fee_terms_json: Record<string, any>;
+  discount_terms_json: Record<string, any>;
+  status: 'pending' | 'scheduled' | 'executing' | 'paid' | 'cancelled';
+  created_at: string;
+}
+
+export interface ScheduledObligationItem {
+  id: string;
+  obligation_id: string;
+  payee_name: string;
+  due_date: string;
+  proposed_date: string;
+  proposed_amount: number;
+  currency: string;
+  priority: string;
+  reason_codes: string[];
+  reserve_safe: boolean;
+  projected_cash_after: number;
+  discount_captured: number;
+  late_fee_avoided: number;
+  status: 'proposed' | 'approved' | 'task_created' | 'paid';
+}
+
+export interface DailyCashForecastPoint {
+  date: string;
+  projected_inflow: number;
+  scheduled_outflow: number;
+  projected_cash: number;
+  reserve_floor: number;
+  breached: boolean;
+}
+
+export interface SimulateScheduleResponse {
+  schedule_id: string;
+  scenario_id: string;
+  version: number;
+  starting_cash: number;
+  reserve_floor: number;
+  items: ScheduledObligationItem[];
+  daily_forecast: DailyCashForecastPoint[];
+  total_scheduled_amount: number;
+  total_discounts_captured: number;
+  total_late_fees_avoided: number;
+  reserve_breached: boolean;
+  breach_dates: string[];
+  explanation: string;
 }
