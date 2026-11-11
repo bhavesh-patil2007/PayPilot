@@ -35,6 +35,14 @@
       }
     },
     {
+      "name": "Sponsor integration status",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/status"
+      }
+    },
+    {
       "name": "PayPal integration status",
       "request": {
         "method": "GET",
@@ -52,6 +60,30 @@
         },
         "header": [{ "key": "Accept", "value": "application/json" }],
         "url": "{{baseUrl}}{{apiPrefix}}/integrations/paypal/connection-check"
+      }
+    },
+    {
+      "name": "Channel3 product search (requires Supabase token and CHANNEL3_API_KEY)",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{supabaseAccessToken}}", "type": "string" }]
+        },
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/channel3/search?query=office%20chair&limit=5"
+      }
+    },
+    {
+      "name": "Elastic evidence search (requires Supabase token and configured index)",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{supabaseAccessToken}}", "type": "string" }]
+        },
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/elastic/evidence-search?query=invoice"
       }
     }
   ]

@@ -51,18 +51,18 @@ async def integration_status(settings: Settings = Depends(get_settings)) -> dict
     """Report implemented/configured status without exposing secrets."""
     return {
         "integrations": [
-            {"id": "paypal", "name": "PayPal", "implemented": True, "configured": settings.paypal_webhooks_configured, "evidence": "Sandbox OAuth and signature-verified webhook intake; invoice/payment judge path remains incomplete."},
-            {"id": "ag-grid", "name": "AG Grid", "implemented": True, "configured": True, "evidence": "Interactive recovery, reconciliation, and ledger grids."},
-            {"id": "ag-studio", "name": "AG Studio", "implemented": False, "configured": False, "evidence": "Requires licensed AG Studio React package and configured AI provider."},
-            {"id": "apimatic", "name": "APIMatic", "implemented": False, "configured": False, "evidence": "OpenAPI is exposed; no APIMatic-generated typed PayPal client or Context Plugin evidence yet."},
-            {"id": "astropods", "name": "Astropods", "implemented": False, "configured": settings.astropods_configured, "evidence": "Agent run workflow is not connected to PayPilot tools or persisted traces."},
-            {"id": "bryntum", "name": "Bryntum", "implemented": False, "configured": False, "evidence": "Current commitment timeline is custom SVG; Bryntum package and license are not installed."},
-            {"id": "channel3", "name": "Channel3", "implemented": True, "configured": settings.channel3_configured, "evidence": "Server-side product search proxy returns provider provenance and fetch timestamp."},
-            {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "evidence": "Evidence search is server-side, derives active workspaces from the authenticated user, and applies a mandatory workspace filter."},
-            {"id": "kernel", "name": "KERNEL", "implemented": False, "configured": settings.kernel_configured, "evidence": "User-authorized browser-task policy and trace storage are not implemented."},
-            {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "evidence": "Versioned collection is present; required negative scenarios and successful run evidence remain incomplete."},
-            {"id": "render", "name": "Render", "implemented": True, "configured": False, "evidence": "Blueprint is present; hosted health and durable job workflow are not verified."},
-            {"id": "zapier", "name": "Zapier MCP", "implemented": False, "configured": settings.zapier_mcp_configured, "evidence": "Approved external action and saved result/audit flow are not implemented."},
+            {"id": "paypal", "name": "PayPal", "implemented": True, "configured": settings.paypal_webhooks_configured, "h8_status": "partial", "evidence": "Sandbox OAuth and signature-verified webhook intake; invoice/payment judge path and case/Digital-Twin update remain incomplete."},
+            {"id": "ag-grid", "name": "AG Grid", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Interactive recovery, reconciliation, and ledger grids are present; separate AG Studio widget and guarded natural-language dashboard change are missing."},
+            {"id": "ag-studio", "name": "AG Studio", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "Requires licensed AG Studio React package and configured AI provider."},
+            {"id": "apimatic", "name": "APIMatic", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "OpenAPI is exposed; no APIMatic Context Plugin or generated typed PayPal client used by the adapter yet."},
+            {"id": "astropods", "name": "Astropods", "implemented": False, "configured": settings.astropods_configured, "h8_status": "blocked", "evidence": "Agent run workflow is not connected to scoped PayPilot tools or persisted traces."},
+            {"id": "bryntum", "name": "Bryntum", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "Current commitment timeline is custom SVG; Bryntum package and license are not installed."},
+            {"id": "channel3", "name": "Channel3", "implemented": True, "configured": settings.channel3_configured, "h8_status": "partial", "evidence": "Server-side live product-search adapter returns provider provenance and fetch timestamp; it is not yet connected to purchase analysis."},
+            {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "h8_status": "partial", "evidence": "Authenticated evidence search derives active workspaces and applies a mandatory workspace filter; populated index and isolation evidence are missing."},
+            {"id": "kernel", "name": "KERNEL", "implemented": False, "configured": settings.kernel_configured, "h8_status": "blocked", "evidence": "User-authorized browser-task policy and persisted review trace are not implemented."},
+            {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Versioned collection is present; replay/tamper/workspace negative cases and successful run evidence remain incomplete."},
+            {"id": "render", "name": "Render", "implemented": True, "configured": False, "h8_status": "partial", "evidence": "Blueprint is present; hosted health and durable idempotent job workflow are not verified or implemented."},
+            {"id": "zapier", "name": "Zapier MCP", "implemented": False, "configured": settings.zapier_mcp_configured, "h8_status": "blocked", "evidence": "Approved allow-listed MCP action and saved result/audit flow are not implemented."},
         ]
     }
 

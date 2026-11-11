@@ -9,6 +9,7 @@ interface SponsorIntegration {
   name: string;
   implemented: boolean;
   configured: boolean;
+  h8_status: 'complete' | 'partial' | 'blocked';
   evidence: string;
 }
 
@@ -41,9 +42,11 @@ const sponsorGuidance: Record<string, string> = {
   zapier: 'Require an approved allow-listed MCP action, save the action ID/result, and show it in audit history.',
 };
 
-const statusClasses = (ready: boolean) => ready
+const statusClasses = (status: SponsorIntegration['h8_status']) => status === 'complete'
   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-  : 'border-amber-500/30 bg-amber-500/10 text-amber-200';
+  : status === 'partial'
+    ? 'border-amber-500/30 bg-amber-500/10 text-amber-200'
+    : 'border-rose-500/30 bg-rose-500/10 text-rose-200';
 
 export const SponsorIntegrationsView: React.FC = () => {
   const [integrations, setIntegrations] = useState<SponsorIntegration[]>([]);
@@ -238,16 +241,17 @@ export const SponsorIntegrationsView: React.FC = () => {
         {loading && <div className="col-span-full flex items-center gap-2 rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400"><Loader2 className="h-4 w-4 animate-spin" />Loading backend-reported status…</div>}
         {statusError && <div role="alert" className="col-span-full flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200"><CircleAlert className="h-4 w-4" />{statusError}</div>}
         {integrations.map((item) => {
-          const complete = item.implemented && item.configured;
-          const Icon = complete ? CheckCircle2 : item.implemented ? Shield : XCircle;
+          const h8Accepted = item.h8_status === 'complete';
+          const Icon = h8Accepted ? CheckCircle2 : item.h8_status === 'partial' ? Shield : XCircle;
           return <article key={item.id} className="rounded-xl border border-slate-800 bg-obsidian-900 p-4">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold text-white">{item.name}</h2>
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-mono uppercase ${statusClasses(complete)}`}>
-                <Icon className="h-3 w-3" />{complete ? 'Evidence ready' : item.implemented ? 'Needs setup' : 'Not integrated'}
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-mono uppercase ${statusClasses(item.h8_status)}`}>
+                <Icon className="h-3 w-3" />{h8Accepted ? 'H.8 accepted' : item.h8_status === 'partial' ? 'H.8 partial' : 'H.8 blocked'}
               </span>
             </div>
             <p className="mt-2 text-[10px] leading-relaxed text-slate-400">{item.evidence}</p>
+            <p className="mt-2 text-[9px] font-mono text-slate-500">Adapter: {item.implemented ? 'present' : 'not implemented'} · Credentials: {item.configured ? 'configured' : 'not configured'}</p>
             <p className="mt-3 border-t border-slate-800 pt-2 text-[10px] leading-relaxed text-slate-500">H.8: {sponsorGuidance[item.id] || 'See sponsor integration plan.'}</p>
           </article>;
         })}
