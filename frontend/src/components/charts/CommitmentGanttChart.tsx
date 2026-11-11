@@ -72,7 +72,7 @@ export const CATEGORY_STYLES: Record<
     stroke: '#94a3b8',
     fill: 'rgba(148, 163, 184, 0.25)',
     text: '#e2e8f0',
-    bgClass: 'bg-slate-800 text-slate-300 border-slate-700',
+    bgClass: 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 border-stone-300/70 dark:border-white/10',
     dotColor: '#94a3b8',
   },
 };
@@ -172,11 +172,11 @@ export function CommitmentGanttChart({
 
   return (
     <div
-      className={`rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4 space-y-4 ${className}`}
+      className={`glass tone-glow rounded-2xl p-5 space-y-4 ${className}`}
       data-testid="commitment-gantt-chart"
     >
       {/* 1. Chart Toolbar: Horizon toggles, Category filter, and Safety Buffer Pill */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-200/60 dark:border-white/10">
         {/* Horizon Buttons */}
         <div className="flex items-center gap-2 text-xs font-mono">
           <Calendar className="w-4 h-4 text-paypal-cyan" />
@@ -189,7 +189,7 @@ export function CommitmentGanttChart({
               className={`px-2.5 py-1 rounded text-[11px] font-mono transition ${
                 horizon === h
                   ? 'bg-paypal-blue text-white font-semibold shadow-glow-paypal'
-                  : 'bg-slate-800/70 text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-500 dark:text-stone-400 hover:text-white hover:bg-stone-200/80 dark:hover:bg-stone-800/80'
               }`}
             >
               {h}d
@@ -206,8 +206,8 @@ export function CommitmentGanttChart({
 
       {/* Category Filter Pills */}
       <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-        <span className="text-slate-400 font-mono mr-1 flex items-center gap-1">
-          <Filter className="w-3 h-3 text-slate-500" /> Filter:
+        <span className="text-stone-500 dark:text-stone-400 font-mono mr-1 flex items-center gap-1">
+          <Filter className="w-3 h-3 text-stone-500 dark:text-stone-400" /> Filter:
         </span>
         <button
           type="button"
@@ -215,7 +215,7 @@ export function CommitmentGanttChart({
           className={`px-2.5 py-0.5 rounded-full border transition font-mono ${
             selectedCategory === 'ALL'
               ? 'bg-slate-200 text-slate-900 border-white font-bold'
-              : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+              : 'bg-stone-100/80 dark:bg-stone-900/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
           }`}
         >
           ALL ({commitments.length})
@@ -231,13 +231,13 @@ export function CommitmentGanttChart({
               onClick={() => handleCategoryToggle(cat)}
               className={`px-2.5 py-0.5 rounded-full border transition font-mono flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-slate-800 text-white border-paypal-cyan font-bold shadow-sm'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                  ? 'bg-stone-200/70 dark:bg-stone-800/70 text-white border-paypal-cyan font-bold shadow-sm'
+                  : 'bg-stone-100/80 dark:bg-stone-900/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: style.stroke }} />
               <span>{style.label}</span>
-              <span className="text-slate-500">({count})</span>
+              <span className="text-stone-500 dark:text-stone-400">({count})</span>
             </button>
           );
         })}
@@ -494,34 +494,34 @@ export function CommitmentGanttChart({
         {/* Hover Tooltip */}
         {hoveredCommitment && tooltipPos && (
           <div
-            className="fixed z-50 p-3 rounded-lg bg-obsidian-950/95 border border-slate-700 shadow-2xl text-xs space-y-1.5 pointer-events-none max-w-xs"
+            className="fixed z-50 p-3 rounded-lg bg-white/50 dark:bg-stone-950/95 border border-stone-300/70 dark:border-white/10 shadow-2xl text-xs space-y-1.5 pointer-events-none max-w-xs"
             style={{ left: tooltipPos.x + 12, top: tooltipPos.y + 12 }}
           >
-            <div className="font-semibold text-white">{hoveredCommitment.title}</div>
-            <div className="text-slate-400 font-mono text-[11px]">
+            <div className="font-semibold text-stone-900 dark:text-white">{hoveredCommitment.title}</div>
+            <div className="text-stone-500 dark:text-stone-400 font-mono text-[11px]">
               Counterparty: {hoveredCommitment.counterparty}
             </div>
-            <div className="text-slate-400 font-mono text-[11px]">
+            <div className="text-stone-500 dark:text-stone-400 font-mono text-[11px]">
               Reference: {hoveredCommitment.referenceNumber}
             </div>
-            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800">
-              <span className="text-slate-400">Total Committed:</span>
+            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-stone-200/60 dark:border-white/10">
+              <span className="text-stone-500 dark:text-stone-400">Total Committed:</span>
               <span className="text-white font-mono">
                 ${hoveredCommitment.totalCommittedAmount.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-slate-400">Pending Balance:</span>
+              <span className="text-stone-500 dark:text-stone-400">Pending Balance:</span>
               <span className="text-amber-400 font-bold font-mono">
                 ${hoveredCommitment.pendingBalance.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-slate-400">Due Date:</span>
+              <span className="text-stone-500 dark:text-stone-400">Due Date:</span>
               <span className="text-white font-mono">{hoveredCommitment.dueDate}</span>
             </div>
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-slate-400">Firewall Status:</span>
+              <span className="text-stone-500 dark:text-stone-400">Firewall Status:</span>
               <span
                 className={`font-mono font-bold ${
                   hoveredCommitment.firewallStatus === 'APPROVED_SAFE'

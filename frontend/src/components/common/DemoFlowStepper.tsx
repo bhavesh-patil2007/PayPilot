@@ -43,7 +43,7 @@ export const ACT_DEFINITIONS: ActDefinition[] = [
     route: 'payback-hunter',
     icon: ShieldAlert,
     headline: 'Act 1: Autonomous Leakage Detection',
-    narrative: 'PayBack Hunter scans payment logs across payment corridors, algorithmically flagging $18,450.00 in fee overcharges.',
+    narrative: 'PayBack Hunter looks through your payments and finds $18,450.00 in fees you can claim back.',
     keyHighlight: 'Case REC-101: $1,420.00 Duplicate Processing Fee on Black Friday Batch #9812.',
     quickActionLabel: 'Inspect Case REC-101 Formula',
     quickActionRoute: 'payback-hunter',
@@ -54,7 +54,7 @@ export const ACT_DEFINITIONS: ActDefinition[] = [
     route: 'payment-truth',
     icon: GitCompare,
     headline: 'Act 2: Deterministic 3-Way Reconciliation',
-    narrative: 'Payment Truth connects PayPal REST captures, bank clearing feeds, and invoices into an interactive 3D node graph.',
+    narrative: 'Payment Truth lines up PayPal, your bank, and your invoices so you can see where they disagree.',
     keyHighlight: 'Record REC-TRUTH-101: $1,420.00 variance isolated between PayPal and Bank statement.',
     quickActionLabel: 'Inspect 3-Way Discrepancy',
     quickActionRoute: 'payment-truth',
@@ -65,7 +65,7 @@ export const ACT_DEFINITIONS: ActDefinition[] = [
     route: 'approvals',
     icon: CheckCircle2,
     headline: 'Act 3: Governed Execution via PayPal Sandbox',
-    narrative: 'Owner reviews the exact JSON payload bound for PayPal REST v2 and executes an automated sandbox refund.',
+    narrative: 'You read the exact request that would go to PayPal, then approve a practice refund yourself.',
     keyHighlight: 'Approval APR-9941: Liquid cash immediately increments from $142,500 to $143,920.',
     quickActionLabel: 'Review Governed Approval',
     quickActionRoute: 'approvals',
@@ -76,7 +76,7 @@ export const ACT_DEFINITIONS: ActDefinition[] = [
     route: 'commitments',
     icon: CalendarClock,
     headline: 'Act 4: Digital Twin & Commitment Firewall',
-    narrative: 'Recovered liquidity updates the Digital Twin. The Commitment Firewall stress-tests new orders against the $15k safety buffer.',
+    narrative: 'Money you recover shows up in your cash picture. New orders are checked against your safety cushion.',
     keyHighlight: 'A $35,000 order triggers buffer alert; tuning deposit slider to 40% preserves 95-day runway.',
     quickActionLabel: 'Test Order in Commitments',
     quickActionRoute: 'commitments',
@@ -87,7 +87,7 @@ export const ACT_DEFINITIONS: ActDefinition[] = [
     route: 'team-sharing',
     icon: Share2,
     headline: 'Act 5: Cryptographic Tamper-Proof Sharing',
-    narrative: 'Generate auditable reports sealed with a genuine SHA-256 proof badge and distribute scoped expiring links to CPAs.',
+    narrative: 'Create a report others can verify has not been changed, and share a link that expires.',
     keyHighlight: 'Cryptographic Proof Badge: sha256:d68ce70c... with 48-hour scoped access.',
     quickActionLabel: 'Generate Signed Audit Pack',
     quickActionRoute: 'team-sharing',
@@ -143,19 +143,19 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
   };
 
   const containerClasses = isFloating
-    ? 'fixed bottom-6 right-6 z-40 max-w-lg w-full shadow-2xl rounded-2xl bg-obsidian-900 border border-paypal-cyan/40 shadow-glow-paypal animate-in fade-in slide-in-from-bottom-4'
-    : 'w-full rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark';
+    ? 'fixed bottom-6 right-6 z-40 max-w-lg w-full shadow-2xl rounded-2xl bg-white/40 dark:bg-stone-900/50 border border-paypal-cyan/40 shadow-glow-paypal animate-in fade-in slide-in-from-bottom-4'
+    : 'w-full glass tone-glow rounded-2xl';
 
   if (isMinimized) {
     return (
       <div
         data-testid="demo-stepper-minimized"
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 p-2.5 rounded-xl bg-obsidian-900 border border-paypal-cyan/50 shadow-glow-paypal text-xs text-white cursor-pointer"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 p-2.5 rounded-xl bg-white/40 dark:bg-stone-900/50 border border-paypal-cyan/50 shadow-glow-paypal text-xs text-white cursor-pointer"
         onClick={() => setIsMinimized(false)}
       >
         <Sparkles className="w-4 h-4 text-paypal-cyan" />
         <span className="font-mono font-bold">Act {currentAct}: {currentDef.name}</span>
-        <Maximize2 className="w-3.5 h-3.5 text-slate-400 hover:text-white ml-1" />
+        <Maximize2 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 hover:text-white ml-1" />
       </div>
     );
   }
@@ -163,16 +163,16 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
   return (
     <div data-testid="demo-flow-stepper" className={`${containerClasses} ${className}`}>
       {/* Header & Act Stepper Bar */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-obsidian-950/70 rounded-t-2xl">
+      <div className="p-4 border-b border-stone-200/60 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-stone-950/70 rounded-t-2xl">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30 flex items-center justify-center font-bold">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            <h4 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
               3-Minute Hackathon Demo Narrative
             </h4>
-            <span className="text-[10px] text-slate-400">Step through PayPilot end-to-end</span>
+            <span className="text-[10px] text-stone-500 dark:text-stone-400">Step through PayPilot end-to-end</span>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
@@ -180,7 +180,7 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
             type="button"
             data-testid="minimize-stepper-btn"
             onClick={() => setIsMinimized(true)}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1 rounded text-stone-500 dark:text-stone-400 hover:text-white hover:bg-stone-200/80 dark:hover:bg-stone-800/80 transition"
             title="Minimize Stepper"
           >
             <Minimize2 className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
               type="button"
               data-testid="close-stepper-btn"
               onClick={onClose}
-              className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="p-1 rounded text-stone-500 dark:text-stone-400 hover:text-white hover:bg-stone-200/80 dark:hover:bg-stone-800/80 transition"
               title="Close Stepper"
             >
               <X className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
       </div>
 
       {/* 5-Segment Progress Buttons */}
-      <div className="px-4 pt-3 pb-2 grid grid-cols-5 gap-1.5 border-b border-slate-800/80">
+      <div className="px-4 pt-3 pb-2 grid grid-cols-5 gap-1.5 border-b border-stone-200/50 dark:border-white/10">
         {ACT_DEFINITIONS.map((def) => {
           const isActive = def.act === currentAct;
           const isDone = def.act < currentAct;
@@ -214,8 +214,8 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
                 isActive
                   ? 'bg-paypal-blue text-white border-paypal-cyan shadow-glow-paypal font-bold'
                   : isDone
-                  ? 'bg-slate-800/80 text-emerald-400 border-slate-700 font-medium'
-                  : 'bg-obsidian-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                  ? 'bg-stone-200/70 dark:bg-stone-800/80 text-emerald-400 border-stone-300/70 dark:border-white/10 font-medium'
+                  : 'bg-white/50 dark:bg-stone-950/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               <span className="text-[10px] font-mono leading-none">Act {def.act}</span>
@@ -231,13 +231,13 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
           <span className="text-[10px] uppercase font-mono tracking-wider text-paypal-cyan font-bold">
             {currentDef.headline}
           </span>
-          <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+          <p className="text-xs text-stone-600 dark:text-stone-300 mt-1 leading-relaxed">
             {currentDef.narrative}
           </p>
         </div>
 
-        <div className="p-2.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs font-mono text-slate-200 flex items-center justify-between">
-          <span className="text-slate-400 text-[11px]">Proof Moment:</span>
+        <div className="p-2.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs font-mono text-stone-700 dark:text-stone-200 flex items-center justify-between">
+          <span className="text-stone-500 dark:text-stone-400 text-[11px]">Proof Moment:</span>
           <span className="font-semibold text-paypal-cyan text-[11px] text-right truncate ml-2">
             {currentDef.keyHighlight}
           </span>
@@ -255,12 +255,12 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
       </div>
 
       {/* Stepper Footer Navigation Controls */}
-      <div className="p-3 bg-obsidian-950/80 rounded-b-2xl border-t border-slate-800 flex items-center justify-between">
+      <div className="p-3 bg-white/50 dark:bg-stone-950/80 rounded-b-2xl border-t border-stone-200/60 dark:border-white/10 flex items-center justify-between">
         <button
           type="button"
           data-testid="judge-reset-stepper-btn"
           onClick={() => resetToDemoState()}
-          className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-paypal-cyan font-mono transition"
+          className="flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400 hover:text-paypal-cyan font-mono transition"
           title="Reset entire demo workspace"
         >
           <RefreshCw className="w-3 h-3" />
@@ -273,7 +273,7 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
             data-testid="demo-prev-act-btn"
             onClick={handlePrev}
             disabled={currentAct === 1}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs disabled:opacity-30 disabled:pointer-events-none transition"
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 text-xs disabled:opacity-30 disabled:pointer-events-none transition"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Back</span>
@@ -283,7 +283,7 @@ export const DemoFlowStepper: React.FC<DemoFlowStepperProps> = ({
             data-testid="demo-next-act-btn"
             onClick={handleNext}
             disabled={currentAct === 5}
-            className="flex items-center gap-1 px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
+            className="flex items-center gap-1 px-3 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-white text-xs font-semibold disabled:opacity-30 disabled:pointer-events-none transition"
           >
             <span>Next Act</span>
             <ChevronRight className="w-3.5 h-3.5" />

@@ -171,26 +171,26 @@ export function InteractiveCashCurve({
 
   return (
     <div
-      className={`rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5 space-y-5 ${className}`}
+      className={`glass tone-glow rounded-2xl p-5 space-y-5 ${className}`}
       data-testid="interactive-cash-curve"
     >
       {/* 1. Header with live status and runway indicators */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-stone-200/60 dark:border-white/10">
         <div className="flex items-center gap-2.5">
           <TrendingUp className="w-5 h-5 text-paypal-cyan" />
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wide font-mono uppercase">
+            <h3 className="text-sm font-semibold text-stone-900 dark:text-white tracking-wide font-mono uppercase">
               Dynamic 90-Day Cash Trajectory Curve
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               Interactive financial simulation model recalculating liquidity, burn velocity, and safety breaches in real-time.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 text-xs font-mono">
-          <div className="px-3 py-1 rounded-lg bg-slate-900 border border-slate-800 flex items-center gap-1.5">
-            <span className="text-slate-400">Projected Runway:</span>
+          <div className="px-3 py-1 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-200/60 dark:border-white/10 flex items-center gap-1.5">
+            <span className="text-stone-500 dark:text-stone-400">Projected Runway:</span>
             <span className="text-emerald-400 font-bold">{projectedRunwayDays} Days</span>
           </div>
           <div
@@ -393,31 +393,31 @@ export function InteractiveCashCurve({
         {/* Hover Point Floating Tooltip */}
         {hoveredPoint && crosshairX !== null && (
           <div
-            className="absolute top-4 pointer-events-none p-3 rounded-lg bg-obsidian-950/95 border border-slate-700 shadow-2xl text-xs space-y-1 z-30"
+            className="absolute top-4 pointer-events-none p-3 rounded-lg bg-white/50 dark:bg-stone-950/95 border border-stone-300/70 dark:border-white/10 shadow-2xl text-xs space-y-1 z-30"
             style={{
               left: Math.max(16, Math.min(600, crosshairX - 80)),
             }}
           >
             <div className="flex items-center justify-between gap-4 font-mono">
-              <span className="font-bold text-white">Day {hoveredPoint.dayIndex}</span>
-              <span className="text-slate-400">{hoveredPoint.date}</span>
+              <span className="font-bold text-stone-900 dark:text-white">Day {hoveredPoint.dayIndex}</span>
+              <span className="text-stone-500 dark:text-stone-400">{hoveredPoint.date}</span>
             </div>
-            <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-800 text-[11px] font-mono">
-              <span className="text-slate-400">Balance:</span>
+            <div className="flex items-center justify-between gap-4 pt-1 border-t border-stone-200/60 dark:border-white/10 text-[11px] font-mono">
+              <span className="text-stone-500 dark:text-stone-400">Balance:</span>
               <span className="font-bold text-paypal-cyan">
                 ${hoveredPoint.balance.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 text-[11px] font-mono">
-              <span className="text-slate-400">Daily Inflow:</span>
+              <span className="text-stone-500 dark:text-stone-400">Daily Inflow:</span>
               <span className="text-emerald-400">+${hoveredPoint.inFlow.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between gap-4 text-[11px] font-mono">
-              <span className="text-slate-400">Daily Outflow:</span>
+              <span className="text-stone-500 dark:text-stone-400">Daily Outflow:</span>
               <span className="text-rose-400">-${hoveredPoint.outFlow.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between gap-4 text-[11px] font-mono">
-              <span className="text-slate-400">Status:</span>
+              <span className="text-stone-500 dark:text-stone-400">Status:</span>
               <span
                 className={`font-bold ${
                   hoveredPoint.isBreached ? 'text-rose-400' : 'text-emerald-400'
@@ -432,8 +432,8 @@ export function InteractiveCashCurve({
 
       {/* 3. Interactive Levers: 3 Sliders */}
       {showSliders && (
-        <div className="pt-3 border-t border-slate-800/80 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-white uppercase tracking-wider">
+        <div className="pt-3 border-t border-stone-200/50 dark:border-white/10 space-y-4">
+          <div className="flex items-center gap-2 text-xs font-mono font-semibold text-stone-900 dark:text-white uppercase tracking-wider">
             <Sliders className="w-4 h-4 text-paypal-cyan" />
             <span>Financial Levers & Cash Timing Controls</span>
           </div>
@@ -442,7 +442,7 @@ export function InteractiveCashCurve({
             {/* Slider 1: Upfront Deposit % */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-300">Upfront Deposit %</span>
+                <span className="text-stone-600 dark:text-stone-300">Upfront Deposit %</span>
                 <span className="text-paypal-cyan font-bold" data-testid="deposit-val">
                   {parameters.upfrontDepositPct}%
                 </span>
@@ -456,10 +456,10 @@ export function InteractiveCashCurve({
                 onChange={(e) =>
                   updateSimulationParameters({ upfrontDepositPct: Number(e.target.value) })
                 }
-                className="w-full accent-paypal-cyan bg-slate-800 h-2 rounded-lg cursor-pointer"
+                className="w-full accent-paypal-cyan bg-stone-200/70 dark:bg-stone-800/70 h-2 rounded-lg cursor-pointer"
                 data-testid="slider-deposit"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono">
                 {[0, 10, 20, 30, 50].map((val) => (
                   <button
                     key={val}
@@ -478,7 +478,7 @@ export function InteractiveCashCurve({
             {/* Slider 2: Customer Payment Delay */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-300">Client Payment Delay</span>
+                <span className="text-stone-600 dark:text-stone-300">Client Payment Delay</span>
                 <span className="text-amber-400 font-bold" data-testid="delay-val">
                   +{parameters.customerPaymentDelayDays} Days
                 </span>
@@ -492,10 +492,10 @@ export function InteractiveCashCurve({
                 onChange={(e) =>
                   updateSimulationParameters({ customerPaymentDelayDays: Number(e.target.value) })
                 }
-                className="w-full accent-amber-400 bg-slate-800 h-2 rounded-lg cursor-pointer"
+                className="w-full accent-amber-400 bg-stone-200/70 dark:bg-stone-800/70 h-2 rounded-lg cursor-pointer"
                 data-testid="slider-delay"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono">
                 {[0, 15, 30, 45, 60].map((days) => (
                   <button
                     key={days}
@@ -514,7 +514,7 @@ export function InteractiveCashCurve({
             {/* Slider 3: Milestone Split Presets */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-300">Milestone Split Preset</span>
+                <span className="text-stone-600 dark:text-stone-300">Milestone Split Preset</span>
                 <span className="text-purple-400 font-bold">
                   {parameters.milestoneSplit.join(' / ')}
                 </span>
@@ -535,7 +535,7 @@ export function InteractiveCashCurve({
                       className={`px-2 py-1.5 rounded-lg text-[10px] font-mono transition text-center border ${
                         isActive
                           ? 'bg-purple-950/60 border-purple-500 text-purple-200 font-bold shadow-sm'
-                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                          : 'bg-stone-100/80 dark:bg-stone-900/60 border-stone-200/60 dark:border-white/10 text-stone-500 dark:text-stone-400 hover:text-white hover:bg-stone-200/80 dark:hover:bg-stone-800/80'
                       }`}
                       data-testid={`preset-${preset.id}`}
                     >

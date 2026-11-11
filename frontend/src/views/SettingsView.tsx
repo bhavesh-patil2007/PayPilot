@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePayPilotStore } from '../store/usePayPilotStore';
 import { sandboxService, SandboxAuditEntry } from '../services/sandboxService';
-import { BackendHealth, getBackendHealth, normalizeApiBaseUrl } from '../services/backendApi';
 import {
   Settings,
   ShieldCheck,
@@ -48,15 +47,11 @@ export const SettingsView: React.FC = () => {
   );
 
   // Backend Endpoints
-  const [useLiveBackend, setUseLiveBackend] = useState(() => sandboxService.getConfig().useLiveBackend);
-  const [fastApiUrl, setFastApiUrl] = useState(() =>
-    sandboxService.getConfig().apiBaseUrl.replace(/\/api\/v1\/?$/, '')
-  );
+  const [useLiveBackend, setUseLiveBackend] = useState(false);
+  const [fastApiUrl, setFastApiUrl] = useState('http://localhost:8000');
   const [supabaseUrl, setSupabaseUrl] = useState('https://your-project.supabase.co');
+  const [supabaseAnonKey, setSupabaseAnonKey] = useState('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
   const [backendSaved, setBackendSaved] = useState(false);
-  const [backendHealth, setBackendHealth] = useState<BackendHealth | null>(null);
-  const [backendHealthError, setBackendHealthError] = useState<string | null>(null);
-  const [checkingBackend, setCheckingBackend] = useState(false);
 
   // Webhook Ping Test
   const [isPinging, setIsPinging] = useState(false);
@@ -144,23 +139,10 @@ export const SettingsView: React.FC = () => {
   const handleSaveBackend = () => {
     sandboxService.configure({
       useLiveBackend,
-      apiBaseUrl: normalizeApiBaseUrl(fastApiUrl),
+      apiBaseUrl: fastApiUrl,
     });
     setBackendSaved(true);
     setTimeout(() => setBackendSaved(false), 2500);
-  };
-
-  const handleCheckBackend = async () => {
-    setCheckingBackend(true);
-    setBackendHealthError(null);
-    try {
-      setBackendHealth(await getBackendHealth(fastApiUrl));
-    } catch (error) {
-      setBackendHealth(null);
-      setBackendHealthError(error instanceof Error ? error.message : 'Backend health check failed.');
-    } finally {
-      setCheckingBackend(false);
-    }
   };
 
   const handleJudgeReset = () => {
@@ -175,16 +157,16 @@ export const SettingsView: React.FC = () => {
   return (
     <div data-testid="settings-view" className="space-y-6">
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Settings & PayPal Sandbox Configuration
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Settings and sandbox
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
-              REST v2 Developer Rail
+              PayPal connection
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Configure PayPal developer credentials, adjust latency simulator physics, wire backend endpoints, or trigger a full hackathon judge reset.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Connect PayPal, tune the demo, or reset the workspace back to the starting numbers.
           </p>
         </div>
       </div>
@@ -233,7 +215,7 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowLiveWarning(false)}
-              className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[11px]"
+              className="px-3 py-1 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 font-mono text-[11px]"
             >
               Cancel (Remain in Sandbox)
             </button>
@@ -244,11 +226,11 @@ export const SettingsView: React.FC = () => {
       {/* 2. Grid: Cards 1 & 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Card 1: PayPal Sandbox Credentials */}
-        <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
             <div className="flex items-center gap-2">
               <Key className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
                 PayPal Developer Credentials
               </h3>
             </div>
@@ -261,7 +243,7 @@ export const SettingsView: React.FC = () => {
           <div className="space-y-3 text-xs">
             {/* Client ID */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Sandbox Client ID</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Sandbox Client ID</label>
               <input
                 type="text"
                 data-testid="paypal-client-id-input"
@@ -270,26 +252,26 @@ export const SettingsView: React.FC = () => {
                   setClientId(e.target.value);
                   updatePayPalConfig({ clientId: e.target.value });
                 }}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
               />
             </div>
 
             {/* Secret with toggle */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Sandbox Secret Key</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Sandbox Secret Key</label>
               <div className="relative">
                 <input
                   type={showSecret ? 'text' : 'password'}
                   data-testid="paypal-secret-input"
                   value={clientSecret}
                   onChange={(e) => setClientSecret(e.target.value)}
-                  className="w-full pl-3 pr-10 py-2 rounded-xl bg-obsidian-950 border border-slate-800 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
+                  className="w-full pl-3 pr-10 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
                 />
                 <button
                   type="button"
                   data-testid="toggle-secret-visibility"
                   onClick={() => setShowSecret(!showSecret)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-500 dark:text-stone-400 hover:text-white"
                   title={showSecret ? 'Hide Secret' : 'Show Secret'}
                 >
                   {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -299,7 +281,7 @@ export const SettingsView: React.FC = () => {
 
             {/* Environment Toggle */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Environment Rail</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Environment Rail</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -308,7 +290,7 @@ export const SettingsView: React.FC = () => {
                   className={`py-2 px-3 rounded-xl font-mono text-xs border transition flex items-center justify-center gap-1.5 ${
                     environment === 'SANDBOX'
                       ? 'bg-paypal-blue text-white border-paypal-cyan font-bold shadow-glow-paypal'
-                      : 'bg-obsidian-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                      : 'bg-white/50 dark:bg-stone-950/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
                   }`}
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -321,7 +303,7 @@ export const SettingsView: React.FC = () => {
                   className={`py-2 px-3 rounded-xl font-mono text-xs border transition flex items-center justify-center gap-1.5 ${
                     environment === 'LIVE'
                       ? 'bg-rose-950 text-rose-300 border-rose-500 font-bold'
-                      : 'bg-obsidian-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                      : 'bg-white/50 dark:bg-stone-950/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
                   }`}
                 >
                   <span className="w-2 h-2 rounded-full bg-rose-400" />
@@ -333,23 +315,23 @@ export const SettingsView: React.FC = () => {
             {/* Webhook ID & URL */}
             <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
               <div>
-                <span className="text-slate-500 block">Webhook ID</span>
-                <span className="text-slate-300">{paypalConfig.webhookId}</span>
+                <span className="text-stone-500 dark:text-stone-400 block">Webhook ID</span>
+                <span className="text-stone-600 dark:text-stone-300">{paypalConfig.webhookId}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">API Version</span>
-                <span className="text-slate-300">PayPal REST {paypalConfig.apiVersion}</span>
+                <span className="text-stone-500 dark:text-stone-400 block">API Version</span>
+                <span className="text-stone-600 dark:text-stone-300">PayPal REST {paypalConfig.apiVersion}</span>
               </div>
             </div>
 
             {/* Ping Webhook Test Button */}
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-3">
+            <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
                 data-testid="ping-webhook-btn"
                 onClick={handlePing}
                 disabled={isPinging}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-medium transition disabled:opacity-40"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-mono font-medium transition disabled:opacity-40"
               >
                 <Activity className="w-3.5 h-3.5 text-paypal-cyan" />
                 <span>{isPinging ? 'Pinging Webhook...' : 'Test Webhook Connection'}</span>
@@ -369,15 +351,15 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* Card 2: Simulator Tuning & Physics Sliders */}
-        <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
             <div className="flex items-center gap-2">
               <Sliders className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
                 Simulator Tuning & Latency Physics
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
               Interactive Latency Engine
             </span>
           </div>
@@ -386,7 +368,7 @@ export const SettingsView: React.FC = () => {
             {/* Simulated Latency */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-slate-300 text-xs font-mono">Simulated API Latency</label>
+                <label className="text-stone-600 dark:text-stone-300 text-xs font-mono">Simulated API Latency</label>
                 <span className="text-paypal-cyan font-bold font-mono">{simulatedLatency} ms</span>
               </div>
               <input
@@ -397,9 +379,9 @@ export const SettingsView: React.FC = () => {
                 step={50}
                 value={simulatedLatency}
                 onChange={(e) => handleLatencyChange(Number(e.target.value))}
-                className="w-full accent-paypal-cyan bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                className="w-full accent-paypal-cyan bg-stone-200/70 dark:bg-stone-800/70 h-1.5 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono">
                 <span>Fast (200ms)</span>
                 <span>Default (800ms)</span>
                 <span>High Latency (2000ms)</span>
@@ -409,7 +391,7 @@ export const SettingsView: React.FC = () => {
             {/* Error Rate */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-slate-300 text-xs font-mono">Simulated Network Error Rate</label>
+                <label className="text-stone-600 dark:text-stone-300 text-xs font-mono">Simulated Network Error Rate</label>
                 <span className="text-amber-400 font-bold font-mono">{networkErrorRate}%</span>
               </div>
               <input
@@ -420,9 +402,9 @@ export const SettingsView: React.FC = () => {
                 step={1}
                 value={networkErrorRate}
                 onChange={(e) => handleErrorRateChange(Number(e.target.value))}
-                className="w-full accent-amber-400 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                className="w-full accent-amber-400 bg-stone-200/70 dark:bg-stone-800/70 h-1.5 rounded-lg cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-stone-500 dark:text-stone-400 font-mono">
                 <span>0% (Clean)</span>
                 <span>10% (Flaky)</span>
                 <span>20% (Stress)</span>
@@ -430,10 +412,10 @@ export const SettingsView: React.FC = () => {
             </div>
 
             {/* Auto-credit reserve toggle */}
-            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+            <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 flex items-center justify-between">
               <div>
-                <span className="font-semibold text-white block">Auto-Credit Reserve on Dispute</span>
-                <span className="text-[10px] text-slate-400">
+                <span className="font-semibold text-stone-900 dark:text-white block">Auto-Credit Reserve on Dispute</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400">
                   Holds disputed fee amount in provisional credit reserve immediately
                 </span>
               </div>
@@ -452,26 +434,26 @@ export const SettingsView: React.FC = () => {
       {/* 3. Grid: Cards 3 & 4 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Card 3: Backend Extensibility (FastAPI & Supabase) */}
-        <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
             <div className="flex items-center gap-2">
               <Server className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
                 Backend Extensibility (FastAPI / Supabase)
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
               Future Live Deployment
             </span>
           </div>
 
           <div className="space-y-3 text-xs">
             {/* Mode Toggle */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-obsidian-950 border border-slate-800">
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10">
               <div>
-                <span className="font-semibold text-white block text-xs">Backend Execution Mode</span>
-                <span className="text-[10px] text-slate-400">
-                  {useLiveBackend ? 'API selected; PayPal actions remain simulated' : 'Standalone simulated mode'}
+                <span className="font-semibold text-stone-900 dark:text-white block text-xs">Backend Execution Mode</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400">
+                  {useLiveBackend ? 'Routing to live FastAPI server' : 'Standalone Simulated Mock Services (Default)'}
                 </span>
               </div>
               <button
@@ -481,79 +463,50 @@ export const SettingsView: React.FC = () => {
                 className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition border ${
                   useLiveBackend
                     ? 'bg-purple-950 text-purple-300 border-purple-500/50'
-                    : 'bg-slate-800 text-slate-300 border-slate-700'
+                    : 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 border-stone-300/70 dark:border-white/10'
                 }`}
               >
-                {useLiveBackend ? 'API MODE' : 'MOCK'}
+                {useLiveBackend ? 'LIVE API' : 'MOCK'}
               </button>
             </div>
 
             {/* FastAPI Base URL */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">FastAPI Backend URL</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">FastAPI Backend URL</label>
               <input
                 type="text"
                 data-testid="fastapi-url-input"
                 value={fastApiUrl}
                 onChange={(e) => setFastApiUrl(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
                 placeholder="http://localhost:8000"
               />
             </div>
 
             {/* Supabase URL */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Supabase Project URL</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Supabase Project URL</label>
               <input
                 type="text"
                 data-testid="supabase-url-input"
                 value={supabaseUrl}
                 onChange={(e) => setSupabaseUrl(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 font-mono text-xs text-white focus:outline-none focus:border-paypal-cyan"
                 placeholder="https://xyz.supabase.co"
               />
             </div>
 
-            {backendHealth && (
-              <div className="rounded-xl border border-slate-800 bg-obsidian-950 p-3 text-[10px] font-mono text-slate-300">
-                <div className="flex items-center gap-2 text-emerald-300">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> FastAPI is online ({backendHealth.environment})
-                </div>
-                <div className="mt-2 grid grid-cols-2 gap-1.5 text-slate-400">
-                  <span>Postgres: {backendHealth.database_configured ? 'configured' : 'not configured'}</span>
-                  <span>Supabase Auth: {backendHealth.supabase_auth_configured ? 'configured' : 'not configured'}</span>
-                  <span>PayPal Sandbox: {backendHealth.paypal_sandbox_configured ? 'configured' : 'not configured'}</span>
-                  <span>Webhooks: {backendHealth.paypal_webhooks_configured ? 'configured' : 'not configured'}</span>
-                </div>
-              </div>
-            )}
-            {backendHealthError && (
-              <div role="status" className="text-[10px] font-mono text-amber-300">Backend unavailable: {backendHealthError}</div>
-            )}
-
-            {/* Save and health-check controls */}
+            {/* Save Button */}
             <div className="pt-2 flex items-center justify-between">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  data-testid="save-backend-settings-btn"
-                  onClick={handleSaveBackend}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono transition"
-                >
-                  <Save className="w-3.5 h-3.5 text-paypal-cyan" />
-                  <span>Save Backend Config</span>
-                </button>
-                <button
-                  type="button"
-                  data-testid="check-backend-health-btn"
-                  onClick={handleCheckBackend}
-                  disabled={checkingBackend}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-200 text-xs font-mono transition disabled:opacity-50"
-                >
-                  <Activity className="w-3.5 h-3.5" />
-                  <span>{checkingBackend ? 'Checking...' : 'Check API'}</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                data-testid="save-backend-settings-btn"
+                onClick={handleSaveBackend}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-mono transition"
+              >
+                <Save className="w-3.5 h-3.5 text-paypal-cyan" />
+                <span>Save Backend Config</span>
+              </button>
               {backendSaved && (
                 <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
                   <Check className="w-3.5 h-3.5" /> Saved!
@@ -565,10 +518,10 @@ export const SettingsView: React.FC = () => {
 
         {/* Card 4: Hackathon Judge One-Click Demo Reset */}
         <div className="p-5 rounded-2xl bg-gradient-to-b from-obsidian-900 to-obsidian-850 border border-cyan-500/30 shadow-card-dark space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
             <div className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+              <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
                 One-Click Hackathon Judge Reset
               </h3>
             </div>
@@ -577,11 +530,11 @@ export const SettingsView: React.FC = () => {
             </span>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed">
+          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
             Instantly reset mutated Zustand state, purge claim histories, restore pristine $142,500 liquid cash reserves, re-seed all 12 recovery cases, and reset the 5-Act hackathon demo stepper to Act 1.
           </p>
 
-          <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 text-[11px] font-mono text-slate-400 space-y-1">
+          <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-[11px] font-mono text-stone-500 dark:text-stone-400 space-y-1">
             <div>• Cash Reserves: Restored to $142,500.00</div>
             <div>• Financial Runway: Restored to 94 Days</div>
             <div>• Recovery Cases: 12 cases ($18,450.00 recoverable)</div>
@@ -602,18 +555,18 @@ export const SettingsView: React.FC = () => {
       </div>
 
       {/* 4. Card 5: Sandbox REST API Audit Log Viewer */}
-      <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-paypal-cyan" />
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+            <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
               PayPal Sandbox REST API Audit Trail ({auditTrail.length} Events)
             </h3>
           </div>
           <button
             type="button"
             onClick={() => setShowAuditLogs(!showAuditLogs)}
-            className="text-[11px] font-mono text-slate-400 hover:text-white"
+            className="text-[11px] font-mono text-stone-500 dark:text-stone-400 hover:text-white"
           >
             {showAuditLogs ? 'Hide Logs' : 'Show Logs'}
           </button>
@@ -627,16 +580,16 @@ export const SettingsView: React.FC = () => {
             {auditTrail.map((log) => (
               <div
                 key={log.id}
-                className="p-2.5 rounded-lg bg-obsidian-950 border border-slate-800 flex items-center justify-between text-slate-300"
+                className="p-2.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between text-stone-600 dark:text-stone-300"
               >
                 <div className="flex items-center gap-3">
                   <span className="px-1.5 py-0.2 rounded bg-paypal-blue/30 text-paypal-cyan font-bold text-[10px]">
                     {log.action}
                   </span>
-                  <span className="text-slate-400">{log.endpoint}</span>
-                  <span className="text-slate-500 hidden sm:inline">[{log.targetId}]</span>
+                  <span className="text-stone-500 dark:text-stone-400">{log.endpoint}</span>
+                  <span className="text-stone-500 dark:text-stone-400 hidden sm:inline">[{log.targetId}]</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-400 text-[10px]">
+                <div className="flex items-center gap-3 text-stone-500 dark:text-stone-400 text-[10px]">
                   <span className="text-emerald-400 font-bold">{log.httpStatus} OK</span>
                   <span>{log.latencyMs}ms</span>
                   <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
@@ -645,7 +598,7 @@ export const SettingsView: React.FC = () => {
             ))}
 
             {auditTrail.length === 0 && (
-              <div className="p-4 text-center text-xs text-slate-500 bg-obsidian-950 rounded-lg">
+              <div className="p-4 text-center text-xs text-stone-500 dark:text-stone-400 bg-white/50 dark:bg-stone-950/60 rounded-lg">
                 No simulated sandbox API calls recorded yet. Execute a claim or ping the webhook to generate audit entries.
               </div>
             )}

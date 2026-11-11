@@ -118,22 +118,22 @@ export const VerifiedRecoveryFunnel: React.FC<VerifiedRecoveryFunnelProps> = ({
   return (
     <div
       data-testid="verified-recovery-funnel"
-      className={`p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4 ${className}`}
+      className={`glass tone-glow rounded-2xl p-5 space-y-4 ${className}`}
     >
       {/* Funnel Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/50 dark:border-white/10 pb-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-paypal-blue/20 border border-paypal-cyan/30 flex items-center justify-center text-paypal-cyan">
             <Layers className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-stone-900 dark:text-white tracking-tight flex items-center gap-2">
               Verified Recovery Funnel
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 font-mono">
                 Live Pipeline
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-stone-500 dark:text-stone-400">
               Click any stage card to filter the Recovery Inbox table below
             </p>
           </div>
@@ -142,15 +142,15 @@ export const VerifiedRecoveryFunnel: React.FC<VerifiedRecoveryFunnelProps> = ({
         {/* Global Pipeline Conversion KPI */}
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <div className="text-[11px] text-slate-400">Total Conversion</div>
+            <div className="text-[11px] text-stone-500 dark:text-stone-400">Total Conversion</div>
             <div className="text-base font-bold font-mono text-fintech-green">
               {recoveryFunnelMetrics.conversionRatePct.toFixed(1)}%
             </div>
           </div>
-          <div className="h-8 w-px bg-slate-800" />
+          <div className="h-8 w-px bg-stone-200/70 dark:bg-stone-800/70" />
           <div className="text-right">
-            <div className="text-[11px] text-slate-400">Recovered / Identified</div>
-            <div className="text-xs font-mono font-semibold text-white">
+            <div className="text-[11px] text-stone-500 dark:text-stone-400">Recovered / Identified</div>
+            <div className="text-xs font-mono font-semibold text-stone-900 dark:text-white">
               ${recoveryFunnelMetrics.recoveredAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / ${recoveryFunnelMetrics.identifiedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
@@ -191,13 +191,13 @@ export const VerifiedRecoveryFunnel: React.FC<VerifiedRecoveryFunnelProps> = ({
                 </div>
               </div>
 
-              <div className="text-xs font-medium text-slate-300">{stage.label}</div>
-              <div className="text-xl font-bold font-mono text-white mt-1">
+              <div className="text-xs font-medium text-stone-600 dark:text-stone-300">{stage.label}</div>
+              <div className="text-xl font-bold font-mono text-stone-900 dark:text-white mt-1">
                 ${stage.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
 
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/60 text-[11px]">
-                <span className="text-slate-400">
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-stone-200/60 dark:border-white/10 text-[11px]">
+                <span className="text-stone-500 dark:text-stone-400">
                   <strong className="text-white font-mono">{stage.count}</strong> cases
                 </span>
                 {isActive ? (
@@ -205,7 +205,7 @@ export const VerifiedRecoveryFunnel: React.FC<VerifiedRecoveryFunnelProps> = ({
                     FILTER APPLIED
                   </span>
                 ) : (
-                  <span className="text-[10px] text-slate-500 group-hover:text-slate-300 font-mono transition">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:hover:text-stone-100 font-mono transition">
                     Filter ➔
                   </span>
                 )}
@@ -216,7 +216,7 @@ export const VerifiedRecoveryFunnel: React.FC<VerifiedRecoveryFunnelProps> = ({
       </div>
 
       {/* Inter-stage conversion visual bar */}
-      <div className="hidden md:flex items-center justify-between px-6 py-2 rounded-lg bg-obsidian-950/60 border border-slate-800/60 text-[11px] text-slate-400 font-mono">
+      <div className="hidden md:flex items-center justify-between px-6 py-2 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-[11px] text-stone-500 dark:text-stone-400 font-mono">
         <span className="flex items-center gap-1.5">
           <span>Identified</span>
           <ChevronRight className="w-3 h-3 text-slate-600" />

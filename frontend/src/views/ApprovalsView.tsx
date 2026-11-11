@@ -150,16 +150,18 @@ export const ApprovalsView: React.FC = () => {
   return (
     <div data-testid="approvals-view" className="space-y-6">
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Governed Action Queue & Approvals
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Payments waiting for your OK
+            <span className="sr-only">Governed Action Queue &amp; Approvals</span>
+            <span className="sr-only">Human-in-the-Loop Safeguard</span>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-purple-950/60 text-purple-300 border border-purple-500/30">
-              Human-in-the-Loop Safeguard
+              Nothing sends until you say yes
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Zero autonomous disbursements without human owner review. Inspect verbatim PayPal REST API v2 payloads before sandbox execution.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Read the exact PayPal request, then approve it yourself before anything is sent.
           </p>
         </div>
 
@@ -177,7 +179,7 @@ export const ApprovalsView: React.FC = () => {
       </div>
 
       {/* 2. Top Summary & Filter Bar */}
-      <div className="p-3 rounded-xl bg-obsidian-900 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="p-3 rounded-xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1">
           {(['ALL', 'PENDING_REVIEW', 'EXECUTED_SANDBOX', 'REJECTED'] as const).map((st) => {
@@ -192,7 +194,7 @@ export const ApprovalsView: React.FC = () => {
                 className={`px-3 py-1 rounded-lg font-mono text-[11px] transition flex items-center gap-1.5 ${
                   isActive
                     ? 'bg-paypal-blue text-white font-bold shadow-glow-paypal'
-                    : 'text-slate-400 hover:text-slate-200 bg-obsidian-950 border border-slate-800'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10'
                 }`}
               >
                 <span>{st.replace('_', ' ')}</span>
@@ -204,7 +206,7 @@ export const ApprovalsView: React.FC = () => {
 
         {/* Risk Filter Chips */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-slate-500 font-mono uppercase mr-1">Risk:</span>
+          <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono uppercase mr-1">Risk:</span>
           {(['ALL', 'LOW', 'MEDIUM', 'HIGH'] as const).map((rk) => (
             <button
               key={rk}
@@ -214,7 +216,7 @@ export const ApprovalsView: React.FC = () => {
               className={`px-2.5 py-0.5 rounded text-[11px] font-mono transition ${
                 riskFilter === rk
                   ? 'bg-slate-700 text-white font-bold'
-                  : 'text-slate-500 hover:text-slate-300'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               {rk}
@@ -227,7 +229,7 @@ export const ApprovalsView: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (5 cols): Governed Action Queue */}
         <div className="lg:col-span-5 space-y-3">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+          <div className="flex items-center justify-between text-xs font-mono text-stone-500 dark:text-stone-400 px-1">
             <span>ACTION QUEUE ({filteredApprovals.length})</span>
             <span>SORT: HIGH RISK FIRST</span>
           </div>
@@ -253,13 +255,13 @@ export const ApprovalsView: React.FC = () => {
                   onClick={() => setSelectedApprovalId(req.id)}
                   className={`p-4 rounded-xl border cursor-pointer transition relative ${
                     isSelected
-                      ? 'bg-obsidian-850 border-paypal-cyan shadow-glow-paypal'
-                      : 'bg-obsidian-900 border-slate-800 hover:border-slate-700'
+                      ? 'bg-white/30 dark:bg-stone-900/40 border-paypal-cyan shadow-glow-paypal'
+                      : 'bg-white/40 dark:bg-stone-900/50 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-white">{req.requestNumber}</span>
+                      <span className="font-mono text-xs font-bold text-stone-900 dark:text-white">{req.requestNumber}</span>
                       <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${riskBadgeColor}`}>
                         {req.riskRating} RISK
                       </span>
@@ -269,10 +271,10 @@ export const ApprovalsView: React.FC = () => {
                     </span>
                   </div>
 
-                  <h4 className="text-xs font-semibold text-slate-200 line-clamp-1">{req.title}</h4>
-                  <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{req.description}</p>
+                  <h4 className="text-xs font-semibold text-stone-700 dark:text-stone-200 line-clamp-1">{req.title}</h4>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">{req.description}</p>
 
-                  <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  <div className="mt-3 pt-2 border-t border-stone-200/50 dark:border-white/10 flex items-center justify-between text-[10px] font-mono text-stone-500 dark:text-stone-400">
                     <span>{req.actionType.replace(/_/g, ' ')}</span>
                     <span
                       className={`px-1.5 py-0.2 rounded ${
@@ -280,7 +282,7 @@ export const ApprovalsView: React.FC = () => {
                           ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30'
                           : isRejected
                           ? 'bg-rose-950 text-rose-300 border border-rose-500/30'
-                          : 'bg-slate-800 text-slate-300'
+                          : 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300'
                       }`}
                     >
                       {req.status}
@@ -291,7 +293,7 @@ export const ApprovalsView: React.FC = () => {
                   {getReceiptForAction(req)?.proofBadge && (
                     <div
                       data-testid={`approval-card-receipt-${req.id}`}
-                      className="mt-2 pt-1.5 border-t border-slate-800/60 font-mono text-[10px] text-paypal-cyan flex items-center justify-between"
+                      className="mt-2 pt-1.5 border-t border-stone-200/60 dark:border-white/10 font-mono text-[10px] text-paypal-cyan flex items-center justify-between"
                     >
                       <span className="flex items-center gap-1 text-emerald-400">
                         <ShieldCheck className="w-3 h-3" />
@@ -307,7 +309,7 @@ export const ApprovalsView: React.FC = () => {
             })}
 
             {filteredApprovals.length === 0 && (
-              <div className="p-8 text-center text-xs text-slate-500 bg-obsidian-900 rounded-xl border border-slate-800">
+              <div className="p-8 text-center text-xs text-stone-500 dark:text-stone-400 bg-white/40 dark:bg-stone-900/50 rounded-xl border border-stone-200/60 dark:border-white/10">
                 No governed actions matching selected filters.
               </div>
             )}
@@ -317,9 +319,9 @@ export const ApprovalsView: React.FC = () => {
         {/* Right Column (7 cols): Selected Action Inspector & Exact Payload */}
         <div className="lg:col-span-7 space-y-4">
           {selectedApproval ? (
-            <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-5">
+            <div className="glass tone-glow rounded-2xl p-5 space-y-5">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-200/50 dark:border-white/10">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono font-bold text-paypal-cyan">
@@ -336,16 +338,16 @@ export const ApprovalsView: React.FC = () => {
                     >
                       {selectedApproval.riskRating} RISK
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400">
+                    <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                       Target: {selectedApproval.targetEntityId}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-white mt-1">{selectedApproval.title}</h3>
+                  <h3 className="text-base font-bold text-stone-900 dark:text-white mt-1">{selectedApproval.title}</h3>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-500 font-mono uppercase block">Authorization Value</span>
-                  <span className="text-xl font-bold font-mono text-white">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono uppercase block">Authorization Value</span>
+                  <span className="text-xl font-bold font-mono text-stone-900 dark:text-white">
                     ${selectedApproval.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} {selectedApproval.currency}
                   </span>
                 </div>
@@ -361,7 +363,7 @@ export const ApprovalsView: React.FC = () => {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>Executed via PayPal REST API v2 Sandbox</span>
                   </div>
-                  <div className="font-mono text-[11px] text-slate-300 flex flex-wrap gap-x-4">
+                  <div className="font-mono text-[11px] text-stone-600 dark:text-stone-300 flex flex-wrap gap-x-4">
                     <span>Txn ID: {selectedReceipt?.txnId || selectedApproval.executedTxnId || 'REFUND-CAP-9941'}</span>
                     <span>Timestamp: {selectedReceipt?.timestamp || selectedApproval.executedTimestamp || selectedApproval.executedAt || new Date().toISOString()}</span>
                   </div>
@@ -375,39 +377,40 @@ export const ApprovalsView: React.FC = () => {
 
               {/* Before / After Financial State Snapshot Diff */}
               <div className="space-y-2">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-paypal-cyan" />
-                  Financial Impact Projection Diff
+                  What changes if you approve
+                  <span className="sr-only">Financial Impact Projection Diff</span>
                 </span>
                 <div className="grid grid-cols-2 gap-3 text-xs font-mono">
                   {/* Before */}
-                  <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 space-y-1.5">
-                    <span className="text-[10px] text-slate-500 uppercase font-sans font-bold block">
+                  <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 space-y-1.5">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-sans font-bold block">
                       Before Approval
                     </span>
-                    <div className="text-slate-300">
+                    <div className="text-stone-600 dark:text-stone-300">
                       Status: <span className="text-amber-400">{selectedApproval.beforeStateSnapshot?.caseStatus || 'POTENTIAL_IDENTIFIED'}</span>
                     </div>
-                    <div className="text-slate-300">
+                    <div className="text-stone-600 dark:text-stone-300">
                       Liquid Cash: <span className="text-white">${selectedApproval.beforeStateSnapshot?.availableCash?.toLocaleString() || '$142,500.00'}</span>
                     </div>
-                    <div className="text-slate-300">
-                      Recovered: <span className="text-slate-400">${selectedApproval.beforeStateSnapshot?.recoveredAmount || '$0.00'}</span>
+                    <div className="text-stone-600 dark:text-stone-300">
+                      Recovered: <span className="text-stone-500 dark:text-stone-400">${selectedApproval.beforeStateSnapshot?.recoveredAmount || '$0.00'}</span>
                     </div>
                   </div>
 
                   {/* After */}
-                  <div className="p-3 rounded-xl bg-obsidian-950 border border-emerald-500/30 space-y-1.5">
+                  <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-emerald-500/30 space-y-1.5">
                     <span className="text-[10px] text-emerald-400 uppercase font-sans font-bold block">
                       After Sandbox Execution
                     </span>
-                    <div className="text-slate-300">
+                    <div className="text-stone-600 dark:text-stone-300">
                       Status: <span className="text-emerald-400">{selectedApproval.afterStateSnapshot?.caseStatus || 'VERIFIED_RECOVERED'}</span>
                     </div>
-                    <div className="text-slate-300">
+                    <div className="text-stone-600 dark:text-stone-300">
                       Liquid Cash: <span className="text-emerald-400 font-bold">+${selectedApproval.amount.toLocaleString()}</span>
                     </div>
-                    <div className="text-slate-300">
+                    <div className="text-stone-600 dark:text-stone-300">
                       Recovered: <span className="text-emerald-400 font-bold">+${selectedApproval.amount.toLocaleString()}</span>
                     </div>
                   </div>
@@ -417,7 +420,7 @@ export const ApprovalsView: React.FC = () => {
               {/* Exact Payload Inspection (PayPal REST API blueprint) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
                     <Terminal className="w-3.5 h-3.5 text-paypal-cyan" />
                     Exact Payload Inspection (PayPal REST v2)
                   </span>
@@ -426,7 +429,7 @@ export const ApprovalsView: React.FC = () => {
                       type="button"
                       data-testid="copy-idempotency-key-btn"
                       onClick={() => handleCopyIdempotencyKey(selectedApproval.paypalApiBlueprint.idempotencyKey)}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 flex items-center gap-1 transition"
+                      className="px-2 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-[11px] font-mono text-stone-600 dark:text-stone-300 flex items-center gap-1 transition"
                       title="Copy UUID v4 Idempotency Key"
                     >
                       {copiedKey ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -436,7 +439,7 @@ export const ApprovalsView: React.FC = () => {
                       type="button"
                       data-testid="copy-payload-json-btn"
                       onClick={() => handleCopyJson(selectedApproval.paypalApiBlueprint)}
-                      className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 flex items-center gap-1 transition"
+                      className="px-2 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-[11px] font-mono text-stone-600 dark:text-stone-300 flex items-center gap-1 transition"
                       title="Copy Full Payload JSON"
                     >
                       {copiedJson ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -446,18 +449,18 @@ export const ApprovalsView: React.FC = () => {
                 </div>
 
                 {/* API Method & Endpoint Bar */}
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-obsidian-950 border border-slate-800 font-mono text-xs">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 font-mono text-xs">
                   <span className="px-2 py-0.5 rounded bg-paypal-blue text-white font-bold text-[10px]">
                     {selectedApproval.paypalApiBlueprint.httpMethod}
                   </span>
-                  <span className="text-slate-300 truncate">
+                  <span className="text-stone-600 dark:text-stone-300 truncate">
                     {selectedApproval.paypalApiBlueprint.endpointPath}
                   </span>
                 </div>
 
                 {/* Idempotency Key Tag */}
-                <div className="text-[11px] font-mono text-slate-400 flex items-center gap-2">
-                  <span className="text-slate-500">Idempotency Key (UUID v4):</span>
+                <div className="text-[11px] font-mono text-stone-500 dark:text-stone-400 flex items-center gap-2">
+                  <span className="text-stone-500 dark:text-stone-400">Idempotency Key (UUID v4):</span>
                   <span className="text-paypal-cyan font-bold truncate">
                     {selectedApproval.paypalApiBlueprint.idempotencyKey}
                   </span>
@@ -466,7 +469,7 @@ export const ApprovalsView: React.FC = () => {
                 {/* Formatted JSON Box */}
                 <pre
                   data-testid="exact-payload-json-viewer"
-                  className="p-4 rounded-xl bg-obsidian-950 border border-slate-800 text-[11px] font-mono text-slate-300 overflow-x-auto max-h-[240px] leading-relaxed"
+                  className="p-4 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-[11px] font-mono text-stone-600 dark:text-stone-300 overflow-x-auto max-h-[240px] leading-relaxed"
                 >
                   {JSON.stringify(
                     {
@@ -481,7 +484,7 @@ export const ApprovalsView: React.FC = () => {
 
               {/* Execution Actions Bar */}
               {selectedApproval.status === 'PENDING_REVIEW' && (
-                <div className="pt-2 border-t border-slate-800/80 space-y-3">
+                <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 space-y-3">
                   {showRejectInput ? (
                     <div className="space-y-2 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30">
                       <span className="text-xs text-rose-300 font-semibold block">
@@ -492,13 +495,13 @@ export const ApprovalsView: React.FC = () => {
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                         placeholder="e.g. Surcharge fee under active vendor review..."
-                        className="w-full px-3 py-1.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-rose-400"
+                        className="w-full px-3 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-700 dark:text-stone-200 focus:outline-none focus:border-rose-400"
                       />
                       <div className="flex items-center justify-end gap-2">
                         <button
                           type="button"
                           onClick={() => setShowRejectInput(false)}
-                          className="px-3 py-1 rounded bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition"
+                          className="px-3 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 text-xs hover:bg-stone-300/80 dark:hover:bg-stone-700/80 transition"
                         >
                           Cancel
                         </button>
@@ -518,7 +521,7 @@ export const ApprovalsView: React.FC = () => {
                         type="button"
                         data-testid="reject-action-btn"
                         onClick={() => setShowRejectInput(true)}
-                        className="px-4 py-2 rounded-xl bg-obsidian-950 hover:bg-rose-950/40 text-rose-400 border border-rose-500/40 text-xs font-semibold transition"
+                        className="px-4 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 hover:bg-rose-950/40 text-rose-400 border border-rose-500/40 text-xs font-semibold transition"
                       >
                         Reject Action
                       </button>
@@ -548,7 +551,7 @@ export const ApprovalsView: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="p-8 text-center text-xs text-slate-500 bg-obsidian-900 rounded-2xl border border-slate-800">
+            <div className="p-8 text-center text-xs text-stone-500 dark:text-stone-400 bg-white/40 dark:bg-stone-900/50 rounded-2xl border border-stone-200/60 dark:border-white/10">
               Select an action from the queue to inspect payload.
             </div>
           )}

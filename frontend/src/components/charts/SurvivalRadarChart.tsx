@@ -85,11 +85,11 @@ export function SurvivalRadarChart({
 
   return (
     <div
-      className={`rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4 flex flex-col items-center relative ${className}`}
+      className={`glass tone-glow rounded-2xl p-5 flex flex-col items-center relative ${className}`}
       data-testid="survival-radar-chart"
     >
       {/* Legend & Summary Bar */}
-      <div className="w-full flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-mono">
+      <div className="w-full flex items-center justify-between pb-2 border-b border-stone-200/60 dark:border-white/10 text-xs font-mono">
         <div className="flex items-center gap-2">
           <Radar className="w-4 h-4 text-paypal-cyan" />
           <span className="text-white font-semibold uppercase tracking-wider">
@@ -99,11 +99,11 @@ export function SurvivalRadarChart({
         <div className="flex items-center gap-4 text-[11px]">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-paypal-cyan" />
-            <span className="text-slate-300">PayPilot Score</span>
+            <span className="text-stone-600 dark:text-stone-300">PayPilot Score</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-0.5 border-b-2 border-dashed border-slate-400" />
-            <span className="text-slate-400">SMB Benchmark</span>
+            <span className="text-stone-500 dark:text-stone-400">SMB Benchmark</span>
           </div>
         </div>
       </div>
@@ -251,20 +251,20 @@ export function SurvivalRadarChart({
         {/* Hover Tooltip */}
         {hoveredDimension && tooltipPos && (
           <div
-            className="fixed z-50 p-3 rounded-lg bg-obsidian-950/95 border border-slate-700 shadow-2xl text-xs space-y-1.5 pointer-events-none max-w-xs"
+            className="fixed z-50 p-3 rounded-lg bg-white/50 dark:bg-stone-950/95 border border-stone-300/70 dark:border-white/10 shadow-2xl text-xs space-y-1.5 pointer-events-none max-w-xs"
             style={{ left: tooltipPos.x + 12, top: tooltipPos.y + 12 }}
           >
-            <div className="font-semibold text-white">{hoveredDimension.name}</div>
-            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800 font-mono">
-              <span className="text-slate-400">Current Score:</span>
+            <div className="font-semibold text-stone-900 dark:text-white">{hoveredDimension.name}</div>
+            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-stone-200/60 dark:border-white/10 font-mono">
+              <span className="text-stone-500 dark:text-stone-400">Current Score:</span>
               <span className="font-bold text-paypal-cyan">{hoveredDimension.score} / 100</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-slate-400">Industry Benchmark:</span>
-              <span className="text-slate-300">{hoveredDimension.industryBenchmark} / 100</span>
+              <span className="text-stone-500 dark:text-stone-400">Industry Benchmark:</span>
+              <span className="text-stone-600 dark:text-stone-300">{hoveredDimension.industryBenchmark} / 100</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-slate-400">Variance:</span>
+              <span className="text-stone-500 dark:text-stone-400">Variance:</span>
               <span
                 className={`font-bold ${
                   hoveredDimension.score >= hoveredDimension.industryBenchmark
@@ -276,7 +276,7 @@ export function SurvivalRadarChart({
                 {hoveredDimension.score - hoveredDimension.industryBenchmark} pts
               </span>
             </div>
-            <div className="text-[11px] text-slate-300 pt-1 border-t border-slate-800">
+            <div className="text-[11px] text-stone-600 dark:text-stone-300 pt-1 border-t border-stone-200/60 dark:border-white/10">
               {hoveredDimension.riskFactorSummary}
             </div>
           </div>
@@ -284,8 +284,8 @@ export function SurvivalRadarChart({
       </div>
 
       {/* Composite Survival Index Pill */}
-      <div className="w-full mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
-        <span className="text-slate-400">Composite Survival Rating:</span>
+      <div className="w-full mt-2 pt-2 border-t border-stone-200/60 dark:border-white/10 flex items-center justify-between text-xs font-mono">
+        <span className="text-stone-500 dark:text-stone-400">Composite Survival Rating:</span>
         <span className="text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/40 border border-emerald-500/30">
           {overallSurvivalIndex} / 100 (Resilient Tier)
         </span>

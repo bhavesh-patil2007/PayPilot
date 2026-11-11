@@ -9,5 +9,5 @@ export { UdhariLedgerView } from './UdhariLedgerView';
 export { CopilotView } from './CopilotView';
 export { ApprovalsView } from './ApprovalsView';
 export { TeamSharingView } from './TeamSharingView';
-export { SettingsView } from './SettingsView';
 export { SponsorIntegrationsView } from './SponsorIntegrationsView';
+export { SettingsView } from './SettingsView';

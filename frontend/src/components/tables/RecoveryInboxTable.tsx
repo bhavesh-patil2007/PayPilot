@@ -147,8 +147,8 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
           if (!params.data) return null;
           return (
             <div className="flex flex-col justify-center h-full">
-              <span className="font-mono font-semibold text-white text-xs">{params.value}</span>
-              <span className="font-mono text-[10px] text-slate-400">{params.data.id}</span>
+              <span className="font-mono font-semibold text-stone-900 dark:text-white text-xs">{params.value}</span>
+              <span className="font-mono text-[10px] text-stone-500 dark:text-stone-400">{params.data.id}</span>
             </div>
           );
         },
@@ -160,8 +160,8 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
         sortable: true,
         filter: 'agDateColumnFilter',
         cellRenderer: (params: ICellRendererParams<RecoveryCase>) => (
-          <div className="flex items-center gap-1.5 text-xs text-slate-300 font-mono h-full">
-            <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-300 font-mono h-full">
+            <Calendar className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
             <span>{params.value}</span>
           </div>
         ),
@@ -174,7 +174,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
         filter: 'agTextColumnFilter',
         cellRenderer: (params: ICellRendererParams<RecoveryCase>) => {
           const provider = params.value;
-          let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+          let badgeClass = 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 border-stone-300/70 dark:border-white/10';
           if (provider === 'PayPal') badgeClass = 'bg-paypal-blue/20 text-paypal-cyan border-paypal-cyan/30';
           else if (provider === 'Stripe') badgeClass = 'bg-purple-950/60 text-purple-300 border-purple-500/30';
           else if (provider === 'Chase') badgeClass = 'bg-blue-950/60 text-blue-300 border-blue-500/30';
@@ -206,7 +206,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
             SUBSCRIPTION_OVERBILLING: { label: 'Sub Overbilling', color: 'bg-orange-950/60 text-orange-300 border-orange-500/30' },
             TIER_MISMATCH_SURCHARGE: { label: 'Tier Mismatch', color: 'bg-sky-950/60 text-sky-300 border-sky-500/30' },
           };
-          const mapped = labels[cat] || { label: cat, color: 'bg-slate-800 text-slate-300 border-slate-700' };
+          const mapped = labels[cat] || { label: cat, color: 'bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 border-stone-300/70 dark:border-white/10' };
 
           return (
             <div className="flex items-center h-full" title={params.data?.title}>
@@ -254,7 +254,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
 
           return (
             <div className="flex items-center gap-2 h-full">
-              <div className="w-14 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-14 h-1.5 rounded-full bg-stone-200/70 dark:bg-stone-800/70 overflow-hidden">
                 <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(100, Math.max(0, score))}%` }} />
               </div>
               <span className={`text-[11px] font-mono font-semibold ${textColor}`}>{score}%</span>
@@ -327,7 +327,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
               <button
                 type="button"
                 onClick={() => openExplainability(caseItem.explainability?.ruleId || 'RULE-DUP-FEE-02', caseItem.id)}
-                className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
+                className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 hover:text-white border border-stone-300/70 dark:border-white/10 transition"
                 title="Inspect detection formula, linked records, and PayPal API payload"
               >
                 <HelpCircle className="w-3 h-3 text-paypal-cyan" />
@@ -354,7 +354,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
                   )}
                 </button>
               ) : (
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                   {caseItem.status === 'VERIFIED_RECOVERED' ? 'Settled' : 'Pending'}
                 </span>
               )}
@@ -372,23 +372,23 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
   return (
     <div data-testid="recovery-inbox-table" className={`space-y-4 ${className}`}>
       {/* Filtering Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-obsidian-900 border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10">
         <div className="flex items-center gap-2.5 flex-1 min-w-[280px]">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-stone-500 dark:text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by Case ID, Rule, or Discrepancy Title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition"
+              className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition"
             />
           </div>
 
           <select
             value={providerFilter}
             onChange={(e) => setProviderFilter(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-paypal-cyan"
+            className="px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-600 dark:text-stone-300 focus:outline-none focus:border-paypal-cyan"
           >
             <option value="ALL">All Providers</option>
             <option value="PayPal">PayPal</option>
@@ -400,7 +400,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-2.5 py-1.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-paypal-cyan"
+            className="px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-600 dark:text-stone-300 focus:outline-none focus:border-paypal-cyan"
           >
             <option value="ALL">All Categories</option>
             <option value="DUPLICATE_PROCESSING_FEE">Duplicate Processing Fee</option>
@@ -441,7 +441,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-paypal-blue text-white font-mono text-xs font-bold">
               {selectedRows.length}
             </span>
-            <span className="text-xs text-slate-300">Selected for automated recovery:</span>
+            <span className="text-xs text-stone-600 dark:text-stone-300">Selected for automated recovery:</span>
             <span className="font-mono font-bold text-fintech-green text-sm">
               ${selectedTotalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
@@ -451,7 +451,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
             <button
               type="button"
               onClick={clearSelection}
-              className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+              className="px-3 py-1.5 rounded-lg text-xs text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 transition"
             >
               Clear Selection
             </button>
@@ -478,7 +478,7 @@ export const RecoveryInboxTable: React.FC<RecoveryInboxTableProps> = ({
       )}
 
       {/* AG Grid Table Container */}
-      <div className="ag-theme-quartz-dark w-full h-[560px] rounded-xl overflow-hidden border border-slate-800 shadow-card-dark bg-obsidian-900">
+      <div className="ag-theme-quartz-dark w-full h-[560px] rounded-xl overflow-hidden border border-stone-200/60 dark:border-white/10 shadow-card-dark bg-white/40 dark:bg-stone-900/50">
         <AgGridReact<RecoveryCase>
           rowData={filteredData}
           columnDefs={columnDefs}

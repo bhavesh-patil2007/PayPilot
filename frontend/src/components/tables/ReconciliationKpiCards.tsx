@@ -19,13 +19,13 @@ export const ReconciliationKpiCards: React.FC<{ className?: string }> = ({ class
       {/* 1. Total Volume Reconciled */}
       <div
         data-testid="kpi-total-volume"
-        className="p-4 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark"
+        className="glass tone-glow rounded-2xl p-5"
       >
-        <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+        <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-medium">
           <span>Total Volume Reconciled</span>
           <Layers className="w-4 h-4 text-fintech-green" />
         </div>
-        <div className="text-2xl font-bold text-white font-mono mt-1">
+        <div className="text-2xl font-bold text-stone-900 dark:text-white font-mono mt-1">
           ${(reconciliationSummary.totalReconciledVolume / 1000).toFixed(1)}k
         </div>
         <div className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
@@ -36,16 +36,16 @@ export const ReconciliationKpiCards: React.FC<{ className?: string }> = ({ class
       {/* 2. Matched Precision Rate */}
       <div
         data-testid="kpi-matched-precision"
-        className="p-4 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark"
+        className="glass tone-glow rounded-2xl p-5"
       >
-        <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+        <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-medium">
           <span>Matched Precision Rate</span>
           <Sparkles className="w-4 h-4 text-paypal-cyan" />
         </div>
         <div className="text-2xl font-bold text-paypal-cyan font-mono mt-1">
           {reconciliationSummary.autoMatchPrecisionPct}%
         </div>
-        <div className="text-[11px] text-slate-400 mt-1">
+        <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
           AI confidence threshold &gt;= 95%
         </div>
       </div>
@@ -53,16 +53,16 @@ export const ReconciliationKpiCards: React.FC<{ className?: string }> = ({ class
       {/* 3. Active Discrepancies */}
       <div
         data-testid="kpi-active-discrepancies"
-        className="p-4 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark"
+        className="glass tone-glow rounded-2xl p-5"
       >
-        <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+        <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-medium">
           <span>Active Discrepancies</span>
           <AlertTriangle className="w-4 h-4 text-rose-400" />
         </div>
         <div className="text-2xl font-bold text-rose-400 font-mono mt-1">
           ${reconciliationSummary.totalDiscrepancyAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
-        <div className="text-[11px] text-slate-400 mt-1">
+        <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
           {reconciliationSummary.unresolvedCount} records flagged for review
         </div>
       </div>
@@ -70,16 +70,16 @@ export const ReconciliationKpiCards: React.FC<{ className?: string }> = ({ class
       {/* 4. Unmatched Orphans */}
       <div
         data-testid="kpi-unmatched-orphans"
-        className="p-4 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark"
+        className="glass tone-glow rounded-2xl p-5"
       >
-        <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+        <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-medium">
           <span>Unmatched Orphans</span>
           <HelpCircle className="w-4 h-4 text-amber-400" />
         </div>
         <div className="text-2xl font-bold text-amber-400 font-mono mt-1">
           {orphanCount} records
         </div>
-        <div className="text-[11px] text-slate-400 mt-1">
+        <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
           Missing bank feed or invoice counterpart
         </div>
       </div>

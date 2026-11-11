@@ -8,6 +8,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: 'var(--background)',
+        foreground: {
+          DEFAULT: 'var(--foreground)',
+          90: 'color-mix(in srgb, var(--foreground) 90%, transparent)',
+          80: 'color-mix(in srgb, var(--foreground) 80%, transparent)',
+          70: 'color-mix(in srgb, var(--foreground) 70%, transparent)',
+        },
+        'muted-foreground': 'var(--muted-foreground)',
+        copper: '#D97706',
         obsidian: {
           950: '#06090e',
           900: '#0a0f18',
@@ -23,6 +32,28 @@ export default {
           cyan: '#00cfde',
           light: '#e6f4fc',
         },
+        brand: {
+          DEFAULT: '#D97706',
+          50: '#fffbeb',
+          100: '#fef3c7',
+          500: '#D97706',
+          600: '#b45309',
+        },
+        safe: {
+          DEFAULT: '#10B981',
+          500: '#10B981',
+          600: '#059669',
+        },
+        risk: {
+          DEFAULT: '#E11D48',
+          500: '#E11D48',
+          600: '#be123c',
+        },
+        warning: {
+          DEFAULT: '#F59E0B',
+          500: '#F59E0B',
+          600: '#d97706',
+        },
         fintech: {
           green: '#10b981',
           emerald: '#059669',
@@ -36,6 +67,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Sora', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       boxShadow: {
@@ -44,6 +76,9 @@ export default {
         'glow-green': '0 0 20px -5px rgba(16, 185, 129, 0.4)',
         'glow-purple': '0 0 20px -5px rgba(139, 92, 246, 0.4)',
         'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        'glow-brand': '0 0 20px -5px rgba(217, 119, 6, 0.4)',
+        'glow-safe': '0 0 20px -5px rgba(16, 185, 129, 0.4)',
+        'glow-risk': '0 0 20px -5px rgba(225, 29, 72, 0.4)',
       },
       animation: {
         'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

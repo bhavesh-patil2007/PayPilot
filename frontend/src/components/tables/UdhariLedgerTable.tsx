@@ -173,10 +173,10 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               {initials}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-semibold text-white tracking-tight truncate">
+              <div className="text-xs font-semibold text-stone-900 dark:text-white tracking-tight truncate">
                 {data.customerName}
               </div>
-              <span className="inline-block text-[10px] font-mono text-slate-400 bg-slate-800/80 px-1.5 py-0.2 rounded border border-slate-700/60">
+              <span className="inline-block text-[10px] font-mono text-stone-500 dark:text-stone-400 bg-stone-200/70 dark:bg-stone-800/80 px-1.5 py-0.2 rounded border border-stone-300/70 dark:border-white/10">
                 {data.customerCode}
               </span>
             </div>
@@ -194,15 +194,15 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
         if (!data) return null;
         return (
           <div className="flex flex-col justify-center h-full py-1">
-            <div className="text-xs font-medium text-slate-200 truncate">{data.businessName}</div>
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+            <div className="text-xs font-medium text-stone-700 dark:text-stone-200 truncate">{data.businessName}</div>
+            <div className="flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
               <span className="flex items-center gap-1 truncate" title={data.contactEmail}>
-                <Mail className="w-3 h-3 text-slate-500 shrink-0" />
+                <Mail className="w-3 h-3 text-stone-500 dark:text-stone-400 shrink-0" />
                 <span className="truncate">{data.contactEmail}</span>
               </span>
               <span>•</span>
               <span className="flex items-center gap-1 shrink-0" title={data.contactPhone}>
-                <Phone className="w-3 h-3 text-slate-500 shrink-0" />
+                <Phone className="w-3 h-3 text-stone-500 dark:text-stone-400 shrink-0" />
                 <span>{data.contactPhone}</span>
               </span>
             </div>
@@ -211,7 +211,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
       },
     },
     {
-      headerName: 'Total Outstanding ($)',
+      headerName: 'Still unpaid ($)',
       field: 'outstandingBalance',
       width: 180,
       flex: 1.2,
@@ -225,13 +225,13 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
 
         return (
           <div className="flex flex-col justify-center h-full py-1 font-mono">
-            <div className="text-xs font-bold text-white">
+            <div className="text-xs font-bold text-stone-900 dark:text-white">
               ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
+            <div className="w-full bg-stone-200/70 dark:bg-stone-800/70 rounded-full h-1.5 mt-1 overflow-hidden">
               <div className={`h-full rounded-full ${barColor}`} style={{ width: `${utilPct}%` }} />
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5 flex justify-between font-sans">
+            <div className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 flex justify-between font-sans">
               <span>Limit: ${limit.toLocaleString()}</span>
               <span>{utilPct}%</span>
             </div>
@@ -272,7 +272,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               <Icon className="w-3 h-3 shrink-0" />
               <span>{label}</span>
             </span>
-            <span className="text-[10px] text-slate-400 mt-0.5 font-mono">
+            <span className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 font-mono">
               {data.daysOverdue === 0 ? 'Current on terms' : `${data.daysOverdue} days overdue`}
             </span>
           </div>
@@ -302,7 +302,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               <span className={`font-mono text-xs font-bold ${scoreColor}`}>
                 {data.trustScore}/100
               </span>
-              <span className="text-[10px] text-slate-400">Trust Score</span>
+              <span className="text-[10px] text-stone-500 dark:text-stone-400">Trust Score</span>
             </div>
             <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono uppercase font-semibold border ${tierBadge}`}>
               {data.riskTier}
@@ -322,12 +322,12 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
 
         return (
           <div className="flex flex-col justify-center h-full py-1">
-            <div className="text-xs text-slate-300 font-mono">
+            <div className="text-xs text-stone-600 dark:text-stone-300 font-mono">
               {data.lastReminderDate || 'No reminder yet'}
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+            <div className="flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
               {data.lastReminderChannel && (
-                <span className="px-1 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="px-1 rounded bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 border border-stone-300/70 dark:border-white/10">
                   {data.lastReminderChannel}
                 </span>
               )}
@@ -448,16 +448,16 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
       {/* Search & Top Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-stone-500 dark:text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search debtor name, business, code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-obsidian-900 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-paypal-cyan"
+            className="w-full bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 rounded-lg pl-9 pr-3 py-1.5 text-xs text-stone-700 dark:text-stone-200 placeholder-slate-500 focus:outline-none focus:border-paypal-cyan"
           />
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+        <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400 font-mono">
           <span>
             Showing <strong className="text-white">{filteredRows.length}</strong> of {udhariCustomers.length} accounts
           </span>
@@ -465,7 +465,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
       </div>
 
       {/* AG Grid Container */}
-      <div className="ag-theme-quartz-dark w-full h-[540px] rounded-xl overflow-hidden border border-slate-800 shadow-card-dark bg-obsidian-900">
+      <div className="ag-theme-quartz-dark w-full h-[540px] rounded-xl overflow-hidden border border-stone-200/60 dark:border-white/10 shadow-card-dark bg-white/40 dark:bg-stone-900/50">
         <AgGridReact<UdhariCustomer>
           rowData={filteredRows}
           columnDefs={columnDefs}
@@ -492,7 +492,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
       {selectedRows.length > 0 && (
         <div
           data-testid="udhari-batch-bar"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-obsidian-900 border border-paypal-cyan/50 shadow-glow-paypal px-5 py-3 rounded-xl flex items-center gap-4 text-xs animate-in fade-in slide-in-from-bottom-2"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/40 dark:bg-stone-900/50 border border-paypal-cyan/50 shadow-glow-paypal px-5 py-3 rounded-xl flex items-center gap-4 text-xs animate-in fade-in slide-in-from-bottom-2"
         >
           <div className="text-white font-medium">
             <span className="font-mono text-paypal-cyan font-bold">{selectedRows.length}</span> accounts selected • Total:{' '}
@@ -514,7 +514,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
                 gridApiRef.current?.deselectAll();
                 setSelectedRows([]);
               }}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+              className="px-2.5 py-1.5 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 transition"
             >
               Deselect All
             </button>
@@ -530,17 +530,17 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
           onClick={() => setActiveCustomerForWhatsApp(null)}
         >
           <div
-            className="w-full max-w-lg p-6 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-2xl space-y-4"
+            className="w-full max-w-lg p-6 rounded-2xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   <MessageSquare className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Send WhatsApp Reminder</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-white">Send WhatsApp Reminder</h3>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
                     To: {activeCustomerForWhatsApp.customerName} ({activeCustomerForWhatsApp.contactPhone})
                   </p>
                 </div>
@@ -548,18 +548,18 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveCustomerForWhatsApp(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs space-y-1 font-mono">
-              <div className="text-slate-400">
+            <div className="p-3 rounded-lg bg-slate-950 border border-stone-200/60 dark:border-white/10 text-xs space-y-1 font-mono">
+              <div className="text-stone-500 dark:text-stone-400">
                 Outstanding Balance:{' '}
                 <strong className="text-white">${activeCustomerForWhatsApp.outstandingBalance.toFixed(2)}</strong>
               </div>
-              <div className="text-slate-400">
+              <div className="text-stone-500 dark:text-stone-400">
                 Overdue:{' '}
                 <span className="text-amber-400">{activeCustomerForWhatsApp.daysOverdue} days</span>
               </div>
@@ -567,7 +567,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
 
             {/* Tone selector */}
             <div className="space-y-1.5">
-              <label className="text-xs text-slate-300 font-medium">Message Tone:</label>
+              <label className="text-xs text-stone-600 dark:text-stone-300 font-medium">Message Tone:</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['FRIENDLY', 'STANDARD', 'FIRM'] as const).map((t) => (
                   <button
@@ -588,7 +588,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
                     className={`py-1.5 text-xs rounded-lg font-medium transition border ${
                       whatsappTone === t
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                        : 'bg-slate-900 text-slate-400 border-slate-800'
+                        : 'bg-stone-100/80 dark:bg-stone-900/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10'
                     }`}
                   >
                     {t}
@@ -599,20 +599,20 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
 
             {/* Editable message preview */}
             <div className="space-y-1">
-              <label className="text-xs text-slate-300 font-medium">Message Body:</label>
+              <label className="text-xs text-stone-600 dark:text-stone-300 font-medium">Message Body:</label>
               <textarea
                 value={whatsappMsgText}
                 onChange={(e) => setWhatsappMsgText(e.target.value)}
                 rows={4}
-                className="w-full p-2.5 rounded-lg bg-obsidian-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-paypal-cyan font-mono"
+                className="w-full p-2.5 rounded-lg bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-700 dark:text-stone-200 focus:outline-none focus:border-paypal-cyan font-mono"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200/60 dark:border-white/10">
               <button
                 type="button"
                 onClick={() => setActiveCustomerForWhatsApp(null)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                className="px-3 py-1.5 rounded-lg text-xs text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 Cancel
               </button>
@@ -637,17 +637,17 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
           onClick={() => setActiveCustomerForInvoice(null)}
         >
           <div
-            className="w-full max-w-lg p-6 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-2xl space-y-4"
+            className="w-full max-w-lg p-6 rounded-2xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
                   <Receipt className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Generate PayPal Invoice</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-white">Generate PayPal Invoice</h3>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
                     Bill To: {activeCustomerForInvoice.businessName} ({activeCustomerForInvoice.contactEmail})
                   </p>
                 </div>
@@ -655,30 +655,30 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveCustomerForInvoice(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 rounded-xl bg-obsidian-950 border border-slate-800 space-y-2 text-xs font-mono">
+            <div className="p-4 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 space-y-2 text-xs font-mono">
               <div className="flex justify-between">
-                <span className="text-slate-400">Invoice Number:</span>
+                <span className="text-stone-500 dark:text-stone-400">Invoice Number:</span>
                 <span className="text-white font-bold">INV-2024-CUST-{activeCustomerForInvoice.customerCode}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Invoice Amount:</span>
+                <span className="text-stone-500 dark:text-stone-400">Invoice Amount:</span>
                 <span className="text-emerald-400 font-bold">${activeCustomerForInvoice.outstandingBalance.toFixed(2)} USD</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Terms:</span>
-                <span className="text-slate-300">Due Upon Receipt</span>
+                <span className="text-stone-500 dark:text-stone-400">Terms:</span>
+                <span className="text-stone-600 dark:text-stone-300">Due Upon Receipt</span>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xs text-slate-300 font-medium">Checkout Payment URL:</div>
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div className="text-xs text-stone-600 dark:text-stone-300 font-medium">Checkout Payment URL:</div>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-950 border border-stone-200/60 dark:border-white/10">
                 <span className="text-xs font-mono text-paypal-cyan truncate flex-1">
                   https://www.sandbox.paypal.com/invoice/p/#INV2-{activeCustomerForInvoice.customerCode}
                 </span>
@@ -687,7 +687,7 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
                   onClick={() =>
                     copyInvoiceLink(`https://www.sandbox.paypal.com/invoice/p/#INV2-${activeCustomerForInvoice.customerCode}`)
                   }
-                  className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+                  className="p-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 transition"
                   title="Copy link"
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -695,11 +695,11 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200/60 dark:border-white/10">
               <button
                 type="button"
                 onClick={() => setActiveCustomerForInvoice(null)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                className="px-3 py-1.5 rounded-lg text-xs text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 Cancel
               </button>
@@ -724,17 +724,17 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
           onClick={() => setActiveCustomerForSettlement(null)}
         >
           <div
-            className="w-full max-w-lg p-6 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-2xl space-y-4"
+            className="w-full max-w-lg p-6 rounded-2xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   <Percent className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Offer Immediate Settlement Discount</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-white">Offer Immediate Settlement Discount</h3>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
                     Accelerate liquidity from {activeCustomerForSettlement.customerName}
                   </p>
                 </div>
@@ -742,14 +742,14 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveCustomerForSettlement(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-slate-300 font-medium">Select Settlement Incentive Tier:</label>
+              <label className="text-xs text-stone-600 dark:text-stone-300 font-medium">Select Settlement Incentive Tier:</label>
               <div className="grid grid-cols-3 gap-2">
                 {[5, 10, 15].map((pct) => (
                   <button
@@ -759,11 +759,11 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
                     className={`p-2 rounded-xl text-center border transition ${
                       discountPct === pct
                         ? 'bg-purple-950/60 text-purple-300 border-purple-500 ring-2 ring-purple-500/30'
-                        : 'bg-obsidian-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                        : 'bg-white/50 dark:bg-stone-950/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
                     }`}
                   >
                     <div className="text-sm font-bold font-mono">{pct}% OFF</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
                       -${((activeCustomerForSettlement.outstandingBalance * pct) / 100).toFixed(2)}
                     </div>
                   </button>
@@ -772,16 +772,16 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
             </div>
 
             {/* Calculated Breakdown */}
-            <div className="p-4 rounded-xl bg-obsidian-950 border border-slate-800 space-y-2 text-xs font-mono">
+            <div className="p-4 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 space-y-2 text-xs font-mono">
               <div className="flex justify-between">
-                <span className="text-slate-400">Original Balance:</span>
+                <span className="text-stone-500 dark:text-stone-400">Original Balance:</span>
                 <span className="text-white">${activeCustomerForSettlement.outstandingBalance.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-purple-400">
                 <span>Discount Incentive ({discountPct}%):</span>
                 <span>-${((activeCustomerForSettlement.outstandingBalance * discountPct) / 100).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-slate-800 text-sm font-bold text-fintech-green">
+              <div className="flex justify-between pt-2 border-t border-stone-200/60 dark:border-white/10 text-sm font-bold text-fintech-green">
                 <span>Net Settlement Cash Collected:</span>
                 <span>
                   $
@@ -793,11 +793,11 @@ export const UdhariLedgerTable: React.FC<UdhariLedgerTableProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-200/60 dark:border-white/10">
               <button
                 type="button"
                 onClick={() => setActiveCustomerForSettlement(null)}
-                className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                className="px-3 py-1.5 rounded-lg text-xs text-stone-500 dark:text-stone-400 hover:text-white"
               >
                 Cancel
               </button>

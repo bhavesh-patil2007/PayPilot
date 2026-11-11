@@ -109,22 +109,23 @@ export const AgingBucketVisualizer: React.FC<AgingBucketVisualizerProps> = ({
   return (
     <div
       data-testid="aging-bucket-visualizer"
-      className={`p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4 ${className}`}
+      className={`glass tone-glow rounded-2xl p-5 space-y-4 ${className}`}
     >
       {/* Header & Meta */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-            Receivables Debt Aging Distribution
+          <h3 className="text-base font-bold text-stone-900 dark:text-white tracking-tight flex items-center gap-2">
+            How old the unpaid invoices are
+            <span className="sr-only">Receivables Debt Aging Distribution</span>
             {selectedBucket && selectedBucket !== 'ALL' && (
               <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
                 Filtered: {selectedBucket}
               </span>
             )}
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Total Outstanding Credit:{' '}
-            <span className="font-mono font-bold text-white">
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+            Still unpaid Credit:{' '}
+            <span className="font-mono font-bold text-stone-900 dark:text-white">
               ${bucketMetrics.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             {' '}• Recovered this month:{' '}
@@ -132,7 +133,7 @@ export const AgingBucketVisualizer: React.FC<AgingBucketVisualizerProps> = ({
               ${udhariSummary.recoveredThisMonth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </span>
             {' '}• Avg DSO:{' '}
-            <span className="font-mono text-slate-300">{udhariSummary.averageCollectionDays} Days</span>
+            <span className="font-mono text-stone-600 dark:text-stone-300">{udhariSummary.averageCollectionDays} Days</span>
           </p>
         </div>
 
@@ -141,7 +142,7 @@ export const AgingBucketVisualizer: React.FC<AgingBucketVisualizerProps> = ({
             type="button"
             data-testid="reset-bucket-filter"
             onClick={() => onSelectBucket('ALL')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-medium border border-stone-300/70 dark:border-white/10 transition"
           >
             <RotateCcw className="w-3.5 h-3.5 text-paypal-cyan" />
             <span>Show All Accounts</span>
@@ -152,7 +153,7 @@ export const AgingBucketVisualizer: React.FC<AgingBucketVisualizerProps> = ({
       {/* Segmented Progress Bar */}
       <div
         data-testid="aging-progress-bar"
-        className="w-full bg-slate-800/80 rounded-xl h-3.5 flex overflow-hidden p-0.5 gap-0.5 border border-slate-700/60"
+        className="w-full bg-stone-200/70 dark:bg-stone-800/80 rounded-xl h-3.5 flex overflow-hidden p-0.5 gap-0.5 border border-stone-300/70 dark:border-white/10"
       >
         {cards.map((c) => {
           if (c.pct <= 0) return null;
@@ -183,22 +184,22 @@ export const AgingBucketVisualizer: React.FC<AgingBucketVisualizerProps> = ({
               key={card.id}
               data-testid={`aging-card-${card.id}`}
               onClick={() => onSelectBucket(isSelected ? 'ALL' : card.id)}
-              className={`p-3.5 rounded-xl bg-obsidian-850/80 border transition-all cursor-pointer ${card.borderClass} ${
+              className={`p-3.5 rounded-xl bg-white/30 dark:bg-stone-900/80 border transition-all cursor-pointer ${card.borderClass} ${
                 isSelected ? 'ring-2 ring-paypal-cyan bg-obsidian-800 shadow-glow-cyan' : ''
               }`}
             >
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span className="font-medium text-slate-300">{card.title}</span>
-                <Icon className={`w-4 h-4 ${isSelected ? 'text-paypal-cyan' : 'text-slate-400'}`} />
+              <div className="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                <span className="font-medium text-stone-600 dark:text-stone-300">{card.title}</span>
+                <Icon className={`w-4 h-4 ${isSelected ? 'text-paypal-cyan' : 'text-stone-500 dark:text-stone-400'}`} />
               </div>
-              <div className="text-xl font-bold font-mono text-white mt-1.5">
+              <div className="text-xl font-bold font-mono text-stone-900 dark:text-white mt-1.5">
                 ${card.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <div className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+              <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 flex items-center justify-between">
                 <span>{card.count} {card.count === 1 ? 'account' : 'accounts'}</span>
                 <span className="font-mono">{card.pct.toFixed(1)}%</span>
               </div>
-              <div className="text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-800/80">
+              <div className="text-[10px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-stone-200/50 dark:border-white/10">
                 {card.statusText}
               </div>
             </div>

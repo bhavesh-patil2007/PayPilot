@@ -16,28 +16,29 @@ export const UdhariLedgerView: React.FC<UdhariLedgerViewProps> = ({ className = 
   return (
     <div data-testid="udhari-ledger-view" className={`space-y-6 ${className}`}>
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Udhari Debt Ledger
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Money customers still owe
+            <span className="sr-only">Customer Credit &amp; Aging</span>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
-              Customer Credit & Aging
+              Who still owes you
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Receivables tracking, automated multi-channel collection reminders, and discount-accelerated liquidity recovery.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            See unpaid invoices, send a reminder, or offer a small discount so you get paid sooner.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <span className="text-[10px] text-slate-500 font-mono uppercase block">Total Outstanding</span>
-            <span className="text-lg font-bold font-mono text-white">
+            <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono uppercase block">Still unpaid</span>
+            <span className="text-lg font-bold font-mono text-stone-900 dark:text-white">
               ${udhariSummary.totalOutstandingCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
-          <div className="h-8 w-px bg-slate-800" />
+          <div className="h-8 w-px bg-stone-200/70 dark:bg-stone-800/70" />
           <div className="text-right">
-            <span className="text-[10px] text-slate-500 font-mono uppercase block">Recovered This Month</span>
+            <span className="text-[10px] text-stone-500 dark:text-stone-400 font-mono uppercase block">Collected this month</span>
             <span className="text-lg font-bold font-mono text-emerald-400">
               +${udhariSummary.recoveredThisMonth.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
@@ -45,7 +46,7 @@ export const UdhariLedgerView: React.FC<UdhariLedgerViewProps> = ({ className = 
         </div>
       </div>
 
-      {/* 2. Receivables Debt Aging Distribution Bar */}
+      {/* 2. How old the unpaid invoices are Bar */}
       <AgingBucketVisualizer
         selectedBucket={selectedBucket}
         onSelectBucket={(bucket) => setSelectedBucket(bucket)}

@@ -86,17 +86,17 @@ export const TeamSharingView: React.FC = () => {
   return (
     <div data-testid="team-sharing-view" className="space-y-6">
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Team & Cryptographic Secure Sharing
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Share a report safely
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-paypal-cyan" />
-              SHA-256 Tamper-Proof Badges
+              Tamper-proof link
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Generate verifiable financial audit packs with FIPS PUB 180-2 compliant cryptographic signatures. Scoped, expiring links for external CPAs and partners.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Create a report link that expires, and that others can check has not been changed.
           </p>
         </div>
       </div>
@@ -104,36 +104,37 @@ export const TeamSharingView: React.FC = () => {
       {/* 2. Top Grid: Generator Form + Active Proofs Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (5 cols): Scoped Expiring Link & Report Generator */}
-        <div className="lg:col-span-5 p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-800/80">
+        <div className="lg:col-span-5 glass tone-glow rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-stone-200/50 dark:border-white/10">
             <Share2 className="w-4 h-4 text-paypal-cyan" />
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-              Generate Signed Audit Report
+            <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+              Create a signed report
+              <span className="sr-only">Generate Signed Audit Report</span>
             </h3>
           </div>
 
           <form onSubmit={handleGenerate} className="space-y-3.5 text-xs">
             {/* Title */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Report Title</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Report Title</label>
               <input
                 type="text"
                 data-testid="share-report-title-input"
                 value={reportTitle}
                 onChange={(e) => setReportTitle(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-paypal-cyan"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-white focus:outline-none focus:border-paypal-cyan"
                 placeholder="e.g. Q4 Recovery Audit Proof"
               />
             </div>
 
             {/* Report Type */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Audit Package Type</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Audit Package Type</label>
               <select
                 data-testid="share-report-type-select"
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-paypal-cyan font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-700 dark:text-stone-200 focus:outline-none focus:border-paypal-cyan font-mono"
               >
                 <option value="RECOVERY_AUDIT_PROOF">Recovery Audit Proof ($18.4k Identified)</option>
                 <option value="PAYMENT_TRUTH_PACK">Payment Truth Pack (3-Way Reconciliation)</option>
@@ -143,12 +144,12 @@ export const TeamSharingView: React.FC = () => {
 
             {/* Role Scope */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Recipient Access Scope</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Recipient Access Scope</label>
               <select
                 data-testid="share-role-select"
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-xl bg-obsidian-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-paypal-cyan font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-xs text-stone-700 dark:text-stone-200 focus:outline-none focus:border-paypal-cyan font-mono"
               >
                 <option value="EXTERNAL_ACCOUNTANT">External Accountant (Read-Only Ledgers)</option>
                 <option value="AUDITOR">Auditor (Cryptographic Hashes & Raw Payloads)</option>
@@ -158,7 +159,7 @@ export const TeamSharingView: React.FC = () => {
 
             {/* Expiry Window */}
             <div>
-              <label className="text-slate-400 text-[11px] font-mono block mb-1">Link Expiration Duration</label>
+              <label className="text-stone-500 dark:text-stone-400 text-[11px] font-mono block mb-1">Link Expiration Duration</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['24_HOURS', '7_DAYS', '30_DAYS'] as const).map((exp) => (
                   <button
@@ -169,7 +170,7 @@ export const TeamSharingView: React.FC = () => {
                     className={`py-1.5 px-2 rounded-lg text-center font-mono text-[11px] border transition ${
                       expiryWindow === exp
                         ? 'bg-paypal-blue text-white border-paypal-cyan font-bold shadow-glow-paypal'
-                        : 'bg-obsidian-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                        : 'bg-white/50 dark:bg-stone-950/60 text-stone-500 dark:text-stone-400 border-stone-200/60 dark:border-white/10 hover:text-stone-900 dark:hover:text-stone-100'
                     }`}
                   >
                     {exp.replace('_', ' ')}
@@ -192,15 +193,15 @@ export const TeamSharingView: React.FC = () => {
 
         {/* Right Column (7 cols): Active Reports & SHA-256 Proof Badges */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+          <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-paypal-cyan" />
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
                   Active Cryptographic Reports ({sharedReports.length})
                 </h3>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                 FIPS PUB 180-2 SHA-256
               </span>
             </div>
@@ -217,15 +218,15 @@ export const TeamSharingView: React.FC = () => {
                     data-testid={`shared-report-item-${report.id}`}
                     className={`p-4 rounded-xl border space-y-2.5 transition ${
                       report.revoked
-                        ? 'bg-obsidian-950/60 border-slate-800/60 opacity-60'
-                        : 'bg-obsidian-950 border-slate-800 hover:border-slate-700'
+                        ? 'bg-white/50 dark:bg-stone-950/60 border-stone-200/60 dark:border-white/10 opacity-60'
+                        : 'bg-white/50 dark:bg-stone-950/60 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-white">{report.id}</span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
+                          <span className="font-mono text-xs font-bold text-stone-900 dark:text-white">{report.id}</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-100/80 dark:bg-stone-900/60 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-white/10">
                             {report.reportType.replace(/_/g, ' ')}
                           </span>
                           <span
@@ -238,18 +239,18 @@ export const TeamSharingView: React.FC = () => {
                             {report.revoked ? 'REVOKED' : 'ACTIVE'}
                           </span>
                         </div>
-                        <h4 className="text-xs font-semibold text-slate-200 mt-1">{report.reportTitle}</h4>
+                        <h4 className="text-xs font-semibold text-stone-700 dark:text-stone-200 mt-1">{report.reportTitle}</h4>
                       </div>
 
-                      <div className="text-right text-[10px] font-mono text-slate-500">
+                      <div className="text-right text-[10px] font-mono text-stone-500 dark:text-stone-400">
                         <span>Views: {report.accessCount}</span>
                       </div>
                     </div>
 
                     {/* SHA-256 Badge */}
-                    <div className="p-2.5 rounded-lg bg-obsidian-900 border border-slate-800 font-mono text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="p-2.5 rounded-lg bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 font-mono text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="truncate">
-                        <span className="text-slate-500 text-[10px] block">Cryptographic Hash Badge:</span>
+                        <span className="text-stone-500 dark:text-stone-400 text-[10px] block">Cryptographic Hash Badge:</span>
                         <span
                           data-testid={`report-hash-badge-${report.id}`}
                           className="font-bold text-paypal-cyan text-[11px] truncate"
@@ -279,13 +280,13 @@ export const TeamSharingView: React.FC = () => {
                     </div>
 
                     {/* Report Meta & Actions Bar */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-[11px] font-mono text-slate-400">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-stone-200/50 dark:border-white/10 text-[11px] font-mono text-stone-500 dark:text-stone-400">
                       <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-500" />
+                          <Calendar className="w-3 h-3 text-stone-500 dark:text-stone-400" />
                           Created: {new Date(report.createdAt).toLocaleDateString()}
                         </span>
-                        <span className="flex items-center gap-1 text-slate-400">
+                        <span className="flex items-center gap-1 text-stone-500 dark:text-stone-400">
                           <Clock className="w-3 h-3 text-amber-500/60" />
                           Expires: {new Date(report.expiresAt).toLocaleDateString()}
                         </span>
@@ -297,7 +298,7 @@ export const TeamSharingView: React.FC = () => {
                           type="button"
                           data-testid={`verify-integrity-btn-${report.id}`}
                           onClick={() => handleVerifyIntegrity(report)}
-                          className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-paypal-cyan border border-paypal-cyan/30 text-[11px] flex items-center gap-1 transition"
+                          className="px-2 py-1 rounded bg-stone-100/80 dark:bg-stone-900/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-paypal-cyan border border-paypal-cyan/30 text-[11px] flex items-center gap-1 transition"
                           title="Verify SHA-256 against canonical JSON payload"
                         >
                           <ShieldCheck className="w-3 h-3" />
@@ -310,7 +311,7 @@ export const TeamSharingView: React.FC = () => {
                           data-testid={`copy-share-link-btn-${report.id}`}
                           onClick={() => handleCopyLink(report)}
                           disabled={report.revoked}
-                          className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] flex items-center gap-1 transition disabled:opacity-30"
+                          className="px-2 py-1 rounded bg-stone-100/80 dark:bg-stone-900/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-white/10 text-[11px] flex items-center gap-1 transition disabled:opacity-30"
                         >
                           {isCopied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                           <span>{isCopied ? 'Copied!' : 'Copy Link'}</span>
@@ -320,7 +321,7 @@ export const TeamSharingView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleDownloadJson(report)}
-                          className="p-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition"
+                          className="p-1 rounded bg-stone-100/80 dark:bg-stone-900/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-stone-500 dark:text-stone-400 hover:text-white border border-stone-200/60 dark:border-white/10 transition"
                           title="Download Canonical JSON Package"
                         >
                           <Download className="w-3 h-3" />
@@ -332,7 +333,7 @@ export const TeamSharingView: React.FC = () => {
                             type="button"
                             data-testid={`revoke-report-btn-${report.id}`}
                             onClick={() => revokeSharedReport(report.id)}
-                            className="p-1 rounded bg-slate-900 hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-slate-800 transition"
+                            className="p-1 rounded bg-stone-100/80 dark:bg-stone-900/60 hover:bg-rose-950/60 text-stone-500 dark:text-stone-400 hover:text-rose-400 border border-stone-200/60 dark:border-white/10 transition"
                             title="Revoke Link Access"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -345,7 +346,7 @@ export const TeamSharingView: React.FC = () => {
               })}
 
               {sharedReports.length === 0 && (
-                <div className="p-8 text-center text-xs text-slate-500 bg-obsidian-950 rounded-xl border border-slate-800">
+                <div className="p-8 text-center text-xs text-stone-500 dark:text-stone-400 bg-white/50 dark:bg-stone-950/60 rounded-xl border border-stone-200/60 dark:border-white/10">
                   No active shared reports. Generate one using the form on the left.
                 </div>
               )}
@@ -355,15 +356,16 @@ export const TeamSharingView: React.FC = () => {
       </div>
 
       {/* 3. Team Members & Governance Roster */}
-      <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-stone-200/50 dark:border-white/10">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-paypal-cyan" />
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-              Authorized Team Members & Permissions Roster
+            <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+              Who can see what
+              <span className="sr-only">Authorized Team Members &amp; Permissions Roster</span>
             </h3>
           </div>
-          <span className="text-[10px] font-mono text-slate-400">
+          <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
             {teamMembers.length} Active Accounts
           </span>
         </div>
@@ -383,15 +385,15 @@ export const TeamSharingView: React.FC = () => {
               <div
                 key={member.id}
                 data-testid={`team-member-card-${member.id}`}
-                className="p-4 rounded-xl bg-obsidian-950 border border-slate-800 space-y-3"
+                className="p-4 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 space-y-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-paypal-blue to-purple-600 flex items-center justify-center font-bold text-white text-xs">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-paypal-blue to-purple-600 flex items-center justify-center font-bold text-stone-900 dark:text-white text-xs">
                     {member.name.split(' ').map((n) => n[0]).join('')}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">{member.name}</h4>
-                    <span className="text-[10px] text-slate-400 truncate block max-w-[150px]">{member.email}</span>
+                    <h4 className="text-xs font-bold text-stone-900 dark:text-white">{member.name}</h4>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 truncate block max-w-[150px]">{member.email}</span>
                   </div>
                 </div>
 
@@ -399,13 +401,13 @@ export const TeamSharingView: React.FC = () => {
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${roleBadgeColor}`}>
                     {member.role.replace('_', ' ')}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-500">
+                  <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                     Active: {new Date(member.lastActive).toLocaleDateString()}
                   </span>
                 </div>
 
                 {/* Permissions Checklist */}
-                <div className="pt-2 border-t border-slate-800/80 space-y-1.5 text-[11px] font-mono text-slate-300">
+                <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 space-y-1.5 text-[11px] font-mono text-stone-600 dark:text-stone-300">
                   <div className="flex items-center gap-1.5">
                     <span className={member.permissions.canExecutePayPalClaims ? 'text-emerald-400' : 'text-slate-600'}>
                       {member.permissions.canExecutePayPalClaims ? '✓' : '✗'}

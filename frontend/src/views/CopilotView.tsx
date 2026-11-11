@@ -113,17 +113,19 @@ export const CopilotView: React.FC = () => {
   return (
     <div data-testid="copilot-view" className="space-y-6">
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Grounded Financial Copilot
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Ask about your money
+            <span className="sr-only">Grounded Financial Copilot</span>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-paypal-cyan" />
-              Verified Store Context Bound
+              Uses your real numbers
+              <span className="sr-only">Verified Store Context Bound</span>
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Natural-language financial intelligence strictly grounded in PayPilot ledger truth. Zero hallucination guarantee.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Ask in plain English. Answers come only from your PayPilot records.
           </p>
         </div>
 
@@ -132,7 +134,7 @@ export const CopilotView: React.FC = () => {
             type="button"
             data-testid="copilot-clear-history-btn"
             onClick={clearCopilotHistory}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-obsidian-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-mono border border-slate-800 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-stone-900/50 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 text-xs font-mono border border-stone-200/60 dark:border-white/10 transition"
             title="Reset conversation to initial greeting"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -144,7 +146,7 @@ export const CopilotView: React.FC = () => {
       {/* 2. Main 12-Column Responsive Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left 8 Cols: Chat Stream, Suggestion Chips, Input */}
-        <div className="lg:col-span-8 flex flex-col h-[700px] rounded-2xl bg-obsidian-900/90 border border-slate-800 shadow-card-dark overflow-hidden">
+        <div className="lg:col-span-8 flex flex-col h-[700px] rounded-2xl bg-white/40 dark:bg-stone-900/90 border border-stone-200/60 dark:border-white/10 shadow-card-dark overflow-hidden">
           {/* Conversation Stream */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {copilotMessages.map((msg) => {
@@ -167,11 +169,11 @@ export const CopilotView: React.FC = () => {
                     className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed space-y-3 ${
                       isUser
                         ? 'bg-paypal-blue text-white rounded-tr-none'
-                        : 'bg-obsidian-950 border border-slate-800 text-slate-200 rounded-tl-none'
+                        : 'bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-stone-700 dark:text-stone-200 rounded-tl-none'
                     }`}
                   >
                     {/* Timestamp & Role Tag */}
-                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pb-1 border-b border-slate-800/40">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-stone-500 dark:text-stone-400 pb-1 border-b border-stone-200/60 dark:border-white/10">
                       <span>{isUser ? 'You (Business Owner)' : 'PayPilot Financial Copilot'}</span>
                       <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
@@ -183,8 +185,8 @@ export const CopilotView: React.FC = () => {
 
                     {/* Citations List */}
                     {msg.citations && msg.citations.length > 0 && (
-                      <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
-                        <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block font-semibold">
+                      <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 space-y-1.5">
+                        <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 dark:text-stone-400 block font-semibold">
                           Ground-Truth Evidence Citations:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -194,11 +196,11 @@ export const CopilotView: React.FC = () => {
                               type="button"
                               data-testid={`copilot-citation-${cite.recordId}`}
                               onClick={() => handleCitationClick(cite)}
-                              className="flex items-center gap-1 px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-paypal-cyan border border-paypal-cyan/30 text-[11px] font-mono transition"
+                              className="flex items-center gap-1 px-2 py-1 rounded bg-stone-100/80 dark:bg-stone-900/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-paypal-cyan border border-paypal-cyan/30 text-[11px] font-mono transition"
                               title={cite.snippet}
                             >
                               <span>[{cite.recordId}]</span>
-                              <span className="text-slate-300 font-sans truncate max-w-[150px]">{cite.title}</span>
+                              <span className="text-stone-600 dark:text-stone-300 font-sans truncate max-w-[150px]">{cite.title}</span>
                               <ExternalLink className="w-3 h-3 text-paypal-cyan" />
                             </button>
                           ))}
@@ -225,8 +227,8 @@ export const CopilotView: React.FC = () => {
                   </div>
 
                   {isUser && (
-                    <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
-                      <User className="w-4 h-4 text-slate-300" />
+                    <div className="w-8 h-8 rounded-xl bg-stone-200/70 dark:bg-stone-800/70 border border-stone-300/70 dark:border-white/10 flex items-center justify-center shrink-0">
+                      <User className="w-4 h-4 text-stone-600 dark:text-stone-300" />
                     </div>
                   )}
                 </div>
@@ -235,11 +237,11 @@ export const CopilotView: React.FC = () => {
 
             {/* Typing Indicator */}
             {isCopilotThinking && (
-              <div data-testid="copilot-thinking-indicator" className="flex items-center gap-3 text-xs text-slate-400">
+              <div data-testid="copilot-thinking-indicator" className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-paypal-blue to-paypal-cyan flex items-center justify-center shrink-0 animate-pulse">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="px-4 py-2.5 rounded-2xl bg-obsidian-950 border border-slate-800 text-slate-300 flex items-center gap-2">
+                <div className="px-4 py-2.5 rounded-2xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 text-stone-600 dark:text-stone-300 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-paypal-cyan animate-ping" />
                   <span className="font-mono text-[11px]">Verifying query against immutable ledger truth...</span>
                 </div>
@@ -250,9 +252,9 @@ export const CopilotView: React.FC = () => {
           </div>
 
           {/* Seeded Suggestion Chips */}
-          <div className="px-4 py-2 border-t border-slate-800/80 bg-obsidian-950/60">
+          <div className="px-4 py-2 border-t border-stone-200/50 dark:border-white/10 bg-white/50 dark:bg-stone-950/60">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-              <span className="text-[10px] text-slate-500 uppercase font-mono shrink-0 mr-1 flex items-center gap-1">
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-mono shrink-0 mr-1 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-paypal-cyan" /> Suggested:
               </span>
               {SUGGESTED_QUERIES.map((q, qIdx) => (
@@ -261,7 +263,7 @@ export const CopilotView: React.FC = () => {
                   type="button"
                   data-testid={`copilot-suggestion-chip-${qIdx}`}
                   onClick={() => handleSuggestionClick(q)}
-                  className="px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-[11px] whitespace-nowrap transition"
+                  className="px-2.5 py-1 rounded-full bg-stone-100/80 dark:bg-stone-900/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 text-stone-600 dark:text-stone-300 hover:text-white border border-stone-200/60 dark:border-white/10 text-[11px] whitespace-nowrap transition"
                 >
                   {q}
                 </button>
@@ -272,7 +274,7 @@ export const CopilotView: React.FC = () => {
           {/* Input Form */}
           <form
             onSubmit={handleSubmit}
-            className="p-3 bg-obsidian-950 border-t border-slate-800 flex items-center gap-2"
+            className="p-3 bg-white/50 dark:bg-stone-950/60 border-t border-stone-200/60 dark:border-white/10 flex items-center gap-2"
           >
             <input
               type="text"
@@ -281,7 +283,7 @@ export const CopilotView: React.FC = () => {
               onChange={(e) => setInputQuery(e.target.value)}
               placeholder="Ask a verified financial question (e.g. runway, recovery, udhari)..."
               disabled={isCopilotThinking}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-obsidian-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition font-sans"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition font-sans"
             />
             <button
               type="submit"
@@ -295,14 +297,15 @@ export const CopilotView: React.FC = () => {
           </form>
         </div>
 
-        {/* Right 4 Cols: Verified Context Inspector */}
+        {/* Right 4 Cols: Numbers this answer uses */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="p-5 rounded-2xl bg-obsidian-900 border border-slate-800 shadow-card-dark space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+          <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/50 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-fintech-green animate-pulse" />
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                  Verified Context Inspector
+                <h3 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider font-mono">
+                  Numbers this answer uses
+                  <span className="sr-only">Verified Context Inspector</span>
                 </h3>
               </div>
               <span className="text-[10px] font-mono text-paypal-cyan bg-paypal-blue/20 px-2 py-0.5 rounded border border-paypal-cyan/30">
@@ -310,92 +313,92 @@ export const CopilotView: React.FC = () => {
               </span>
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
               These immutable state slices from the PayPilot Zustand store are bound to every Copilot prompt evaluation:
             </p>
 
             {/* Context Cards */}
             <div className="space-y-2.5 text-xs font-mono">
               {/* Total Liquid Cash */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Total Liquid Cash</span>
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">Total Liquid Cash</span>
+                  <span className="text-sm font-bold text-stone-900 dark:text-white">
                     ${executiveKpis.totalAvailableCash.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   PayPal: $68.4k <br />
                   Bank: $58.1k
                 </div>
               </div>
 
               {/* Runway Days */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Financial Runway</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">Financial Runway</span>
                   <span className="text-sm font-bold text-emerald-400">
                     {executiveKpis.financialRunwayDays} Days
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   Burn: $1,515/day <br />
                   Buffer: $15,000.00
                 </div>
               </div>
 
               {/* Recoverable Pipeline */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Recoverable Pipeline</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">Recoverable Pipeline</span>
                   <span className="text-sm font-bold text-paypal-cyan">
                     ${recoveryFunnelMetrics.identifiedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   {recoveryFunnelMetrics.identifiedCount} cases flagged <br />
                   ${recoveryFunnelMetrics.recoveredAmount.toLocaleString()} recovered
                 </div>
               </div>
 
               {/* Overdue Udhari */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Outstanding Udhari Credit</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">Outstanding Udhari Credit</span>
                   <span className="text-sm font-bold text-amber-400">
                     ${udhariSummary.totalOutstandingCredit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   Overdue &gt;30d: <br />
                   ${udhariSummary.overdueAbove30Days.toLocaleString()}
                 </div>
               </div>
 
               {/* Active Discrepancies */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">Reconciliation Mismatches</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">Reconciliation Mismatches</span>
                   <span className="text-sm font-bold text-rose-400">
                     {executiveKpis.reconciliationDiscrepanciesCount} Items Flagged
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   3-Way Match <br />
                   99.4% Precision
                 </div>
               </div>
 
               {/* PayPal Sandbox Status */}
-              <div className="p-3 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-white/50 dark:bg-stone-950/60 border border-stone-200/60 dark:border-white/10 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-500 uppercase block font-sans">PayPal Sandbox Rail</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase block font-sans">PayPal Sandbox Rail</span>
                   <span className="text-xs font-bold text-fintech-green flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-fintech-green animate-pulse" />
                     CONNECTED_SANDBOX
                   </span>
                 </div>
-                <div className="text-right text-[10px] text-slate-400 font-sans">
+                <div className="text-right text-[10px] text-stone-500 dark:text-stone-400 font-sans">
                   REST API v2 <br />
                   Latency: 800ms
                 </div>
@@ -403,15 +406,15 @@ export const CopilotView: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="pt-2 border-t border-slate-800/80 space-y-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-semibold block">
+            <div className="pt-2 border-t border-stone-200/50 dark:border-white/10 space-y-2">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-500 dark:text-stone-400 font-semibold block">
                 Quick Route Navigation
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => setActiveRoute('payback-hunter')}
-                  className="px-2.5 py-1.5 rounded-lg bg-obsidian-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition flex items-center justify-between"
+                  className="px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 border border-stone-200/60 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:text-white transition flex items-center justify-between"
                 >
                   <span>PayBack Hunter</span>
                   <ChevronRight className="w-3 h-3 text-paypal-cyan" />
@@ -419,7 +422,7 @@ export const CopilotView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveRoute('approvals')}
-                  className="px-2.5 py-1.5 rounded-lg bg-obsidian-950 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition flex items-center justify-between"
+                  className="px-2.5 py-1.5 rounded-lg bg-white/50 dark:bg-stone-950/60 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 border border-stone-200/60 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:text-white transition flex items-center justify-between"
                 >
                   <span>Approvals</span>
                   <ChevronRight className="w-3 h-3 text-purple-400" />

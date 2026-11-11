@@ -58,23 +58,23 @@ export function SimulationLabView() {
   return (
     <div className="space-y-6" data-testid="simulation-lab-view">
       {/* 1. View Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Cash-Flow Simulation Lab & Time Machine
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            What-if cash planner
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-cyan/20 text-paypal-cyan border border-paypal-cyan/30">
               Scenario Modeling
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Dynamic 3D terrain landscape, real-time liquidity recalculation & multi-track scenario forecasting.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Change a few assumptions and see how your cash would move.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-medium border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-mono font-medium border border-stone-300/70 dark:border-white/10 transition"
             data-testid="btn-export-csv"
           >
             <Download className="w-3.5 h-3.5 text-paypal-cyan" />
@@ -86,12 +86,13 @@ export function SimulationLabView() {
       {/* 2. Top Dual-Panel Layout: 3D Topographical Landscape (65%) + Telemetry HUD (35%) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: 3D Terrain Landscape */}
-        <div className="lg:col-span-8 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4 overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div className="lg:col-span-8 glass tone-glow rounded-2xl p-5 overflow-hidden flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200/60 dark:border-white/10">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
-                3D Topographical Cash-Flow Landscape
+              <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
+                Cash over the next 90 days
+                <span className="sr-only">3D Topographical Cash-Flow Landscape</span>
               </h3>
             </div>
             <span className="text-[10px] font-mono text-paypal-cyan">
@@ -108,26 +109,26 @@ export function SimulationLabView() {
             />
           </div>
 
-          <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="mt-3 pt-2 border-t border-stone-200/50 dark:border-white/10 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 font-mono">
             <span>Intersects $15,000 Safety Threshold Plane</span>
             <span className="text-paypal-cyan">Interactive Orbit & Pointer Scan</span>
           </div>
         </div>
 
         {/* Right: Telemetry HUD Card */}
-        <div className="lg:col-span-4 rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5 flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-4 glass tone-glow rounded-2xl p-5 flex flex-col justify-between space-y-4">
           <div>
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+            <div className="flex items-center gap-2 pb-3 border-b border-stone-200/60 dark:border-white/10">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
                 Simulation Telemetry HUD
               </h3>
             </div>
 
             <div className="mt-4 space-y-4">
               {/* Lowest Dip Metric */}
-              <div className="p-3.5 rounded-lg bg-obsidian-950/70 border border-slate-800 space-y-1">
-                <div className="text-[11px] text-slate-400 uppercase font-mono">
+              <div className="p-3.5 rounded-lg bg-white/50 dark:bg-stone-950/70 border border-stone-200/60 dark:border-white/10 space-y-1">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 uppercase font-mono">
                   Projected Lowest Cash Dip
                 </div>
                 <div
@@ -136,14 +137,14 @@ export function SimulationLabView() {
                 >
                   ${minimumCashPoint.amount.toLocaleString()}
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                   Occurs on Day {minimumCashPoint.dayIndex} ({minimumCashPoint.date})
                 </div>
               </div>
 
               {/* Runway Days */}
-              <div className="p-3.5 rounded-lg bg-obsidian-950/70 border border-slate-800 space-y-1">
-                <div className="text-[11px] text-slate-400 uppercase font-mono">
+              <div className="p-3.5 rounded-lg bg-white/50 dark:bg-stone-950/70 border border-stone-200/60 dark:border-white/10 space-y-1">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 uppercase font-mono">
                   Projected Cash Runway
                 </div>
                 <div
@@ -152,14 +153,14 @@ export function SimulationLabView() {
                 >
                   {projectedRunwayDays} Days
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                   Burn rate: $1,515 / day net
                 </div>
               </div>
 
               {/* Safety Buffer Cushion */}
-              <div className="p-3.5 rounded-lg bg-obsidian-950/70 border border-slate-800 space-y-1">
-                <div className="text-[11px] text-slate-400 uppercase font-mono">
+              <div className="p-3.5 rounded-lg bg-white/50 dark:bg-stone-950/70 border border-stone-200/60 dark:border-white/10 space-y-1">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 uppercase font-mono">
                   Buffer Cushion Status
                 </div>
                 <div
@@ -172,7 +173,7 @@ export function SimulationLabView() {
                     ? `+$${bufferHeadroom.toLocaleString()} Safe Headroom`
                     : `-$${Math.abs(bufferHeadroom).toLocaleString()} Deficit Under Floor`}
                 </div>
-                <div className="text-[11px] text-slate-500 font-mono">
+                <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
                   Mandatory Floor: ${safetyBufferThreshold.toLocaleString()}
                 </div>
               </div>
@@ -180,7 +181,7 @@ export function SimulationLabView() {
           </div>
 
           <div className="p-2.5 rounded-lg bg-paypal-blue/10 border border-paypal-cyan/20 text-[11px] text-paypal-cyan font-mono text-center">
-            Active Scenario: <span className="font-bold text-white">{selectedScenario}</span>
+            Active Scenario: <span className="font-bold text-stone-900 dark:text-white">{selectedScenario}</span>
           </div>
         </div>
       </div>
@@ -189,15 +190,15 @@ export function SimulationLabView() {
       <InteractiveCashCurve height={320} showSliders={true} />
 
       {/* 4. Bottom Zone: Scenario Comparison Engine */}
-      <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5 space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div className="glass tone-glow rounded-2xl p-5 space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-purple-400" />
-            <h3 className="text-sm font-semibold text-white font-mono uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
               Scenario Comparison Engine (Baseline vs. Optimistic vs. Conservative)
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[11px] font-mono text-stone-500 dark:text-stone-400">
             3-Track Sensitivity Analysis
           </span>
         </div>
@@ -208,35 +209,35 @@ export function SimulationLabView() {
           <div
             className={`p-4 rounded-xl border flex flex-col justify-between transition ${
               selectedScenario === 'BASELINE'
-                ? 'bg-slate-900/90 border-paypal-cyan shadow-glow-paypal'
-                : 'bg-obsidian-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-stone-100/80 dark:bg-stone-900/90 border-paypal-cyan shadow-glow-paypal'
+                : 'bg-white/50 dark:bg-stone-950/60 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
             }`}
             data-testid="scenario-card-baseline"
           >
             <div>
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="font-bold text-white uppercase">Baseline Track</span>
-                <span className="text-slate-400">Standard</span>
+                <span className="font-bold text-stone-900 dark:text-white uppercase">Baseline Track</span>
+                <span className="text-stone-500 dark:text-stone-400">Standard</span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
                 20% Upfront, 15-day collection delay, 30/40/30 milestones.
               </p>
 
               <div className="mt-4 space-y-2 text-xs font-mono">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Ending Cash:</span>
-                  <span className="font-bold text-white">
+                  <span className="text-stone-500 dark:text-stone-400">Ending Cash:</span>
+                  <span className="font-bold text-stone-900 dark:text-white">
                     ${comparison.baselineEndingCash.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Lowest Dip:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Lowest Dip:</span>
                   <span className="font-bold text-amber-400">
                     ${comparison.baselineLowestDip.amount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Runway:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Runway:</span>
                   <span className="font-bold text-emerald-400">
                     {comparison.baselineRunwayDays} Days
                   </span>
@@ -250,7 +251,7 @@ export function SimulationLabView() {
               className={`mt-4 w-full py-2 rounded-lg text-xs font-mono font-semibold transition ${
                 selectedScenario === 'BASELINE'
                   ? 'bg-paypal-blue text-white'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  : 'bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300'
               }`}
               data-testid="btn-apply-baseline"
             >
@@ -262,8 +263,8 @@ export function SimulationLabView() {
           <div
             className={`p-4 rounded-xl border flex flex-col justify-between transition ${
               selectedScenario === 'OPTIMISTIC'
-                ? 'bg-slate-900/90 border-emerald-500 shadow-sm'
-                : 'bg-obsidian-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-stone-100/80 dark:bg-stone-900/90 border-emerald-500 shadow-sm'
+                : 'bg-white/50 dark:bg-stone-950/60 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
             }`}
             data-testid="scenario-card-optimistic"
           >
@@ -274,25 +275,25 @@ export function SimulationLabView() {
                   Accelerated Inflows
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
                 50% Upfront, 5-day rapid settlement, 50/25/25 milestones.
               </p>
 
               <div className="mt-4 space-y-2 text-xs font-mono">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Ending Cash:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Ending Cash:</span>
                   <span className="font-bold text-emerald-400">
                     ${comparison.optimisticEndingCash.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Lowest Dip:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Lowest Dip:</span>
                   <span className="font-bold text-emerald-300">
                     ${comparison.optimisticLowestDip.amount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Runway:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Runway:</span>
                   <span className="font-bold text-emerald-400">
                     {comparison.optimisticRunwayDays} Days
                   </span>
@@ -306,7 +307,7 @@ export function SimulationLabView() {
               className={`mt-4 w-full py-2 rounded-lg text-xs font-mono font-semibold transition ${
                 selectedScenario === 'OPTIMISTIC'
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  : 'bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300'
               }`}
               data-testid="btn-apply-optimistic"
             >
@@ -318,8 +319,8 @@ export function SimulationLabView() {
           <div
             className={`p-4 rounded-xl border flex flex-col justify-between transition ${
               selectedScenario === 'CONSERVATIVE'
-                ? 'bg-slate-900/90 border-amber-500 shadow-sm'
-                : 'bg-obsidian-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-stone-100/80 dark:bg-stone-900/90 border-amber-500 shadow-sm'
+                : 'bg-white/50 dark:bg-stone-950/60 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
             }`}
             data-testid="scenario-card-conservative"
           >
@@ -330,25 +331,25 @@ export function SimulationLabView() {
                   Late Client Lag
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1">
                 10% Upfront, 35-day collection delay, 10/40/50 milestones.
               </p>
 
               <div className="mt-4 space-y-2 text-xs font-mono">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Ending Cash:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Ending Cash:</span>
                   <span className="font-bold text-amber-400">
                     ${comparison.conservativeEndingCash.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Lowest Dip:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Lowest Dip:</span>
                   <span className="font-bold text-rose-400">
                     ${comparison.conservativeLowestDip.amount.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Runway:</span>
+                  <span className="text-stone-500 dark:text-stone-400">Runway:</span>
                   <span className="font-bold text-amber-400">
                     {comparison.conservativeRunwayDays} Days
                   </span>
@@ -362,7 +363,7 @@ export function SimulationLabView() {
               className={`mt-4 w-full py-2 rounded-lg text-xs font-mono font-semibold transition ${
                 selectedScenario === 'CONSERVATIVE'
                   ? 'bg-amber-600 text-white'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  : 'bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300'
               }`}
               data-testid="btn-apply-conservative"
             >
@@ -372,10 +373,10 @@ export function SimulationLabView() {
         </div>
 
         {/* Delta Summary Strip */}
-        <div className="p-3.5 rounded-lg bg-obsidian-950/70 border border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs font-mono gap-3">
+        <div className="p-3.5 rounded-lg bg-white/50 dark:bg-stone-950/70 border border-stone-200/60 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs font-mono gap-3">
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-paypal-cyan" />
-            <span className="text-slate-300">
+            <span className="text-stone-600 dark:text-stone-300">
               Sensitivity Spread: Optimistic vs. Conservative variance is{' '}
               <strong className="text-paypal-cyan">
                 +${(comparison.optimisticEndingCash - comparison.conservativeEndingCash).toLocaleString()}
@@ -383,7 +384,7 @@ export function SimulationLabView() {
               ending liquidity.
             </span>
           </div>
-          <span className="text-slate-500">Continuous Recalculation Engine</span>
+          <span className="text-stone-500 dark:text-stone-400">Continuous Recalculation Engine</span>
         </div>
       </div>
     </div>

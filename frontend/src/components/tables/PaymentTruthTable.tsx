@@ -104,14 +104,14 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
         if (!data) return null;
         return (
           <div className="flex flex-col justify-center h-full py-1">
-            <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-white">
+            <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-stone-900 dark:text-white">
               <GitCommit className="w-3.5 h-3.5 text-paypal-cyan shrink-0" />
               <span className="truncate">{data.reconciliationKey || data.id}</span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+            <div className="text-[10px] text-stone-500 dark:text-stone-400 font-mono flex items-center gap-1 mt-0.5">
               <span>{data.date}</span>
               <span>•</span>
-              <span className="text-slate-500">{data.id}</span>
+              <span className="text-stone-500 dark:text-stone-400">{data.id}</span>
             </div>
           </div>
         );
@@ -162,7 +162,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             <span className={`font-mono text-xs font-semibold w-8 ${color.split(' ')[1]}`}>
               {score}%
             </span>
-            <div className="w-14 h-1.5 rounded-full bg-slate-800 overflow-hidden shrink-0">
+            <div className="w-14 h-1.5 rounded-full bg-stone-200/70 dark:bg-stone-800/70 overflow-hidden shrink-0">
               <div
                 className={`h-full rounded-full ${color.split(' ')[0]}`}
                 style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
@@ -181,16 +181,16 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
         if (!pp) {
           return (
             <div className="flex items-center h-full">
-              <span className="text-slate-500 text-xs font-mono italic">MANUAL_ENTRY</span>
+              <span className="text-stone-500 dark:text-stone-400 text-xs font-mono italic">MANUAL_ENTRY</span>
             </div>
           );
         }
         return (
           <div className="flex flex-col justify-center h-full py-1">
-            <span className="font-mono text-xs font-semibold text-slate-200">
+            <span className="font-mono text-xs font-semibold text-stone-700 dark:text-stone-200">
               ${pp.grossAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 truncate max-w-[120px]">
               {pp.transactionId}
             </span>
           </div>
@@ -212,10 +212,10 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
         }
         return (
           <div className="flex flex-col justify-center h-full py-1">
-            <span className="font-mono text-xs font-semibold text-slate-200">
+            <span className="font-mono text-xs font-semibold text-stone-700 dark:text-stone-200">
               ${bk.depositAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+            <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400 truncate max-w-[120px]">
               {bk.bankReferenceId || bk.bankName}
             </span>
           </div>
@@ -260,7 +260,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
         const truncated = desc.length > 40 ? `${desc.slice(0, 40)}...` : desc;
         return (
           <div className="flex items-center h-full" title={desc}>
-            <span className="text-xs text-slate-300 truncate font-medium">
+            <span className="text-xs text-stone-600 dark:text-stone-300 truncate font-medium">
               {truncated}
             </span>
           </div>
@@ -302,7 +302,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             <button
               type="button"
               onClick={handleWhyFlagged}
-              className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[11px] font-medium transition"
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-600 dark:text-stone-300 hover:text-white border border-stone-300/70 dark:border-white/10 text-[11px] font-medium transition"
               title="Open detection rule explainability drawer"
             >
               <HelpCircle className="w-3 h-3 text-amber-400" />
@@ -342,11 +342,11 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
               activeFilter === 'ALL'
                 ? 'bg-paypal-blue text-white shadow-glow-paypal border border-paypal-cyan/40'
-                : 'bg-obsidian-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                : 'bg-white/40 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-200/60 dark:border-white/10'
             }`}
           >
             <span>All Records</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300 font-mono">
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 font-mono">
               {counts.all}
             </span>
           </button>
@@ -358,7 +358,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
               activeFilter === 'DISCREPANCIES'
                 ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                : 'bg-obsidian-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                : 'bg-white/40 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-200/60 dark:border-white/10'
             }`}
           >
             <AlertTriangle className="w-3 h-3 text-rose-400" />
@@ -375,7 +375,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
               activeFilter === 'MATCHED'
                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                : 'bg-obsidian-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                : 'bg-white/40 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-200/60 dark:border-white/10'
             }`}
           >
             <CheckCircle2 className="w-3 h-3 text-emerald-400" />
@@ -392,7 +392,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
               activeFilter === 'ORPHANS'
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                : 'bg-obsidian-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                : 'bg-white/40 dark:bg-stone-900/50 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 border border-stone-200/60 dark:border-white/10'
             }`}
           >
             <Layers className="w-3 h-3 text-amber-400" />
@@ -406,19 +406,19 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
         {/* Search & Actions */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by ID, payer, bank..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 rounded-lg bg-obsidian-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition w-56 font-sans"
+              className="pl-8 pr-3 py-1.5 rounded-lg bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 text-xs text-stone-700 dark:text-stone-200 placeholder-slate-500 focus:outline-none focus:border-paypal-cyan transition w-56 font-sans"
             />
           </div>
           <button
             type="button"
             onClick={handleFitColumns}
-            className="p-2 rounded-lg bg-obsidian-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition"
+            className="p-2 rounded-lg bg-white/40 dark:bg-stone-900/50 hover:bg-stone-200/80 dark:hover:bg-stone-800/80 border border-stone-200/60 dark:border-white/10 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
             title="Auto-fit columns"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -427,7 +427,7 @@ export const PaymentTruthTable: React.FC<PaymentTruthTableProps> = ({ className 
       </div>
 
       {/* AG Grid Container */}
-      <div className="ag-theme-quartz-dark w-full h-[520px] rounded-xl overflow-hidden border border-slate-800 shadow-card-dark">
+      <div className="ag-theme-quartz-dark w-full h-[520px] rounded-xl overflow-hidden border border-stone-200/60 dark:border-white/10 shadow-card-dark">
         <AgGridReact<ReconciliationRecord>
           ref={gridRef}
           rowData={filteredData}

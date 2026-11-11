@@ -6,6 +6,10 @@
  * elevated quadratic Bézier transactional arcs with animated comet pulses,
  * pulsing city beacons, equatorial/tropic coordinate gridlines, and smooth NDC
  * pointer parallax responsiveness.
+ *
+ * Supports dynamic theme switching:
+ * - Light Mode: Dark copper, deep slate, rich teal, and vibrant amber materials with NormalBlending
+ * - Dark Mode: Luminous electric cyan, emerald, and glowing comets with AdditiveBlending
  */
 
 import * as THREE from 'three';
@@ -124,6 +128,8 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   private arcsGroup: THREE.Group | null = null;
   private beaconsGroup: THREE.Group | null = null;
   private ringsGroup: THREE.Group | null = null;
+  private latticeMesh: THREE.Points | null = null;
+  private atmosphereMesh: THREE.Points | null = null;
 
   // Visual Assets
   private glowTexture: THREE.Texture | null = null;
@@ -144,9 +150,18 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   // Data cache
   private cachedArcs: MonetaryTransitArc[] = [];
 
+  // Theme tracking
+  private currentThemeIsDark: boolean = true;
+
+  private isDarkMode(): boolean {
+    if (typeof document === 'undefined') return true;
+    return document.documentElement.classList.contains('dark');
+  }
+
   public init(container: HTMLElement, width: number, height: number): void {
     this.container = container;
     this.isDestroyed = false;
+    this.currentThemeIsDark = this.isDarkMode();
 
     const w = width > 0 ? width : container.clientWidth || 400;
     const h = height > 0 ? height : container.clientHeight || 400;
@@ -213,21 +228,62 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   }
 
   /**
-   * Generates a Fibonacci sphere lattice with 2,000 points, styled with
-   * PayPal Cyan (#00CFE8), PayPal Blue (#0079C1), and Fintech Emerald (#10B981).
+   * Rebuilds all materials when dark/light theme toggles.
+   */
+  private rebuildForTheme(): void {
+    if (!this.globeGroup || this.isDestroyed) return;
+
+    if (this.latticeMesh) {
+      this.globeGroup.remove(this.latticeMesh);
+      if (this.latticeMesh.geometry) this.latticeMesh.geometry.dispose();
+      if (this.latticeMesh.material) (this.latticeMesh.material as THREE.Material).dispose();
+      this.latticeMesh = null;
+    }
+
+    if (this.atmosphereMesh) {
+      this.globeGroup.remove(this.atmosphereMesh);
+      if (this.atmosphereMesh.geometry) this.atmosphereMesh.geometry.dispose();
+      if (this.atmosphereMesh.material) (this.atmosphereMesh.material as THREE.Material).dispose();
+      this.atmosphereMesh = null;
+    }
+
+    if (this.ringsGroup) {
+      while (this.ringsGroup.children.length > 0) {
+        const child = this.ringsGroup.children[0] as any;
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+        this.ringsGroup.remove(child);
+      }
+    }
+
+    this.buildGlobeLattice(this.globeRadius);
+    this.buildAtmosphere(this.globeRadius);
+    this.buildCoordinateRings(this.globeRadius);
+
+    const arcs = this.cachedArcs.length > 0 ? this.cachedArcs : DEFAULT_TRANSIT_ARCS;
+    this.buildArcs(arcs);
+  }
+
+  /**
+   * Generates a Fibonacci sphere lattice with 2,000 points.
+   * Dynamically adapts colors and blending:
+   * - Light Mode: Deep copper (#b45309), dark slate (#1e293b), rich amber (#d97706) with NormalBlending
+   * - Dark Mode: PayPal Blue (#0079c1), Electric Cyan (#00cfe8), Emerald (#10b981) with AdditiveBlending
    */
   private buildGlobeLattice(radius: number): void {
     if (!this.globeGroup) return;
 
+    const isDark = this.currentThemeIsDark;
     const count = 2000;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden ratio angle
 
-    const cBase = new THREE.Color(0x0079c1);   // PayPal Blue
-    const cCyan = new THREE.Color(0x00cfe8);   // Electric Cyan
-    const cEmerald = new THREE.Color(0x10b981);// Emerald Green
-    const cNavy = new THREE.Color(0x001d3d);   // Deep Navy
+    // Theme-dependent color palette
+    const cBase = isDark ? new THREE.Color(0x0079c1) : new THREE.Color(0xd97706); // Dark: Blue, Light: Copper
+    const cCyan = isDark ? new THREE.Color(0x00cfe8) : new THREE.Color(0x0f766e); // Dark: Cyan, Light: Deep Teal
+    const cEmerald = isDark ? new THREE.Color(0x10b981) : new THREE.Color(0x047857); // Dark: Emerald, Light: Dark Green
+    const cNavy = isDark ? new THREE.Color(0x001d3d) : new THREE.Color(0x1e293b); // Dark: Navy, Light: Deep Slate
 
     for (let i = 0; i < count; i++) {
       const y = 1 - (i / (count - 1)) * 2; // -1 to 1
@@ -263,17 +319,17 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.08,
+      size: isDark ? 0.08 : 0.095,
       vertexColors: true,
       transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
+      opacity: isDark ? 0.9 : 0.95,
+      blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
       depthWrite: false,
       map: this.glowTexture || undefined,
     });
 
-    const points = new THREE.Points(geometry, material);
-    this.globeGroup.add(points);
+    this.latticeMesh = new THREE.Points(geometry, material);
+    this.globeGroup.add(this.latticeMesh);
   }
 
   /**
@@ -282,12 +338,13 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   private buildAtmosphere(radius: number): void {
     if (!this.globeGroup) return;
 
+    const isDark = this.currentThemeIsDark;
     const count = 450;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const phi = Math.PI * (3 - Math.sqrt(5));
     const atmoRadius = radius * 1.08;
-    const atmoColor = new THREE.Color(0x00cfe8);
+    const atmoColor = isDark ? new THREE.Color(0x00cfe8) : new THREE.Color(0xb45309);
 
     for (let i = 0; i < count; i++) {
       const y = 1 - (i / (count - 1)) * 2;
@@ -311,14 +368,14 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
       size: 0.05,
       vertexColors: true,
       transparent: true,
-      opacity: 0.35,
-      blending: THREE.AdditiveBlending,
+      opacity: isDark ? 0.35 : 0.45,
+      blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
       depthWrite: false,
       map: this.glowTexture || undefined,
     });
 
-    const atmosphere = new THREE.Points(geometry, material);
-    this.globeGroup.add(atmosphere);
+    this.atmosphereMesh = new THREE.Points(geometry, material);
+    this.globeGroup.add(this.atmosphereMesh);
   }
 
   /**
@@ -327,12 +384,13 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   private buildCoordinateRings(radius: number): void {
     if (!this.ringsGroup) return;
 
+    const isDark = this.currentThemeIsDark;
     const segments = 64;
     const ringMat = new THREE.LineBasicMaterial({
-      color: 0x0079c1,
+      color: isDark ? 0x0079c1 : 0xd97706,
       transparent: true,
-      opacity: 0.22,
-      blending: THREE.AdditiveBlending,
+      opacity: isDark ? 0.22 : 0.35,
+      blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
 
     // Equator Ring
@@ -379,17 +437,18 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
   }
 
   private getArcColor(type: MonetaryTransitArc['type']): THREE.Color {
+    const isDark = this.currentThemeIsDark;
     switch (type) {
       case 'PAYPAL_INFLOW':
-        return new THREE.Color(0x00cfe8); // Cyan
+        return isDark ? new THREE.Color(0x00cfe8) : new THREE.Color(0x0284c7); // Cyan vs Ocean Blue
       case 'RECOVERY_CREDIT':
-        return new THREE.Color(0x10b981); // Emerald Green
+        return isDark ? new THREE.Color(0x10b981) : new THREE.Color(0x059669); // Bright vs Forest Emerald
       case 'SUPPLIER_OUTFLOW':
-        return new THREE.Color(0xf59e0b); // Amber
+        return isDark ? new THREE.Color(0xf59e0b) : new THREE.Color(0xd97706); // Amber vs Rich Copper
       case 'DISPUTE_HOLD':
-        return new THREE.Color(0xf43f5e); // Rose / Crimson
+        return isDark ? new THREE.Color(0xf43f5e) : new THREE.Color(0xdc2626); // Rose vs Deep Crimson
       default:
-        return new THREE.Color(0x38bdf8); // Sky Blue
+        return isDark ? new THREE.Color(0x38bdf8) : new THREE.Color(0x475569); // Sky vs Slate
     }
   }
 
@@ -398,6 +457,8 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
    */
   private buildArcs(arcs: MonetaryTransitArc[]): void {
     if (!this.arcsGroup || !this.beaconsGroup) return;
+
+    const isDark = this.currentThemeIsDark;
 
     // 1. Clean up existing arcs & comets
     while (this.arcsGroup.children.length > 0) {
@@ -444,8 +505,8 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
       const arcMat = new THREE.LineBasicMaterial({
         color: arcColor,
         transparent: true,
-        opacity: 0.72,
-        blending: THREE.AdditiveBlending,
+        opacity: isDark ? 0.72 : 0.88,
+        blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
       });
       const arcLine = new THREE.Line(arcGeom, arcMat);
       this.arcsGroup!.add(arcLine);
@@ -455,7 +516,7 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
       const cometPositions = new Float32Array(cometCount * 3);
       const cometColors = new Float32Array(cometCount * 3);
       for (let j = 0; j < cometCount; j++) {
-        const fade = 1 - j * 0.25;
+        const fade = 1 - j * 0.22;
         cometColors[j * 3] = arcColor.r * fade;
         cometColors[j * 3 + 1] = arcColor.g * fade;
         cometColors[j * 3 + 2] = arcColor.b * fade;
@@ -465,11 +526,11 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
       cometGeom.setAttribute('color', new THREE.BufferAttribute(cometColors, 3));
 
       const cometMat = new THREE.PointsMaterial({
-        size: 0.16,
+        size: isDark ? 0.16 : 0.19,
         vertexColors: true,
         transparent: true,
-        opacity: 0.95,
-        blending: THREE.AdditiveBlending,
+        opacity: isDark ? 0.95 : 1.0,
+        blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
         depthWrite: false,
         map: this.glowTexture || undefined,
       });
@@ -490,9 +551,9 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
         const beaconMat = new THREE.MeshBasicMaterial({
           color: arcColor,
           transparent: true,
-          opacity: 0.85,
+          opacity: isDark ? 0.85 : 0.95,
           side: THREE.DoubleSide,
-          blending: THREE.AdditiveBlending,
+          blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
           depthWrite: false,
         });
         const beacon = new THREE.Mesh(beaconGeom, beaconMat);
@@ -538,6 +599,13 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
     this.animFrameId = requestAnimationFrame(this.animate);
     const delta = Math.min(this.clock.getDelta(), 0.1);
     const elapsed = this.clock.getElapsedTime();
+
+    // Check for real-time theme switch (Dark <-> Light Mode)
+    const isDarkNow = this.isDarkMode();
+    if (isDarkNow !== this.currentThemeIsDark) {
+      this.currentThemeIsDark = isDarkNow;
+      this.rebuildForTheme();
+    }
 
     // Constant slow rotation + pointer parallax smoothing
     if (this.globeGroup) {
@@ -609,6 +677,8 @@ export class GlobeScene implements ThreeSceneController<MonetaryTransitArc[]> {
     this.arcsGroup = null;
     this.beaconsGroup = null;
     this.ringsGroup = null;
+    this.latticeMesh = null;
+    this.atmosphereMesh = null;
     this.arcComets = [];
     this.container = null;
   }

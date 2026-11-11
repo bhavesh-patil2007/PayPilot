@@ -15,7 +15,6 @@ import {
   Share2,
   Settings,
   RefreshCw,
-  Puzzle,
 } from 'lucide-react';
 
 export interface SidebarProps {
@@ -45,7 +44,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
         label: 'Agent Copilot',
         icon: Bot,
         badge: () => 'AI',
-        badgeColor: 'bg-paypal-blue/20 text-paypal-cyan border-paypal-cyan/30',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30',
       },
     ],
   },
@@ -57,21 +56,21 @@ export const NAV_GROUPS: NavGroupDef[] = [
         label: 'PayBack Hunter',
         icon: ShieldAlert,
         badge: (s) => `${s.executiveKpis.activeRecoveryCasesCount} cases`,
-        badgeColor: 'bg-amber-950/60 text-amber-300 border-amber-500/30',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
       },
       {
         id: 'payment-truth',
         label: 'Payment Truth',
         icon: GitCompare,
         badge: (s) => `${s.reconciliationSummary.unresolvedCount} flag`,
-        badgeColor: 'bg-rose-950/60 text-rose-300 border-rose-500/30',
+        badgeColor: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
       },
       {
         id: 'udhari-ledger',
         label: 'Udhari Ledger',
         icon: BookOpen,
         badge: () => '$16.8k',
-        badgeColor: 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30',
+        badgeColor: 'bg-stone-200/60 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-stone-300/40 dark:border-white/10',
       },
     ],
   },
@@ -83,7 +82,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
         label: 'Commitments',
         icon: CalendarClock,
         badge: () => '$43.2k',
-        badgeColor: 'bg-slate-800 text-slate-300 border-slate-700',
+        badgeColor: 'bg-stone-200/60 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-stone-300/40 dark:border-white/10',
       },
       { id: 'digital-twin', label: 'Financial Digital Twin', icon: Sparkles },
       { id: 'simulation-lab', label: 'Simulation Lab', icon: TrendingUp },
@@ -98,10 +97,9 @@ export const NAV_GROUPS: NavGroupDef[] = [
         label: 'Approvals',
         icon: CheckCircle2,
         badge: (s) => `${s.executiveKpis.pendingApprovalsCount} pend`,
-        badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-500/30',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
       },
       { id: 'team-sharing', label: 'Team & Sharing', icon: Share2 },
-      { id: 'sponsor-integrations', label: 'Sponsor Integrations', icon: Puzzle },
       { id: 'settings', label: 'Settings & Sandbox', icon: Settings },
     ],
   },
@@ -114,32 +112,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   return (
     <aside
       data-testid="app-sidebar"
-      className={`w-64 border-r border-slate-800/80 bg-obsidian-900/95 flex flex-col justify-between shrink-0 select-none ${className}`}
+      className={`w-60 shrink-0 select-none flex flex-col justify-between pr-3 border-r border-stone-200/60 dark:border-white/10 ${className}`}
     >
-      <div>
+      <div className="flex flex-col min-h-0">
         {/* Brand Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="flex items-center justify-between pb-4 pt-1 border-b border-stone-200/50 dark:border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-paypal-blue to-paypal-cyan flex items-center justify-center font-mono font-bold text-white text-base shadow-glow-paypal">
-              P
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-600 to-orange-400 flex items-center justify-center font-display font-bold text-white text-base shadow-[0_0_14px_-2px_rgba(217,119,6,0.6)]">
+              F
             </div>
             <div>
-              <h1 className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-                PayPilot
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
+              <h1 className="font-display font-bold text-[15px] tracking-tight text-stone-900 dark:text-stone-50 flex items-center gap-1.5">
+                FinCora AI
+                <span className="sr-only">PayPilot</span>
+                <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-semibold">
                   AI
                 </span>
               </h1>
-              <p className="text-[10px] text-slate-400">PayPal Hackathon Platform</p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                <span className="sr-only">PayPal Hackathon Platform</span>
+                Autonomous Financial Defense
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Grouped Nav Items */}
-        <nav className="p-2 space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
+        {/* Grouped Nav Items (all 12 routes visible) */}
+        <nav className="mt-3 space-y-3.5 overflow-y-auto pr-1">
           {NAV_GROUPS.map((group) => (
             <div key={group.title} className="space-y-1">
-              <h3 className="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+              <h3 className="px-2 text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold">
                 {group.title}
               </h3>
               <div className="space-y-0.5">
@@ -154,20 +156,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
                       type="button"
                       data-testid={`nav-item-${item.id}`}
                       onClick={() => setActiveRoute(item.id)}
-                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[12.5px] font-medium transition-all ${
                         isActive
-                          ? 'bg-paypal-blue/20 text-white border border-paypal-blue/40 shadow-glow-paypal font-semibold'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                          ? 'border border-amber-600/30 bg-amber-600/15 font-semibold text-stone-900 shadow-[0_0_15px_-3px_rgba(217,119,6,0.25)] dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-white'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-100'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-paypal-cyan' : 'text-slate-400'}`} />
-                        <span>{item.label}</span>
+                      <div className="flex items-center gap-2">
+                        <Icon
+                          className={`w-4 h-4 ${
+                            isActive ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-500'
+                          }`}
+                          strokeWidth={1.75}
+                        />
+                        <span className="truncate">{item.label}</span>
                       </div>
                       {badgeValue && (
                         <span
                           className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${
-                            item.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'
+                            item.badgeColor ||
+                            'bg-stone-200/60 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border-stone-300/40 dark:border-white/10'
                           }`}
                         >
                           {badgeValue}
@@ -183,13 +191,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
       </div>
 
       {/* Footer: Sandbox Status + One-Click Judge Reset */}
-      <div className="p-3 border-t border-slate-800 space-y-2 bg-obsidian-950/50">
-        <div className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
-          <span className="text-slate-400 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-fintech-green animate-pulse" />
+      <div className="pt-3 border-t border-stone-200/60 dark:border-white/10 space-y-2">
+        <div className="flex items-center justify-between text-[11px] px-2.5 py-1.5 rounded-xl bg-white/40 dark:bg-stone-900/40 border border-stone-200/60 dark:border-white/10">
+          <span className="text-stone-600 dark:text-stone-300 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             PayPal Sandbox
           </span>
-          <span className="text-paypal-cyan font-mono text-[10px]">REST v2</span>
+          <span className="text-amber-600 dark:text-amber-400 font-mono text-[10px] font-semibold">REST v2</span>
         </div>
 
         <button
@@ -201,10 +209,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
               window.alert('Workspace reset to pristine demo fixtures ($142,500 cash, 12 cases, 94d runway).');
             }
           }}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition"
+          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/40 hover:bg-white/60 dark:bg-stone-900/40 dark:hover:bg-stone-800/50 text-stone-700 dark:text-stone-200 text-xs font-medium border border-stone-200/60 dark:border-white/10 hover:border-amber-600/40 dark:hover:border-amber-500/40 transition"
           title="Reset demo data to pristine fixtures"
         >
-          <RefreshCw className="w-3.5 h-3.5 text-paypal-cyan" />
+          <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
           <span>Judge Reset (One-Click)</span>
         </button>
       </div>

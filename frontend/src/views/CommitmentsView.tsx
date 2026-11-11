@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { usePayPilotStore } from '../store/usePayPilotStore';
-import { sandboxService } from '../services/sandboxService';
-import { assessCommitment } from '../services/backendApi';
 import { CommitmentGanttChart } from '../components/charts/CommitmentGanttChart';
 import { ThreeCanvasContainer } from '../components/3d/ThreeCanvasContainer';
 import { FirewallScene } from '../components/3d/scenes/FirewallScene';
@@ -44,7 +42,7 @@ export function CommitmentsView() {
   const [vendorName, setVendorName] = useState('');
   const [amountStr, setAmountStr] = useState('');
   const [targetDate, setTargetDate] = useState(() => {
-    const d = new Date();
+    const d = new Date('2024-11-06');
     d.setDate(d.getDate() + 14);
     return d.toISOString().split('T')[0];
   });
@@ -52,8 +50,6 @@ export function CommitmentsView() {
   const [paymentTerms, setPaymentTerms] = useState<'DUE_ON_RECEIPT' | 'NET_15' | 'NET_30' | 'NET_60'>('NET_30');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [commitSuccess, setCommitSuccess] = useState<string | null>(null);
-  const [backendPreview, setBackendPreview] = useState<{ key: string; result: FirewallEvaluationResult } | null>(null);
-  const [isAssessing, setIsAssessing] = useState(false);
 
   // Parse amount
   const parsedAmount = parseFloat(amountStr) || 0;
@@ -89,13 +85,9 @@ export function CommitmentsView() {
     return lastFirewallEvaluation;
   }, [parsedAmount, vendorName, executiveKpis.totalAvailableCash, minimumSafetyBuffer, lastFirewallEvaluation]);
 
-  const apiConfig = sandboxService.getConfig();
-  const formKey = `${vendorName.trim()}|${amountStr}|${targetDate}|${executiveKpis.totalAvailableCash}|${minimumSafetyBuffer}`;
-  const currentEvaluation = apiConfig.useLiveBackend
-    ? (backendPreview?.key === formKey ? backendPreview.result : null)
-    : liveEvaluation;
+  const currentEvaluation = liveEvaluation;
 
-  const handleSimulate = async (e: React.FormEvent) => {
+  const handleSimulate = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
     setCommitSuccess(null);
@@ -109,55 +101,13 @@ export function CommitmentsView() {
       return;
     }
 
-    if (!apiConfig.useLiveBackend) {
-      evaluateCommitmentOrder({
-        vendorName: vendorName.trim(),
-        amount: parsedAmount,
-        category,
-        paymentTerms,
-        targetDate,
-      });
-      return;
-    }
-
-    setIsAssessing(true);
-    try {
-      const result = await assessCommitment(apiConfig.apiBaseUrl, {
-        currency: 'USD',
-        starting_cash: executiveKpis.totalAvailableCash,
-        starting_cash_source: 'manual_estimate',
-        required_reserve: minimumSafetyBuffer,
-        cash_flows: [{
-          date: targetDate,
-          direction: 'outflow',
-          amount: parsedAmount,
-          label: `${vendorName.trim()} commitment`,
-        }],
-      });
-      const safe = result.status === 'safe';
-      const mappedEvaluation: FirewallEvaluationResult = {
-        status: result.status === 'safe'
-          ? 'APPROVED_SAFE'
-          : result.status === 'warning'
-            ? 'WARNING_BUFFER_TIGHT'
-            : 'CRITICAL_BUFFER_BREACH',
-        safe,
-        orderAmount: parsedAmount,
-        currentBuffer: executiveKpis.totalAvailableCash - minimumSafetyBuffer,
-        lowestProjectedBuffer: Number(result.minimum_projected_cash),
-        breachDate: result.first_reserve_breach_date ?? undefined,
-        verdictHeadline: safe ? 'Backend assessment: within reserve' : 'Backend assessment: reserve breach',
-        verdictExplanation: `The ${result.scenario_version} assessment projects a minimum cash balance of $${Number(result.minimum_projected_cash).toLocaleString()} against a $${Number(result.required_reserve).toLocaleString()} reserve. ${result.missing_inputs.join(' ')}`.trim(),
-        mitigationOptions: result.recommendations.map((recommendation) =>
-          `${recommendation.type.replace(/_/g, ' ')}${recommendation.amount ? `: $${recommendation.amount}` : ''}`
-        ),
-      };
-      setBackendPreview({ key: formKey, result: mappedEvaluation });
-    } catch (error) {
-      setValidationError(error instanceof Error ? error.message : 'Backend assessment failed.');
-    } finally {
-      setIsAssessing(false);
-    }
+    evaluateCommitmentOrder({
+      vendorName: vendorName.trim(),
+      amount: parsedAmount,
+      category,
+      paymentTerms,
+      targetDate,
+    });
   };
 
   const handleCommitOrder = () => {
@@ -173,30 +123,21 @@ export function CommitmentsView() {
       return;
     }
 
-    let evaluation: FirewallEvaluationResult;
-    if (apiConfig.useLiveBackend) {
-      if (!backendPreview || backendPreview.key !== formKey) {
-        setValidationError('Run the backend assessment for these exact inputs before adding this commitment.');
-        return;
-      }
-      evaluation = backendPreview.result;
-    } else {
-      evaluation = evaluateCommitmentOrder({
-        vendorName: vendorName.trim(),
-        amount: parsedAmount,
-        category,
-        paymentTerms,
-        targetDate,
-      });
-    }
+    const evaluation = evaluateCommitmentOrder({
+      vendorName: vendorName.trim(),
+      amount: parsedAmount,
+      category,
+      paymentTerms,
+      targetDate,
+    });
 
     const newCommitment: CommitmentItem = {
       id: `CMT-${Date.now()}`,
-      referenceNumber: `PO-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+      referenceNumber: `PO-2024-${Math.floor(100 + Math.random() * 900)}`,
       title: `${vendorName.trim()} (${category})`,
       counterparty: vendorName.trim(),
       category,
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: new Date('2024-11-06').toISOString().split('T')[0],
       dueDate: targetDate,
       totalCommittedAmount: parsedAmount,
       amountPaidToDate: paymentTerms === 'DUE_ON_RECEIPT' ? parsedAmount : 0,
@@ -224,27 +165,28 @@ export function CommitmentsView() {
   return (
     <div className="space-y-6" data-testid="commitments-view">
       {/* 1. Header Metrics Strip */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Commitment Workbench & Firewall
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            Upcoming bills
+            <span className="sr-only">Commitment Workbench &amp; Firewall</span>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-950/40 text-amber-400 border border-amber-500/30">
               Forward Defense
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Gantt scheduling, $25,000 minimum safety buffer protection & 3D holographic risk evaluation.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            See what you owe, keep a cash cushion, and check a new order before you commit.
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs font-mono">
-          <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-400">Committed 30d: </span>
+          <div className="p-2 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-200/60 dark:border-white/10">
+            <span className="text-stone-500 dark:text-stone-400">Committed 30d: </span>
             <span className="text-white font-bold">
               ${executiveKpis.upcoming30DayCommitments.toLocaleString()}
             </span>
           </div>
-          <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-            <span className="text-slate-400">Safety Buffer: </span>
+          <div className="p-2 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-200/60 dark:border-white/10">
+            <span className="text-stone-500 dark:text-stone-400">Safety Buffer: </span>
             <span className="text-rose-400 font-bold">$25,000.00</span>
           </div>
         </div>
@@ -264,14 +206,14 @@ export function CommitmentsView() {
           />
 
           {/* Commitments Table */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4">
-            <h3 className="text-sm font-semibold text-white font-mono uppercase tracking-wider mb-3">
+          <div className="glass tone-glow rounded-2xl p-5">
+            <h3 className="text-sm font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider mb-3">
               Active Contract & Payable Ledger
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs" data-testid="commitments-table">
                 <thead>
-                  <tr className="border-b border-slate-800 text-[11px] text-slate-400 uppercase font-mono">
+                  <tr className="border-b border-stone-200/60 dark:border-white/10 text-[11px] text-stone-500 dark:text-stone-400 uppercase font-mono">
                     <th className="pb-2">PO / Reference</th>
                     <th className="pb-2">Counterparty</th>
                     <th className="pb-2">Category</th>
@@ -281,14 +223,14 @@ export function CommitmentsView() {
                     <th className="pb-2 text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 font-mono">
+                <tbody className="divide-y divide-stone-200/60 dark:divide-white/10 font-mono">
                   {commitments.map((c) => (
-                    <tr key={c.id} className="hover:bg-slate-800/30">
-                      <td className="py-2.5 font-bold text-white">{c.referenceNumber}</td>
-                      <td className="py-2.5 text-slate-300">{c.counterparty}</td>
-                      <td className="py-2.5 text-slate-400">{c.category}</td>
-                      <td className="py-2.5 text-slate-300">{c.dueDate}</td>
-                      <td className="py-2.5 text-right text-slate-400">
+                    <tr key={c.id} className="hover:bg-stone-200/80 dark:hover:bg-stone-800/30">
+                      <td className="py-2.5 font-bold text-stone-900 dark:text-white">{c.referenceNumber}</td>
+                      <td className="py-2.5 text-stone-600 dark:text-stone-300">{c.counterparty}</td>
+                      <td className="py-2.5 text-stone-500 dark:text-stone-400">{c.category}</td>
+                      <td className="py-2.5 text-stone-600 dark:text-stone-300">{c.dueDate}</td>
+                      <td className="py-2.5 text-right text-stone-500 dark:text-stone-400">
                         ${c.totalCommittedAmount.toLocaleString()}
                       </td>
                       <td className="py-2.5 text-right font-bold text-amber-400">
@@ -322,11 +264,11 @@ export function CommitmentsView() {
         {/* RIGHT COLUMN: 3D Animated Shield & Simulator Form (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
           {/* 3D Firewall Shield */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4 overflow-hidden">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="glass tone-glow rounded-2xl p-5 overflow-hidden">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-paypal-cyan" />
-                <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+                <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
                   3D Holographic Force-Field
                 </h3>
               </div>
@@ -336,9 +278,7 @@ export function CommitmentsView() {
             <div className="h-[260px] relative w-full overflow-hidden mt-2">
               <ThreeCanvasContainer
                 controllerFactory={() => new FirewallScene()}
-                data={currentEvaluation || (apiConfig.useLiveBackend
-                  ? { status: 'WARNING_BUFFER_TIGHT', safe: false }
-                  : { status: 'APPROVED_SAFE', safe: true })}
+                data={currentEvaluation || { status: 'APPROVED_SAFE', safe: true }}
                 ariaLabel="Commitment Firewall 3D Animated Shield"
                 className="w-full h-full"
               />
@@ -351,9 +291,7 @@ export function CommitmentsView() {
                   ? 'bg-rose-950/40 border-rose-500 text-rose-300'
                   : currentEvaluation?.status === 'WARNING_BUFFER_TIGHT'
                   ? 'bg-amber-950/40 border-amber-500 text-amber-300'
-                  : currentEvaluation
-                    ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300'
-                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                  : 'bg-emerald-950/40 border-emerald-500 text-emerald-300'
               }`}
               data-testid="firewall-verdict-banner"
             >
@@ -362,23 +300,20 @@ export function CommitmentsView() {
                   ? 'BLOCK: Force-Field Collapse'
                   : currentEvaluation?.status === 'WARNING_BUFFER_TIGHT'
                   ? 'WARN: Force-Field Buffer Tight'
-                  : currentEvaluation
-                    ? 'PASS: Force-Field Buffer Clear'
-                    : 'AWAITING ASSESSMENT'}
+                  : 'PASS: Force-Field Buffer Clear'}
               </div>
               <div className="text-[11px] opacity-80 mt-0.5">
-                {currentEvaluation?.verdictExplanation || (apiConfig.useLiveBackend
-                  ? 'Run a backend assessment to calculate the reserve position.'
-                  : 'Headroom maintained above safety floor.')}
+                {currentEvaluation?.verdictExplanation ||
+                  'Headroom maintained above safety floor.'}
               </div>
             </div>
           </div>
 
           {/* Order Evaluation Simulator Form */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
+          <div className="glass tone-glow rounded-2xl p-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-stone-200/60 dark:border-white/10">
               <PlusCircle className="w-4 h-4 text-paypal-cyan" />
-              <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+              <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
                 Order Evaluation Simulator
               </h3>
             </div>
@@ -406,7 +341,7 @@ export function CommitmentsView() {
 
               {/* Vendor */}
               <div>
-                <label className="block text-[11px] text-slate-400 font-mono mb-1">
+                <label className="block text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1">
                   Vendor / Counterparty
                 </label>
                 <input
@@ -414,14 +349,14 @@ export function CommitmentsView() {
                   value={vendorName}
                   onChange={(e) => setVendorName(e.target.value)}
                   placeholder="e.g. Taiwan Semiconductor Corp"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans focus:outline-none focus:border-paypal-cyan"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-300/70 dark:border-white/10 text-white font-sans focus:outline-none focus:border-paypal-cyan"
                   data-testid="input-vendor-name"
                 />
               </div>
 
               {/* Amount */}
               <div>
-                <label className="block text-[11px] text-slate-400 font-mono mb-1">
+                <label className="block text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1">
                   Order Amount ($ USD)
                 </label>
                 <input
@@ -429,7 +364,7 @@ export function CommitmentsView() {
                   value={amountStr}
                   onChange={(e) => setAmountStr(e.target.value)}
                   placeholder="e.g. 18500"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono focus:outline-none focus:border-paypal-cyan"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-300/70 dark:border-white/10 text-white font-mono focus:outline-none focus:border-paypal-cyan"
                   data-testid="input-order-amount"
                 />
               </div>
@@ -437,25 +372,25 @@ export function CommitmentsView() {
               {/* Due Date & Category Grid */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] text-slate-400 font-mono mb-1">
+                  <label className="block text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1">
                     Target Due Date
                   </label>
                   <input
                     type="date"
                     value={targetDate}
                     onChange={(e) => setTargetDate(e.target.value)}
-                    className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-[11px] focus:outline-none focus:border-paypal-cyan"
+                    className="w-full px-2 py-1.5 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-300/70 dark:border-white/10 text-white font-mono text-[11px] focus:outline-none focus:border-paypal-cyan"
                     data-testid="input-target-date"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-400 font-mono mb-1">
+                  <label className="block text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1">
                     Category
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as CommitmentCategory)}
-                    className="w-full px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans text-[11px] focus:outline-none focus:border-paypal-cyan"
+                    className="w-full px-2 py-1.5 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-300/70 dark:border-white/10 text-white font-sans text-[11px] focus:outline-none focus:border-paypal-cyan"
                     data-testid="select-category"
                   >
                     <option value="SUPPLIER_INVENTORY">Supplier / Inventory</option>
@@ -470,13 +405,13 @@ export function CommitmentsView() {
 
               {/* Payment Terms */}
               <div>
-                <label className="block text-[11px] text-slate-400 font-mono mb-1">
+                <label className="block text-[11px] text-stone-500 dark:text-stone-400 font-mono mb-1">
                   Payment Terms
                 </label>
                 <select
                   value={paymentTerms}
                   onChange={(e) => setPaymentTerms(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-sans focus:outline-none focus:border-paypal-cyan"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-100/80 dark:bg-stone-900/60 border border-stone-300/70 dark:border-white/10 text-white font-sans focus:outline-none focus:border-paypal-cyan"
                   data-testid="select-payment-terms"
                 >
                   <option value="NET_30">NET_30 (Standard 30 days)</option>
@@ -489,20 +424,12 @@ export function CommitmentsView() {
               {/* Commit Button */}
               <div className="pt-2 flex flex-col gap-2">
                 <button
-                  type="submit"
-                  disabled={isAssessing}
-                  className="w-full py-2.5 rounded-lg bg-gradient-to-r from-paypal-blue to-paypal-dark hover:from-paypal-blue/90 hover:to-paypal-dark/90 text-white font-semibold shadow-glow-paypal transition"
-                  data-testid="btn-assess-order"
-                >
-                  {isAssessing ? 'Assessing...' : apiConfig.useLiveBackend ? 'Assess with FastAPI' : 'Evaluate Commitment'}
-                </button>
-                <button
                   type="button"
                   onClick={handleCommitOrder}
-                  className="w-full py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition"
+                  className="w-full py-2.5 rounded-lg bg-gradient-to-r from-paypal-blue to-paypal-dark hover:from-paypal-blue/90 hover:to-paypal-dark/90 text-white font-semibold shadow-glow-paypal transition"
                   data-testid="btn-commit-order"
                 >
-                  Add Commitment to Demo Schedule
+                  Commit Order to Schedule
                 </button>
               </div>
             </form>

@@ -59,16 +59,17 @@ export function SurvivalRadarView() {
   return (
     <div className="space-y-6" data-testid="survival-radar-view">
       {/* 1. Header with Composite Survival Index & Lowest Dimension Indicator */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+      <div className="glass tone-glow rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            Business Survival Radar & Stress Lab
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white flex items-center gap-2.5">
+            How sturdy is the business?
+            <span className="sr-only">Business Survival Radar &amp; Stress Lab</span>
             <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-paypal-cyan/20 text-paypal-cyan border border-paypal-cyan/30">
               Resilience Diagnostics
             </span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Multidimensional solvency stress-testing, customer concentration defense & instant liquidity shock simulation.
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+            Try a late payment or a surprise bill and see if the business still stands.
           </p>
         </div>
 
@@ -77,7 +78,7 @@ export function SurvivalRadarView() {
             <button
               type="button"
               onClick={() => clearStressTest()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-medium border border-slate-700 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-mono font-medium border border-stone-300/70 dark:border-white/10 transition"
               data-testid="btn-reset-stress-test"
             >
               <RotateCcw className="w-3.5 h-3.5 text-paypal-cyan" />
@@ -85,8 +86,8 @@ export function SurvivalRadarView() {
             </button>
           )}
 
-          <div className="px-3.5 py-1.5 rounded-lg bg-obsidian-900 border border-slate-800 flex items-center gap-3 font-mono text-xs">
-            <span className="text-slate-400">Survival Index:</span>
+          <div className="px-3.5 py-1.5 rounded-lg bg-white/40 dark:bg-stone-900/50 border border-stone-200/60 dark:border-white/10 flex items-center gap-3 font-mono text-xs">
+            <span className="text-stone-500 dark:text-stone-400">Survival Index:</span>
             <span
               className={`text-lg font-bold ${
                 overallSurvivalIndex >= 75
@@ -113,7 +114,7 @@ export function SurvivalRadarView() {
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             <div>
               <span className="text-amber-300 font-semibold">Primary Vulnerability Identified: </span>
-              <span className="text-slate-300">
+              <span className="text-stone-600 dark:text-stone-300">
                 {lowestDimension.name} ({lowestDimension.score}/100) — {lowestDimension.metricValueText}.
               </span>
             </div>
@@ -136,8 +137,8 @@ export function SurvivalRadarView() {
           />
 
           {/* 6 Dimension Metric Cards */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-4 space-y-3">
-            <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider pb-2 border-b border-slate-800">
+          <div className="glass tone-glow rounded-2xl p-5 space-y-3">
+            <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider pb-2 border-b border-stone-200/60 dark:border-white/10">
               Resilience Dimension Breakdown
             </h3>
 
@@ -153,15 +154,15 @@ export function SurvivalRadarView() {
                     onClick={() => setSelectedDimensionKey(dim.key)}
                     className={`p-3 rounded-lg border transition cursor-pointer ${
                       isSelected
-                        ? 'bg-slate-800/80 border-paypal-cyan shadow-sm'
+                        ? 'bg-stone-200/70 dark:bg-stone-800/80 border-paypal-cyan shadow-sm'
                         : isLowest
-                        ? 'bg-amber-950/15 border-amber-500/40 hover:bg-slate-800/40'
-                        : 'bg-obsidian-950/70 border-slate-800 hover:border-slate-700'
+                        ? 'bg-amber-950/15 border-amber-500/40 hover:bg-stone-200/80 dark:hover:bg-stone-800/40'
+                        : 'bg-white/50 dark:bg-stone-950/70 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
                     }`}
                     data-testid={`dimension-card-${dim.key}`}
                   >
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-semibold text-white">{dim.name}</span>
+                      <span className="font-semibold text-stone-900 dark:text-white">{dim.name}</span>
                       <span
                         className={`font-bold ${
                           dim.score >= 80
@@ -176,7 +177,7 @@ export function SurvivalRadarView() {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div className="w-full bg-stone-200/70 dark:bg-stone-800/70 h-1.5 rounded-full mt-2 overflow-hidden">
                       <div
                         className={`h-full rounded-full ${
                           dim.score >= 80
@@ -189,7 +190,7 @@ export function SurvivalRadarView() {
                       />
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-stone-500 dark:text-stone-400">
                       <span>Bench: {dim.industryBenchmark}</span>
                       <span className={delta >= 0 ? 'text-emerald-400' : 'text-amber-400'}>
                         {delta >= 0 ? `+${delta}` : delta} vs SMB
@@ -205,15 +206,15 @@ export function SurvivalRadarView() {
         {/* Right Column: Stress-Test Execution Lab & Defense Playbook (6 cols) */}
         <div className="lg:col-span-6 space-y-6">
           {/* Stress-Test Lab Card */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <Flame className="w-4 h-4 text-rose-400" />
-                <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+                <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
                   Financial Shock Simulation Lab
                 </h3>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[10px] font-mono text-stone-500 dark:text-stone-400">
                 Adversarial Liquidity Stress
               </span>
             </div>
@@ -232,7 +233,7 @@ export function SurvivalRadarView() {
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm">Active Shock: {activeScenario.title}</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-900/60 border border-current">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-stone-100/80 dark:bg-stone-900/60 border border-current">
                     {activeScenario.verdict}
                   </span>
                 </div>
@@ -254,26 +255,26 @@ export function SurvivalRadarView() {
                     key={shock.id}
                     className={`p-3.5 rounded-lg border transition ${
                       isActive
-                        ? 'bg-slate-900 border-rose-500 shadow-sm'
-                        : 'bg-obsidian-950/70 border-slate-800 hover:border-slate-700'
+                        ? 'bg-stone-100/80 dark:bg-stone-900/60 border-rose-500 shadow-sm'
+                        : 'bg-white/50 dark:bg-stone-950/70 border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10'
                     }`}
                     data-testid={`shock-card-${shock.id}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div className="text-xs font-bold text-white font-mono">
+                        <div className="text-xs font-bold text-stone-900 dark:text-white font-mono">
                           {shock.title}
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
                           {shock.description}
                         </p>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-200/70 dark:bg-stone-800/70 text-stone-600 dark:text-stone-300 shrink-0">
                         {shock.appliedShock}
                       </span>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+                    <div className="mt-3 pt-2.5 border-t border-stone-200/60 dark:border-white/10 flex items-center justify-between text-xs font-mono">
                       <div className="flex items-center gap-3 text-[11px]">
                         <span className="text-rose-400 font-bold">
                           -${Math.abs(shock.immediateCashImpact).toLocaleString()}
@@ -289,7 +290,7 @@ export function SurvivalRadarView() {
                         className={`px-3 py-1 rounded text-[11px] font-mono font-semibold transition ${
                           isActive
                             ? 'bg-rose-600 text-white shadow-sm'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                            : 'bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200'
                         }`}
                         data-testid={`btn-simulate-${shock.id}`}
                       >
@@ -303,11 +304,11 @@ export function SurvivalRadarView() {
           </div>
 
           {/* Defense Playbook Checklist */}
-          <div className="rounded-xl bg-obsidian-900 border border-slate-800 shadow-card-dark p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="glass tone-glow rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200/60 dark:border-white/10">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-xs font-semibold text-white font-mono uppercase tracking-wider">
+                <h3 className="text-xs font-semibold text-stone-900 dark:text-white font-mono uppercase tracking-wider">
                   Automated Defense Playbook Checklist
                 </h3>
               </div>
@@ -331,7 +332,7 @@ export function SurvivalRadarView() {
                     className={`p-3 rounded-lg border flex items-center justify-between cursor-pointer transition ${
                       isChecked
                         ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-200'
-                        : 'bg-obsidian-950/70 border-slate-800 text-slate-300 hover:border-slate-700'
+                        : 'bg-white/50 dark:bg-stone-950/70 border-stone-200/60 dark:border-white/10 text-stone-600 dark:text-stone-300 hover:border-stone-300/70 dark:border-white/10'
                     }`}
                     data-testid={`playbook-item-${idx}`}
                   >
@@ -339,13 +340,13 @@ export function SurvivalRadarView() {
                       {isChecked ? (
                         <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-500 shrink-0" />
+                        <Square className="w-4 h-4 text-stone-500 dark:text-stone-400 shrink-0" />
                       )}
                       <span className={isChecked ? 'line-through opacity-80' : ''}>
                         {action}
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-500 shrink-0">
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 shrink-0">
                       {isChecked ? 'Executed' : 'Pending'}
                     </span>
                   </div>

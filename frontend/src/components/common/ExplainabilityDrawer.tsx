@@ -89,10 +89,10 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
       {/* Slide-Over Right Panel */}
       <aside
         data-testid="explainability-drawer-panel"
-        className="fixed inset-y-0 right-0 max-w-2xl w-full bg-obsidian-900 border-l border-slate-800 shadow-2xl flex flex-col z-50 transform transition-transform duration-300 ease-in-out translate-x-0"
+        className="fixed inset-y-0 right-0 max-w-2xl w-full bg-white/40 dark:bg-stone-900/50 border-l border-stone-200/60 dark:border-white/10 shadow-2xl flex flex-col z-50 transform transition-transform duration-300 ease-in-out translate-x-0"
       >
         {/* Drawer Header */}
-        <div className="p-6 border-b border-slate-800 flex items-start justify-between bg-obsidian-950/60">
+        <div className="p-6 border-b border-stone-200/60 dark:border-white/10 flex items-start justify-between bg-white/50 dark:bg-stone-950/60">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="p-1.5 rounded-lg bg-paypal-blue/20 text-paypal-cyan border border-paypal-cyan/30">
@@ -102,18 +102,18 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
                 PayPilot AI Explainability Engine
               </span>
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-stone-900 dark:text-white tracking-tight">
               {details?.ruleName || ruleTitle || `Detection Rule: ${activeRuleId || 'Verified Record'}`}
             </h2>
             <div className="flex items-center gap-2 mt-2">
-              <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-800 text-paypal-cyan border border-slate-700">
+              <span className="font-mono text-xs px-2 py-0.5 rounded bg-stone-200/70 dark:bg-stone-800/70 text-paypal-cyan border border-stone-300/70 dark:border-white/10">
                 {details?.ruleId || activeRuleId || 'RULE-VERIFIED'}
               </span>
               <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
                 {details?.confidenceScore ?? 98}% Confidence
               </span>
               {details?.categoryBadge && (
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
                   • {details.categoryBadge}
                 </span>
               )}
@@ -124,7 +124,7 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
             type="button"
             data-testid="close-drawer-button"
             onClick={closeExplainability}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-2 rounded-lg text-stone-500 dark:text-stone-400 hover:text-white hover:bg-stone-200/80 dark:hover:bg-stone-800/80 transition"
             title="Close Drawer"
           >
             <X className="w-5 h-5" />
@@ -135,13 +135,13 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
         <div className="flex-1 overflow-y-auto p-6 space-y-6 text-sm">
           {/* Section 1: Detection Formula (TC-T2-F33-05) */}
           <div className="space-y-2">
-            <h4 className="text-xs uppercase font-mono text-slate-400 tracking-wider font-semibold flex items-center gap-2">
+            <h4 className="text-xs uppercase font-mono text-stone-500 dark:text-stone-400 tracking-wider font-semibold flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-paypal-cyan" />
               Mathematical Detection Formula
             </h4>
             <div
               data-testid="detection-formula"
-              className="font-mono text-xs text-paypal-cyan bg-obsidian-950 p-4 rounded-xl border border-slate-800 overflow-x-auto whitespace-nowrap shadow-inner"
+              className="font-mono text-xs text-paypal-cyan bg-white/50 dark:bg-stone-950/60 p-4 rounded-xl border border-stone-200/60 dark:border-white/10 overflow-x-auto whitespace-nowrap shadow-inner"
             >
               {formulaText}
             </div>
@@ -149,17 +149,17 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
 
           {/* Section 2: Explanation Summary */}
           <div className="space-y-2">
-            <h4 className="text-xs uppercase font-mono text-slate-400 tracking-wider font-semibold">
+            <h4 className="text-xs uppercase font-mono text-stone-500 dark:text-stone-400 tracking-wider font-semibold">
               Plain-English Rationale & Root Cause
             </h4>
-            <div className="p-4 rounded-xl bg-obsidian-850 border border-slate-800/80 text-slate-300 leading-relaxed text-xs">
+            <div className="p-4 rounded-xl bg-white/30 dark:bg-stone-900/40 border border-stone-200/50 dark:border-white/10 text-stone-600 dark:text-stone-300 leading-relaxed text-xs">
               {explanationText}
             </div>
           </div>
 
           {/* Section 3: Connected Source Records */}
           <div className="space-y-3">
-            <h4 className="text-xs uppercase font-mono text-slate-400 tracking-wider font-semibold flex items-center gap-2">
+            <h4 className="text-xs uppercase font-mono text-stone-500 dark:text-stone-400 tracking-wider font-semibold flex items-center gap-2">
               <Layers className="w-4 h-4 text-emerald-400" />
               Connected Multi-Source Records (3-Way Truth)
             </h4>
@@ -169,27 +169,27 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
                 {details.sourceRecords.map((rec, i) => (
                   <div
                     key={i}
-                    className="p-3.5 rounded-xl bg-obsidian-950/80 border border-slate-800 hover:border-slate-700 transition"
+                    className="p-3.5 rounded-xl bg-white/50 dark:bg-stone-950/80 border border-stone-200/60 dark:border-white/10 hover:border-stone-300/70 dark:border-white/10 transition"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-mono font-semibold text-paypal-cyan px-1.5 py-0.5 rounded bg-paypal-blue/10 border border-paypal-blue/20">
                         {rec.recordType}
                       </span>
-                      <span className="font-mono text-white font-bold">
+                      <span className="font-mono text-stone-900 dark:text-white font-bold">
                         ${rec.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {rec.currency}
                       </span>
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-1 font-mono">
+                    <div className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-mono">
                       Ref: {rec.referenceNumber} • Date: {rec.date}
                     </div>
-                    <div className="text-xs text-slate-300 mt-2 bg-obsidian-900 p-2 rounded border border-slate-800/80 font-mono">
+                    <div className="text-xs text-stone-600 dark:text-stone-300 mt-2 bg-white/40 dark:bg-stone-900/50 p-2 rounded border border-stone-200/50 dark:border-white/10 font-mono">
                       {rec.snippet}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-4 rounded-xl bg-obsidian-850 border border-slate-800 text-xs text-slate-400">
+              <div className="p-4 rounded-xl bg-white/30 dark:bg-stone-900/40 border border-stone-200/60 dark:border-white/10 text-xs text-stone-500 dark:text-stone-400">
                 Ground-truth records linked via PayPal Sandbox REST API v2 transaction captures.
               </div>
             )}
@@ -201,7 +201,7 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
               <button
                 type="button"
                 onClick={() => setIsRawJsonExpanded(!isRawJsonExpanded)}
-                className="text-xs uppercase font-mono text-slate-400 hover:text-slate-200 tracking-wider font-semibold flex items-center gap-1.5 transition"
+                className="text-xs uppercase font-mono text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 tracking-wider font-semibold flex items-center gap-1.5 transition"
               >
                 <span>Verbatim PayPal Sandbox API Response (JSON)</span>
                 {isRawJsonExpanded ? (
@@ -215,7 +215,7 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
                 type="button"
                 data-testid="copy-json-button"
                 onClick={handleCopyJson}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono border border-slate-700 transition"
+                className="flex items-center gap-1 px-2.5 py-1 rounded bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-mono border border-stone-300/70 dark:border-white/10 transition"
               >
                 {copied ? (
                   <>
@@ -224,7 +224,7 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <Copy className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
                     <span>Copy JSON</span>
                   </>
                 )}
@@ -234,7 +234,7 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
             {isRawJsonExpanded && (
               <pre
                 data-testid="raw-paypal-payload-json"
-                className="font-mono text-[11px] text-slate-300 bg-obsidian-950 p-4 rounded-xl border border-slate-800 overflow-x-auto max-h-72 leading-relaxed"
+                className="font-mono text-[11px] text-stone-600 dark:text-stone-300 bg-white/50 dark:bg-stone-950/60 p-4 rounded-xl border border-stone-200/60 dark:border-white/10 overflow-x-auto max-h-72 leading-relaxed"
               >
                 {rawJsonString}
               </pre>
@@ -243,14 +243,14 @@ export const ExplainabilityDrawer: React.FC<{ className?: string }> = ({ classNa
         </div>
 
         {/* Drawer Action Footer */}
-        <div className="p-4 border-t border-slate-800 bg-obsidian-950/80 flex items-center justify-between">
-          <div className="text-[11px] text-slate-400 font-mono">
+        <div className="p-4 border-t border-stone-200/60 dark:border-white/10 bg-white/50 dark:bg-stone-950/80 flex items-center justify-between">
+          <div className="text-[11px] text-stone-500 dark:text-stone-400 font-mono">
             Cryptographically sealed • SHA-256 verifiable
           </div>
           <button
             type="button"
             onClick={closeExplainability}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition"
+            className="px-4 py-2 rounded-lg bg-stone-200/70 dark:bg-stone-800/70 hover:bg-stone-300/80 dark:hover:bg-stone-700/80 text-stone-700 dark:text-stone-200 text-xs font-medium transition"
           >
             Dismiss
           </button>
