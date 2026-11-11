@@ -12,3 +12,6 @@ export { TeamSharingView } from './TeamSharingView';
 export { SponsorIntegrationsView } from './SponsorIntegrationsView';
 export { SettingsView } from './SettingsView';
 export { AuthView } from './AuthView';
+export { DisputeDefenseView } from './DisputeDefenseView';
+export { InvoiceFraudShieldView } from './InvoiceFraudShieldView';
+export { ObligationSchedulerView } from './ObligationSchedulerView';
