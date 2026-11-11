@@ -1,0 +1,58 @@
+{
+  "info": {
+    "_postman_id": "b25f516a-a215-4ae0-a23e-cc4a243b5797",
+    "name": "PayPilot API",
+    "description": "Smoke requests for the PayPilot FastAPI service. Set baseUrl to the API origin and apiPrefix to /api/v1. Protected PayPal connection checks need a Supabase access token. No secrets are stored in this collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "apiPrefix", "value": "/api/v1" },
+    { "key": "supabaseAccessToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/health"
+      }
+    },
+    {
+      "name": "Assess commitment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"USD\",\n  \"starting_cash\": 10000,\n  \"starting_cash_source\": \"owner_verified\",\n  \"required_reserve\": 1000,\n  \"cash_flows\": [\n    { \"date\": \"2026-12-01\", \"direction\": \"outflow\", \"amount\": 2500, \"label\": \"Rent\" },\n    { \"date\": \"2026-12-15\", \"direction\": \"inflow\", \"amount\": 4000, \"label\": \"Customer payment\" }\n  ]\n}"
+        },
+        "url": "{{baseUrl}}{{apiPrefix}}/commitments/assess"
+      }
+    },
+    {
+      "name": "PayPal integration status",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/paypal/status"
+      }
+    },
+    {
+      "name": "Check PayPal Sandbox credentials",
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{supabaseAccessToken}}", "type": "string" }]
+        },
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/paypal/connection-check"
+      }
+    }
+  ]
+}
