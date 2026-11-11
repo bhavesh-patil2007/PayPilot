@@ -24,6 +24,16 @@ class Settings(BaseSettings):
     paypal_client_secret: SecretStr | None = None
     paypal_webhook_id: str | None = None
     paypal_base_url: str = "https://api-m.sandbox.paypal.com"
+    channel3_api_key: SecretStr | None = None
+    channel3_base_url: str = "https://api.trychannel3.com"
+    elasticsearch_url: str | None = None
+    elasticsearch_api_key: SecretStr | None = None
+    elasticsearch_index: str = "paypilot-evidence"
+    astropods_api_key: SecretStr | None = None
+    astropods_deployment_id: str | None = None
+    kernel_api_key: SecretStr | None = None
+    zapier_mcp_endpoint: str | None = None
+    zapier_mcp_token: SecretStr | None = None
     cors_origins: str = "http://localhost:5173"
 
     @field_validator(
@@ -33,6 +43,11 @@ class Settings(BaseSettings):
         "paypal_client_id",
         "paypal_client_secret",
         "paypal_webhook_id",
+        "channel3_api_key",
+        "elasticsearch_api_key",
+        "astropods_api_key",
+        "kernel_api_key",
+        "zapier_mcp_token",
         mode="before",
     )
     @classmethod
@@ -68,6 +83,26 @@ class Settings(BaseSettings):
     @property
     def paypal_webhooks_configured(self) -> bool:
         return self.paypal_configured and bool(self.paypal_webhook_id)
+
+    @property
+    def channel3_configured(self) -> bool:
+        return bool(self.channel3_api_key and self.channel3_api_key.get_secret_value().strip())
+
+    @property
+    def elasticsearch_configured(self) -> bool:
+        return bool(self.elasticsearch_url and self.elasticsearch_api_key)
+
+    @property
+    def astropods_configured(self) -> bool:
+        return bool(self.astropods_api_key and self.astropods_deployment_id)
+
+    @property
+    def kernel_configured(self) -> bool:
+        return bool(self.kernel_api_key)
+
+    @property
+    def zapier_mcp_configured(self) -> bool:
+        return bool(self.zapier_mcp_endpoint and self.zapier_mcp_token)
 
 
 @lru_cache

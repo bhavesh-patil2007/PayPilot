@@ -21,6 +21,7 @@ import {
   ApprovalsView,
   TeamSharingView,
   SettingsView,
+  SponsorIntegrationsView,
 } from './views';
 
 export default function App() {
@@ -53,6 +54,8 @@ export default function App() {
         return <TeamSharingView />;
       case 'settings':
         return <SettingsView />;
+      case 'sponsor-integrations':
+        return <SponsorIntegrationsView />;
       default:
         return <CommandCenterView />;
     }

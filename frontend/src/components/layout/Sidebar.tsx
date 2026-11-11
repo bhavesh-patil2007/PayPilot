@@ -15,6 +15,7 @@ import {
   Share2,
   Settings,
   RefreshCw,
+  Puzzle,
 } from 'lucide-react';
 
 export interface SidebarProps {
@@ -100,6 +101,7 @@ export const NAV_GROUPS: NavGroupDef[] = [
         badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-500/30',
       },
       { id: 'team-sharing', label: 'Team & Sharing', icon: Share2 },
+      { id: 'sponsor-integrations', label: 'Sponsor Integrations', icon: Puzzle },
       { id: 'settings', label: 'Settings & Sandbox', icon: Settings },
     ],
   },

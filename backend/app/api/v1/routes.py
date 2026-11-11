@@ -4,7 +4,9 @@ from datetime import datetime, timezone
 from typing import Any
 
 import asyncpg
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from urllib.parse import quote
 
 from ...core.auth import AuthenticatedUser, require_supabase_user
 from ...core.config import Settings, get_settings
@@ -42,6 +44,134 @@ async def paypal_status(settings: Settings = Depends(get_settings)) -> dict[str,
         "configured": settings.paypal_configured,
         "webhooks_configured": settings.paypal_webhooks_configured,
     }
+
+
+@router.get("/integrations/status")
+async def integration_status(settings: Settings = Depends(get_settings)) -> dict[str, Any]:
+    """Report implemented/configured status without exposing secrets."""
+    return {
+        "integrations": [
+            {"id": "paypal", "name": "PayPal", "implemented": True, "configured": settings.paypal_webhooks_configured, "evidence": "Sandbox OAuth and signature-verified webhook intake; invoice/payment judge path remains incomplete."},
+            {"id": "ag-grid", "name": "AG Grid", "implemented": True, "configured": True, "evidence": "Interactive recovery, reconciliation, and ledger grids."},
+            {"id": "ag-studio", "name": "AG Studio", "implemented": False, "configured": False, "evidence": "Requires licensed AG Studio React package and configured AI provider."},
+            {"id": "apimatic", "name": "APIMatic", "implemented": False, "configured": False, "evidence": "OpenAPI is exposed; no APIMatic-generated typed PayPal client or Context Plugin evidence yet."},
+            {"id": "astropods", "name": "Astropods", "implemented": False, "configured": settings.astropods_configured, "evidence": "Agent run workflow is not connected to PayPilot tools or persisted traces."},
+            {"id": "bryntum", "name": "Bryntum", "implemented": False, "configured": False, "evidence": "Current commitment timeline is custom SVG; Bryntum package and license are not installed."},
+            {"id": "channel3", "name": "Channel3", "implemented": True, "configured": settings.channel3_configured, "evidence": "Server-side product search proxy returns provider provenance and fetch timestamp."},
+            {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "evidence": "Evidence search is server-side, derives active workspaces from the authenticated user, and applies a mandatory workspace filter."},
+            {"id": "kernel", "name": "KERNEL", "implemented": False, "configured": settings.kernel_configured, "evidence": "User-authorized browser-task policy and trace storage are not implemented."},
+            {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "evidence": "Versioned collection is present; required negative scenarios and successful run evidence remain incomplete."},
+            {"id": "render", "name": "Render", "implemented": True, "configured": False, "evidence": "Blueprint is present; hosted health and durable job workflow are not verified."},
+            {"id": "zapier", "name": "Zapier MCP", "implemented": False, "configured": settings.zapier_mcp_configured, "evidence": "Approved external action and saved result/audit flow are not implemented."},
+        ]
+    }
+
+
+@router.post("/integrations/channel3/search")
+async def channel3_product_search(
+    query: str = Query(min_length=2, max_length=240),
+    limit: int = Query(default=10, ge=1, le=20),
+    user: AuthenticatedUser = Depends(require_supabase_user),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Search Channel3 through a server-side key and return provenance."""
+    del user  # Validate the caller before using the shared provider credential.
+    if not settings.channel3_configured:
+        raise HTTPException(status_code=503, detail="Channel3 API key is not configured on the backend.")
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                f"{settings.channel3_base_url.rstrip('/')}/v1/search",
+                headers={"x-api-key": settings.channel3_api_key.get_secret_value(), "Accept": "application/json"},
+                json={"query": query, "limit": limit},
+            )
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="Channel3 product search is temporarily unavailable.") from exc
+    if response.status_code == 401:
+        raise HTTPException(status_code=502, detail="Channel3 rejected the configured API key.")
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail="Channel3 could not complete product search.")
+    payload = response.json()
+    products = payload.get("data", payload.get("items", payload.get("products", []))) if isinstance(payload, dict) else []
+    return {
+        "provider": "Channel3",
+        "query": query,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "products": products if isinstance(products, list) else [],
+    }
+
+
+@router.post("/integrations/elastic/evidence-search")
+async def elastic_evidence_search(
+    request: Request,
+    query: str = Query(min_length=2, max_length=240),
+    user: AuthenticatedUser = Depends(require_supabase_user),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Search evidence only inside workspace IDs resolved from the auth user."""
+    if not settings.elasticsearch_configured:
+        raise HTTPException(status_code=503, detail="Elastic evidence search is not configured on the backend.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="Workspace database is required for tenant-scoped evidence search.")
+    try:
+        user_id = __import__("uuid").UUID(user.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail="Authenticated user identity is invalid.") from exc
+    async with pool.acquire() as connection:
+        workspace_ids = await connection.fetch(
+            """
+            SELECT DISTINCT w.id::text AS id
+            FROM public.workspaces w
+            LEFT JOIN public.workspace_members wm ON wm.workspace_id = w.id
+            WHERE w.created_by = $1 OR (wm.user_id = $1 AND wm.status = 'active')
+            """,
+            user_id,
+        )
+    allowed_workspaces = [row["id"] for row in workspace_ids]
+    if not allowed_workspaces:
+        return {"provider": "Elastic", "query": query, "fetched_at": datetime.now(timezone.utc).isoformat(), "evidence": []}
+
+    endpoint = f"{settings.elasticsearch_url.rstrip('/')}/{quote(settings.elasticsearch_index, safe='-_')}/_search"
+    body = {
+        "size": 10,
+        "_source": ["workspace_id", "title", "content", "source_url", "page", "created_at"],
+        "query": {
+            "bool": {
+                "must": [{"multi_match": {"query": query, "fields": ["title^2", "content"]}}],
+                "filter": [{"terms": {"workspace_id": allowed_workspaces}}],
+            }
+        },
+        "highlight": {"fields": {"content": {"fragment_size": 240, "number_of_fragments": 1}}},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            response = await client.post(
+                endpoint,
+                headers={"Authorization": f"ApiKey {settings.elasticsearch_api_key.get_secret_value()}", "Accept": "application/json"},
+                json=body,
+            )
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="Elastic evidence search is temporarily unavailable.") from exc
+    if response.status_code in (401, 403):
+        raise HTTPException(status_code=502, detail="Elastic rejected the configured API key or index permissions.")
+    if response.status_code >= 400:
+        raise HTTPException(status_code=502, detail="Elastic could not complete evidence search.")
+    hits = response.json().get("hits", {}).get("hits", [])
+    evidence = []
+    for hit in hits:
+        source = hit.get("_source", {})
+        fragments = hit.get("highlight", {}).get("content", [])
+        snippet = fragments[0] if fragments else str(source.get("content", ""))[:240]
+        evidence.append({
+            "id": hit.get("_id"),
+            "title": source.get("title") or "Evidence record",
+            "snippet": snippet,
+            "source_url": source.get("source_url"),
+            "page": source.get("page"),
+            "score": hit.get("_score"),
+        })
+    return {"provider": "Elastic", "query": query, "fetched_at": datetime.now(timezone.utc).isoformat(), "evidence": evidence}
 
 
 @router.post("/integrations/paypal/connection-check")

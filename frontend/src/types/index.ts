@@ -19,6 +19,7 @@ export type AppRoute =
   | 'copilot'
   | 'approvals'
   | 'team-sharing'
+  | 'sponsor-integrations'
   | 'settings';
 
 export type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'CAD' | 'INR';
