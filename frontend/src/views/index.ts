@@ -11,3 +11,4 @@ export { ApprovalsView } from './ApprovalsView';
 export { TeamSharingView } from './TeamSharingView';
 export { SponsorIntegrationsView } from './SponsorIntegrationsView';
 export { SettingsView } from './SettingsView';
+export { AuthView } from './AuthView';

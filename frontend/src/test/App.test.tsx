@@ -4,11 +4,26 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import App from '../App';
 import { usePayPilotStore } from '../store/usePayPilotStore';
 import { AppRoute } from '../types';
+import { clearDemoSession, DEMO_CREDENTIALS, saveDemoSession } from '../services/appAuth';
 
 describe('App Root Component & 12-Route Router', () => {
   beforeEach(() => {
     window.alert = vi.fn();
     usePayPilotStore.getState().resetToDemoState();
+    saveDemoSession(DEMO_CREDENTIALS.email);
+  });
+
+  it('requires sign-in and accepts the local demo credentials without Supabase', () => {
+    clearDemoSession();
+    render(<App />);
+
+    expect(screen.getByRole('heading', { name: 'Sign in to PayPilot' })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: DEMO_CREDENTIALS.email } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: DEMO_CREDENTIALS.password } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(screen.getByTestId('app-view-container')).toBeInTheDocument();
+    expect(screen.getByText(/Demo workspace · sample data/)).toBeInTheDocument();
   });
 
   it('renders PayPilot brand, navigation items, and header', () => {

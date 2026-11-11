@@ -19,12 +19,14 @@ import { Header } from '../components/layout/Header';
 import { usePayPilotStore } from '../store/usePayPilotStore';
 import { PRISTINE_DEMO_SEED_DATA } from '../store/demoSeedData';
 import { AppRoute, CommitmentItem } from '../types';
+import { DEMO_CREDENTIALS, saveDemoSession } from '../services/appAuth';
 
 describe('Challenger M5: 5-Act Stepper, 12-Route Router & One-Click Judge Reset Stress Suite', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.alert = vi.fn();
     usePayPilotStore.getState().resetToDemoState();
+    saveDemoSession(DEMO_CREDENTIALS.email);
   });
 
   afterEach(() => {

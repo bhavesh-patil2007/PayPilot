@@ -2,8 +2,12 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/+$/, '');
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 let accessToken: string | null = null;
 
+function isConfiguredValue(value: string | undefined): value is string {
+  return Boolean(value?.trim() && !/YOUR_PROJECT|YOUR_PUBLIC_|YOUR_/i.test(value));
+}
+
 export function hasSupabaseBrowserConfig(): boolean {
-  return Boolean(supabaseUrl && publishableKey);
+  return isConfiguredValue(supabaseUrl) && isConfiguredValue(publishableKey);
 }
 
 export function getSupabaseAccessToken(): string | null {
@@ -15,7 +19,7 @@ export function clearSupabaseSession(): void {
 }
 
 export async function signInWithPassword(email: string, password: string): Promise<void> {
-  if (!supabaseUrl || !publishableKey) throw new Error('Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in frontend/.env, then restart Vite.');
+  if (!hasSupabaseBrowserConfig() || !supabaseUrl || !publishableKey) throw new Error('Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in frontend/.env, then restart Vite.');
   const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: publishableKey },

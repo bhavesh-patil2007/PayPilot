@@ -49,6 +49,17 @@ uvicorn app.main:app --app-dir backend --reload
 
 The API health endpoint works without credentials. Supabase Auth, Postgres webhook storage, and PayPal Sandbox checks require the corresponding server-side values in `.env`. The backend rejects non-Sandbox PayPal URLs. The Settings screen's **Check API** control shows which services are configured.
 
+## Sign in
+
+The app opens on a sign-in page. For the local sample workspace, use
+`demo@paypilot.local` / `PayPilotDemo2026!`. This shared demo login only opens
+sample data in the browser; it does not authorize protected backend integrations.
+For a real Supabase account, set `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY` in `frontend/.env`, then restart the dev launcher.
+The server-side `.env` may also use `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY`. Never place a Supabase secret or service-role key in
+the frontend or in a `VITE_` variable.
+
 The initial Supabase schema and tenant RLS policies are in `supabase/migrations/`. Apply the migration to a local or staging Supabase project before using persistence. The migration is not applied to any hosted database by this repository.
 
 See [PROJECT.md](PROJECT.md) for the product and architecture brief, and [TEST_INFRA.md](TEST_INFRA.md) for the test strategy.
