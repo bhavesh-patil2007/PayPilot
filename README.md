@@ -6,13 +6,25 @@ The project includes a React and TypeScript frontend plus a FastAPI backend. The
 
 ## Run locally
 
+Install dependencies once if they are not already installed:
+
 ```bash
-cd frontend
-npm ci
-npm run dev
+cd frontend && npm ci
+cd ..
+python3 -m venv backend/.venv
+backend/.venv/bin/pip install -r backend/requirements.txt
 ```
 
-Vite prints the local development URL after it starts.
+Start the frontend and backend together from the repository root:
+
+```bash
+./scripts/dev.sh
+```
+
+The script automatically chooses free ports (starting at 5174 for the frontend
+and 8011 for the backend), points the frontend at that backend, and configures
+local CORS. It prints the URLs when both servers start. Press Ctrl+C to stop
+both processes. Existing `.env` files are left untouched.
 
 ## Build and checks
 
@@ -35,7 +47,7 @@ pip install -r backend/requirements.txt
 uvicorn app.main:app --app-dir backend --reload
 ```
 
-The API is available at `http://localhost:8000/api/v1`; its OpenAPI page is at `http://localhost:8000/docs`. The health endpoint works without credentials. Supabase Auth, Postgres webhook storage, and PayPal Sandbox checks require the corresponding server-side values in `.env`. The backend rejects non-Sandbox PayPal URLs. The Settings screen's **Check API** control shows which services are configured.
+The API health endpoint works without credentials. Supabase Auth, Postgres webhook storage, and PayPal Sandbox checks require the corresponding server-side values in `.env`. The backend rejects non-Sandbox PayPal URLs. The Settings screen's **Check API** control shows which services are configured.
 
 The initial Supabase schema and tenant RLS policies are in `supabase/migrations/`. Apply the migration to a local or staging Supabase project before using persistence. The migration is not applied to any hosted database by this repository.
 

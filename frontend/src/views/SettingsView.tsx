@@ -48,7 +48,10 @@ export const SettingsView: React.FC = () => {
 
   // Backend Endpoints
   const [useLiveBackend, setUseLiveBackend] = useState(false);
-  const [fastApiUrl, setFastApiUrl] = useState('http://localhost:8000');
+  const [fastApiUrl, setFastApiUrl] = useState(() => {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+    return apiBaseUrl.replace(/\/api\/v1\/?$/, '');
+  });
   const [supabaseUrl, setSupabaseUrl] = useState('https://your-project.supabase.co');
   const [supabaseAnonKey, setSupabaseAnonKey] = useState('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
   const [backendSaved, setBackendSaved] = useState(false);
