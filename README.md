@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80" alt="FinCora AI Architectural Emblem" width="120" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(180, 83, 9, 0.3);" />
+  <img src="frontend/public/fincora-logo.png" alt="FinCora AI Logo" width="140" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(180, 83, 9, 0.25);" />
 </p>
 
 <h1 align="center">FinCora AI</h1>
