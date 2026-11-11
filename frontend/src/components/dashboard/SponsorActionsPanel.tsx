@@ -6,8 +6,6 @@ type ZapierTool = { name: string; description: string; input_schema: Record<stri
 interface Props { apiBaseUrl: string; accessToken: string | null }
 
 export const SponsorActionsPanel: React.FC<Props> = ({ apiBaseUrl, accessToken }) => {
-  const [question, setQuestion] = useState('Summarize the evidence and status, and suggest the next review step.');
-  const [astropodsAnswer, setAstropodsAnswer] = useState('');
   const [kernelUrl, setKernelUrl] = useState('https://');
   const [kernelResult, setKernelResult] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -61,17 +59,11 @@ export const SponsorActionsPanel: React.FC<Props> = ({ apiBaseUrl, accessToken }
     setZapierApproved(false);
   };
 
-  if (!accessToken) return <section className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Sign in above to use Astropods, KERNEL, private evidence uploads, Render Workflows, or Zapier. Secrets stay on the backend.</section>;
+  if (!accessToken) return <section className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Sign in above to use KERNEL, private evidence uploads, Render Workflows, or Zapier. Secrets stay on the backend.</section>;
 
   return <section className="space-y-4 rounded-2xl border border-paypal-cyan/20 bg-obsidian-900 p-5" data-testid="sponsor-actions-panel">
     <div><h2 className="text-sm font-semibold text-white">Run sponsor workflows</h2><p className="mt-1 text-[11px] text-slate-400">Each action is user-triggered, scoped to your active workspace, and recorded in audit history. Browser retrieval and integrations do not execute payments.</p></div>
     <div className="grid gap-3 xl:grid-cols-2">
-      <form className="space-y-2 rounded-xl border border-slate-800 bg-obsidian-950 p-3" onSubmit={(event) => { event.preventDefault(); void run('Astropods investigation', async () => { const result = await post('/integrations/astropods/investigate', { question }); setAstropodsAnswer(result.answer || ''); return result; }); }}>
-        <h3 className="text-xs font-semibold text-white">Astropods · read-only investigator</h3>
-        <textarea value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={1200} className="min-h-20 w-full rounded-lg border border-slate-700 bg-obsidian-900 p-2 text-xs text-white" />
-        <button disabled={!!busy} className="rounded-lg bg-paypal-blue px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'Astropods investigation' ? 'Running…' : 'Run investigator'}</button>
-        {astropodsAnswer && <p className="whitespace-pre-wrap rounded-lg bg-obsidian-900 p-2 text-xs text-slate-300">{astropodsAnswer}</p>}
-      </form>
       <form className="space-y-2 rounded-xl border border-slate-800 bg-obsidian-950 p-3" onSubmit={(event) => { event.preventDefault(); void run('KERNEL public evidence', async () => { const result = await post('/integrations/kernel/evidence', { url: kernelUrl }); setKernelResult(JSON.stringify(result, null, 2)); return { trace_id: result.trace_id, title: result.title, url: result.url }; }); }}>
         <h3 className="text-xs font-semibold text-white">KERNEL · public page evidence</h3>
         <input type="url" required value={kernelUrl} onChange={(event) => setKernelUrl(event.target.value)} className="w-full rounded-lg border border-slate-700 bg-obsidian-900 p-2 text-xs text-white" placeholder="https://public.example.com/page" />

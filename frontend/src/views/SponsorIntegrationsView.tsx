@@ -35,7 +35,6 @@ const sponsorGuidance: Record<string, string> = {
   'ag-grid': 'Present in recovery, reconciliation, and ledger workflows.',
   'ag-studio': 'AG Studio React evaluates the recovery dashboard; natural-language commands are constrained to read-only filters.',
   apimatic: 'Generate and use a typed PayPal client from an APIMatic contract/Context Plugin, then run adapter checks.',
-  astropods: 'Run an authenticated read-only investigator question and save a workspace audit trace; the deployed agent still needs scoped PayPilot tools.',
   bryntum: 'Drag a commitment milestone to preview the reserve breach date; the changes remain a scenario until explicitly applied.',
   channel3: 'Search live catalog products; each result shows Channel3 provenance and fetch time.',
   elastic: 'Upload private PDF/TXT/MD/CSV evidence, index page text and search only within the authenticated user’s workspaces.',

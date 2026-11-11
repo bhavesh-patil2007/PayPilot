@@ -38,9 +38,6 @@ class Settings(BaseSettings):
     elasticsearch_url: str | None = None
     elasticsearch_api_key: SecretStr | None = None
     elasticsearch_index: str = "paypilot-evidence"
-    astropods_api_key: SecretStr | None = None
-    astropods_deployment_id: str | None = None
-    astropods_read_only_confirmed: bool = False
     kernel_api_key: SecretStr | None = None
     kernel_key_rotated_after_incident: bool = False
     zapier_mcp_endpoint: str | None = None
@@ -64,7 +61,6 @@ class Settings(BaseSettings):
         "paypal_live_webhook_id",
         "channel3_api_key",
         "elasticsearch_api_key",
-        "astropods_api_key",
         "kernel_api_key",
         "zapier_mcp_token",
         "render_api_key",
@@ -214,10 +210,6 @@ class Settings(BaseSettings):
     @property
     def elasticsearch_configured(self) -> bool:
         return bool(self.elasticsearch_url and self.elasticsearch_api_key)
-
-    @property
-    def astropods_configured(self) -> bool:
-        return bool(self.astropods_api_key and self.astropods_deployment_id and self.astropods_read_only_confirmed)
 
     @property
     def kernel_configured(self) -> bool:

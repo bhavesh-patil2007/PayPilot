@@ -11,7 +11,6 @@ The backend reads the repository-root `.env`; Vite reads `frontend/.env`. Both f
 | `PAYPAL_ENVIRONMENT`, `PAYPAL_BASE_URL`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID` | Sandbox PayPal integration. Live credentials are separate in `PAYPAL_LIVE_*`; Sandbox remains the default. |
 | `CHANNEL3_API_KEY`, `CHANNEL3_BASE_URL` | Authenticated server-side product search. Keep the API key on the backend. |
 | `ELASTICSEARCH_URL`, `ELASTICSEARCH_API_KEY`, `ELASTICSEARCH_INDEX` | Private document-page indexing and tenant-filtered evidence search. A Postgres workspace lookup is required. |
-| `ASTROPODS_API_KEY`, `ASTROPODS_DEPLOYMENT_ID`, `ASTROPODS_READ_ONLY_CONFIRMED=true` | Read-only investigator chat. Set the confirmation only after restricting the deployed agent to scoped, read-only PayPilot tools; requests are traced in `audit_logs`. |
 | `KERNEL_API_KEY`, `KERNEL_KEY_ROTATED_AFTER_INCIDENT=true` | User-triggered, read-only browser retrieval for public HTTPS pages. The key must be rotated and scoped before this route is enabled. Requires Postgres to save the review trace. |
 | `ZAPIER_MCP_ENDPOINT`, `ZAPIER_MCP_TOKEN`, `ZAPIER_MCP_ALLOWED_TOOLS` | Discover Zapier MCP tools and run only explicitly allowlisted actions after in-app user approval. Leave the allowlist empty until each connected action has been reviewed. |
 | `RENDER_API_KEY`, `RENDER_WORKFLOW_SLUG` | Trigger the included hosted Render review workflow. They are not required to run locally. |
@@ -35,7 +34,6 @@ Apply the migrations in `supabase/migrations/` to the Supabase project before up
 
 - **PayPal + APIMatic:** Sandbox and Live credential pairs remain isolated. The official generated SDK performs typed OAuth; webhook verification and idempotent webhook persistence remain in the adapter. The full invoice/payment plus Digital Twin judge path is still incomplete.
 - **AG Grid / AG Studio:** Recovery and operations grids use AG Grid. The Sponsor Integrations page contains a trial AG Studio recovery dashboard; its guarded natural-language commands only filter a status view.
-- **Astropods:** The app can start a signed-in, read-only investigation and return the conversation trace. The deployed agent itself still must be equipped with scoped PayPilot tools before it can honestly count as an investigator over PayPilot case data.
 - **Bryntum:** The Commitments page contains a trial Bryntum Gantt. Dragging a milestone updates a local scenario preview and reserve-breach calculation only; it does not save or pay a commitment.
 - **Channel3:** Live search runs server-side and returns provider provenance and a fetch time. It is available from the sponsor page for purchase analysis; it never purchases a result.
 - **Elastic:** Evidence originals are stored in private Supabase Storage; extracted pages are indexed and searched with a mandatory tenant filter. Apply migrations and configure an Elastic index before use.

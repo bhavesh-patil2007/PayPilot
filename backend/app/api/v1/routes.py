@@ -25,10 +25,6 @@ from ...schemas.commitments import CommitmentAssessmentRequest, CommitmentAssess
 router = APIRouter()
 
 
-class InvestigatorRequest(BaseModel):
-    question: str = Field(min_length=5, max_length=1200)
-
-
 class KernelEvidenceRequest(BaseModel):
     url: str = Field(min_length=10, max_length=1500)
 
@@ -124,7 +120,6 @@ async def integration_status(settings: Settings = Depends(get_settings)) -> dict
             {"id": "ag-grid", "name": "AG Grid", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Interactive recovery, reconciliation, and ledger grids are present; separate AG Studio widget and guarded natural-language dashboard change are missing."},
             {"id": "ag-studio", "name": "AG Studio", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "AG Studio React hosts a recovery analytics grid with guarded natural-language status filters; local evaluation is available, production needs the vendor license."},
             {"id": "apimatic", "name": "APIMatic", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "APIMatic PayPal Context Plugin is installed in VS Code; the backend PayPal adapter uses the APIMatic-generated official Server SDK typed OAuth token model."},
-            {"id": "astropods", "name": "Astropods", "implemented": True, "configured": settings.astropods_configured, "h8_status": "partial", "evidence": "Authenticated read-only investigator conversations return a trace and write a workspace audit record; the deployed agent must be configured with scoped PayPilot tools."},
             {"id": "bryntum", "name": "Bryntum", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Bryntum Gantt trial shows commitment milestones and computes a local reserve-breach preview when dates move; saving a changed scenario requires explicit follow-up."},
             {"id": "channel3", "name": "Channel3", "implemented": True, "configured": settings.channel3_configured, "h8_status": "partial", "evidence": "Server-side live product-search adapter returns provider provenance and fetch timestamp; it is not yet connected to purchase analysis."},
             {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "h8_status": "partial", "evidence": "Authenticated evidence search derives active workspaces and applies a mandatory workspace filter; populated index and isolation evidence are missing."},
@@ -134,76 +129,6 @@ async def integration_status(settings: Settings = Depends(get_settings)) -> dict
             {"id": "zapier", "name": "Zapier MCP", "implemented": True, "configured": settings.zapier_configured, "h8_status": "partial", "evidence": "MCP tools can be discovered and only environment-allowlisted actions can run after explicit user approval; action result metadata is audited."},
         ]
     }
-
-
-@router.post("/integrations/astropods/investigate")
-async def astropods_investigate(
-    payload: InvestigatorRequest,
-    request: Request,
-    user: AuthenticatedUser = Depends(require_supabase_user),
-    settings: Settings = Depends(get_settings),
-) -> dict[str, Any]:
-    """Run a user-triggered, read-only investigator turn and persist its trace."""
-    if not settings.astropods_configured:
-        raise HTTPException(status_code=503, detail="Configure Astropods credentials and set ASTROPODS_READ_ONLY_CONFIRMED=true only after restricting deployment tools to read-only.")
-    pool: asyncpg.Pool | None = request.app.state.database_pool
-    if pool is None:
-        raise HTTPException(status_code=503, detail="DATABASE_URL is required to save the investigator trace.")
-    workspace_id, actor_id = await _user_workspace(pool, user.id)
-    base = "https://astropods.com/api/v1"
-    headers = {"Authorization": f"Bearer {settings.astropods_api_key.get_secret_value()}", "Accept": "application/json"}
-    deployment = quote(settings.astropods_deployment_id, safe="")
-    try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, connect=10.0)) as client:
-            created = await client.post(f"{base}/deployments/{deployment}/messaging/conversations", headers=headers)
-            created.raise_for_status()
-            conversation_id = created.json().get("conversation_id")
-            if not isinstance(conversation_id, str) or not conversation_id:
-                raise HTTPException(status_code=502, detail="Astropods returned no conversation ID.")
-            safe_prompt = (
-                "This is a read-only PayPilot recovery investigation. Answer only with evidence/status and a suggested next review step. "
-                "Do not initiate, approve, or claim to execute payments, refunds, or any other financial action. "
-                "Do not request credentials or secrets. User question: " + payload.question.strip()
-            )
-            sent = await client.post(
-                f"{base}/deployments/{deployment}/messaging/conversations/{quote(conversation_id, safe='')}/messages",
-                headers={**headers, "Content-Type": "application/json"}, json={"content": safe_prompt},
-            )
-            sent.raise_for_status()
-            stream = await client.get(
-                f"{base}/deployments/{deployment}/messaging/conversations/{quote(conversation_id, safe='')}/stream",
-                headers={"Authorization": headers["Authorization"], "Accept": "text/event-stream"},
-            )
-            stream.raise_for_status()
-    except HTTPException:
-        raise
-    except httpx.HTTPStatusError as exc:
-        raise HTTPException(status_code=502, detail=f"Astropods rejected the investigator request (HTTP {exc.response.status_code}).") from exc
-    except httpx.HTTPError as exc:
-        raise HTTPException(status_code=502, detail="Astropods investigator is temporarily unavailable.") from exc
-
-    # Consume the completed SSE response; only the resulting text and trace ID are stored.
-    answer_parts: list[str] = []
-    for line in stream.text.splitlines():
-        if not line.startswith("data:"):
-            continue
-        raw = line[5:].strip()
-        if not raw or raw == "[DONE]":
-            continue
-        try:
-            event = json.loads(raw)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(event, dict):
-            chunk = event.get("content")
-            if isinstance(chunk, str):
-                answer_parts.append(chunk)
-    answer = "".join(answer_parts)[:12000]
-    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "astropods", conversation_id, {
-        "conversation_id": conversation_id, "question": payload.question.strip()[:1200],
-        "answer_excerpt": answer[:1500], "read_only": True,
-    })
-    return {"provider": "Astropods", "conversation_id": conversation_id, "trace_id": str(audit_id), "answer": answer}
 
 
 @router.post("/integrations/kernel/evidence")

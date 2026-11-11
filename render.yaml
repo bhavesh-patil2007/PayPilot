@@ -44,12 +44,6 @@ services:
         sync: false
       - key: ELASTICSEARCH_INDEX
         value: paypilot-evidence
-      - key: ASTROPODS_API_KEY
-        sync: false
-      - key: ASTROPODS_DEPLOYMENT_ID
-        sync: false
-      - key: ASTROPODS_READ_ONLY_CONFIRMED
-        value: "false"
       - key: KERNEL_API_KEY
         sync: false
       - key: KERNEL_KEY_ROTATED_AFTER_INCIDENT
