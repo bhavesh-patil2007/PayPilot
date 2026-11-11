@@ -31,3 +31,9 @@ export async function signInWithPassword(email: string, password: string): Promi
   }
   accessToken = payload.access_token;
 }
+
+export function getGoogleOAuthUrl(): string | null {
+  if (!hasSupabaseBrowserConfig() || !supabaseUrl) return null;
+  const redirectUri = encodeURIComponent(window.location.origin);
+  return `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectUri}`;
+}

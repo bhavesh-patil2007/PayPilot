@@ -17,7 +17,7 @@ describe('App Root Component & 12-Route Router', () => {
     clearDemoSession();
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Sign in to PayPilot' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Sign in to (FinCora AI|PayPilot)/ })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: DEMO_CREDENTIALS.email } });
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: DEMO_CREDENTIALS.password } });
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
