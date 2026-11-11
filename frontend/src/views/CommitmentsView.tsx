@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { usePayPilotStore } from '../store/usePayPilotStore';
 import { CommitmentGanttChart } from '../components/charts/CommitmentGanttChart';
+const BryntumCommitmentTimeline = lazy(() => import('../components/dashboard/BryntumCommitmentTimeline').then((module) => ({ default: module.BryntumCommitmentTimeline })));
 import { ThreeCanvasContainer } from '../components/3d/ThreeCanvasContainer';
 import { FirewallScene } from '../components/3d/scenes/FirewallScene';
 import {
@@ -436,6 +437,14 @@ export function CommitmentsView() {
           </div>
         </div>
       </div>
+
+      <Suspense fallback={<div className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Loading Bryntum commitment timeline…</div>}>
+        <BryntumCommitmentTimeline
+          commitments={commitments}
+          availableCash={executiveKpis.totalAvailableCash}
+          reserve={minimumSafetyBuffer}
+        />
+      </Suspense>
     </div>
   );
 }

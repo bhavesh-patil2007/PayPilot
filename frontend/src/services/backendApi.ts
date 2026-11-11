@@ -5,6 +5,8 @@ export interface BackendHealth {
   database_configured: boolean;
   supabase_auth_configured: boolean;
   paypal_sandbox_configured: boolean;
+  paypal_configured: boolean;
+  paypal_environment: 'sandbox' | 'live';
   paypal_webhooks_configured: boolean;
 }
 

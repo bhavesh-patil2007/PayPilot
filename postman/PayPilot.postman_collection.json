@@ -17,7 +17,8 @@
         "method": "GET",
         "header": [{ "key": "Accept", "value": "application/json" }],
         "url": "{{baseUrl}}{{apiPrefix}}/health"
-      }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('API health responds successfully', () => pm.response.to.have.status(200));", "pm.test('Health response does not expose secret values', () => pm.expect(pm.response.text()).not.to.include('client_secret'));" ] } }]
     },
     {
       "name": "Assess commitment",
@@ -32,7 +33,8 @@
           "raw": "{\n  \"currency\": \"USD\",\n  \"starting_cash\": 10000,\n  \"starting_cash_source\": \"owner_verified\",\n  \"required_reserve\": 1000,\n  \"cash_flows\": [\n    { \"date\": \"2026-12-01\", \"direction\": \"outflow\", \"amount\": 2500, \"label\": \"Rent\" },\n    { \"date\": \"2026-12-15\", \"direction\": \"inflow\", \"amount\": 4000, \"label\": \"Customer payment\" }\n  ]\n}"
         },
         "url": "{{baseUrl}}{{apiPrefix}}/commitments/assess"
-      }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Assessment returns a guarded scenario result', () => pm.response.to.have.status(200));", "pm.test('Assessment includes assumptions and scenario version', () => { const body = pm.response.json(); pm.expect(body.scenario_version).to.be.a('string'); pm.expect(body.assumptions).to.be.an('array'); });"] } }]
     },
     {
       "name": "Sponsor integration status",
@@ -40,7 +42,8 @@
         "method": "GET",
         "header": [{ "key": "Accept", "value": "application/json" }],
         "url": "{{baseUrl}}{{apiPrefix}}/integrations/status"
-      }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Sponsor status lists the integrations', () => { const body = pm.response.json(); pm.expect(body.integrations).to.be.an('array'); pm.expect(body.integrations.length).to.be.at.least(10); });"] } }]
     },
     {
       "name": "PayPal integration status",
@@ -85,6 +88,34 @@
         "header": [{ "key": "Accept", "value": "application/json" }],
         "url": "{{baseUrl}}{{apiPrefix}}/integrations/elastic/evidence-search?query=invoice"
       }
+    },
+    {
+      "name": "Reject unauthenticated Channel3 product search",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/channel3/search?query=office%20chair&limit=5"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('A caller without a Supabase session cannot access shared Channel3 credentials', () => pm.expect(pm.response.code).to.be.oneOf([401, 503]));"] } }]
+    },
+    {
+      "name": "Reject unauthenticated Elastic evidence search",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}{{apiPrefix}}/integrations/elastic/evidence-search?query=invoice"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('A caller without a Supabase session cannot search another workspace', () => pm.expect(pm.response.code).to.be.oneOf([401, 503]));"] } }]
+    },
+    {
+      "name": "Reject unsigned PayPal webhook replay",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"id\":\"POSTMAN-UNSIGNED-REPLAY\",\"event_type\":\"PAYMENT.CAPTURE.COMPLETED\",\"resource\":{\"id\":\"UNVERIFIED\"}}" },
+        "url": "{{baseUrl}}{{apiPrefix}}/webhooks/paypal"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Unsigned webhook replay is rejected and never acknowledged', () => pm.expect(pm.response.code).to.be.oneOf([400, 503]));"] } }]
     }
   ]
 }

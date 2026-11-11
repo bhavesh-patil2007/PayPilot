@@ -1,8 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Activity, CheckCircle2, CircleAlert, ExternalLink, Loader2, Search, Shield, XCircle } from 'lucide-react';
 import { normalizeApiBaseUrl } from '../services/backendApi';
 import { sandboxService } from '../services/sandboxService';
 import { clearSupabaseSession, getSupabaseAccessToken, hasSupabaseBrowserConfig, signInWithPassword } from '../services/supabaseSession';
+import { SponsorActionsPanel } from '../components/dashboard/SponsorActionsPanel';
+
+const AgStudioRecoveryDashboard = lazy(() => import('../components/dashboard/AgStudioRecoveryDashboard').then((module) => ({ default: module.AgStudioRecoveryDashboard })));
 
 interface SponsorIntegration {
   id: string;
@@ -30,16 +33,16 @@ interface EvidenceSearchResult {
 const sponsorGuidance: Record<string, string> = {
   paypal: 'Finish a Sandbox invoice/payment and map verified, deduplicated webhook events into a PayPilot case or Digital Twin.',
   'ag-grid': 'Present in recovery, reconciliation, and ledger workflows.',
-  'ag-studio': 'Add the licensed AG Studio React package and connect an AI provider; natural-language edits must be guarded.',
+  'ag-studio': 'AG Studio React evaluates the recovery dashboard; natural-language commands are constrained to read-only filters.',
   apimatic: 'Generate and use a typed PayPal client from an APIMatic contract/Context Plugin, then run adapter checks.',
-  astropods: 'Deploy an investigator that invokes scoped PayPilot tools and saves trace/status without financial actions.',
-  bryntum: 'Replace the custom commitment timeline with licensed Bryntum Gantt and connect changes to scenario/reserve calculations.',
+  astropods: 'Run an authenticated read-only investigator question and save a workspace audit trace; the deployed agent still needs scoped PayPilot tools.',
+  bryntum: 'Drag a commitment milestone to preview the reserve breach date; the changes remain a scenario until explicitly applied.',
   channel3: 'Search live catalog products; each result shows Channel3 provenance and fetch time.',
-  elastic: 'Index evidence with a mandatory authenticated-workspace filter and return cited document snippets.',
-  kernel: 'Allow only user-authorized browser tasks, then save a reviewable task trace; never execute payments.',
+  elastic: 'Upload private PDF/TXT/MD/CSV evidence, index page text and search only within the authenticated user’s workspaces.',
+  kernel: 'Retrieve title/text from a user-authorized public HTTPS page on one host and save a reviewable trace; no clicks or form actions.',
   postman: 'Add replay, approval-tampering, and workspace-authorization negative cases; run the collection successfully.',
-  render: 'Deploy API plus durable idempotent job/workflow processing and expose hosted health evidence.',
-  zapier: 'Require an approved allow-listed MCP action, save the action ID/result, and show it in audit history.',
+  render: 'Start a durable, idempotent review workflow and save its run ID; hosted execution requires Render setup.',
+  zapier: 'Discover MCP tools, run only configured allowlisted actions after explicit approval, and save result metadata in the audit log.',
 };
 
 const statusClasses = (status: SponsorIntegration['h8_status']) => status === 'complete'
@@ -163,6 +166,10 @@ export const SponsorIntegrationsView: React.FC = () => {
         </p>
       </header>
 
+      <Suspense fallback={<div className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Loading AG Studio recovery dashboard…</div>}>
+        <AgStudioRecoveryDashboard />
+      </Suspense>
+
       <section className="rounded-2xl border border-paypal-cyan/20 bg-obsidian-900 p-5 shadow-card-dark">
         <div className="mb-4 flex items-center gap-2">
           <Search className="h-4 w-4 text-paypal-cyan" />
@@ -236,6 +243,8 @@ export const SponsorIntegrationsView: React.FC = () => {
           </article>)}
         </div>}
       </section>
+
+      <SponsorActionsPanel apiBaseUrl={apiBaseUrl} accessToken={accessToken} />
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {loading && <div className="col-span-full flex items-center gap-2 rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400"><Loader2 className="h-4 w-4 animate-spin" />Loading backend-reported status…</div>}

@@ -9,26 +9,69 @@ services:
     envVars:
       - key: APP_ENV
         value: production
+      # Enter the exact deployed frontend origin (for example https://paypilot-frontend.onrender.com).
       - key: CORS_ORIGINS
-        value: http://localhost:5173
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_PUBLISHABLE_KEY
         sync: false
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      - key: PAYPAL_ENVIRONMENT
+        value: sandbox
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
         sync: false
       - key: PAYPAL_WEBHOOK_ID
         sync: false
+      - key: PAYPAL_LIVE_CLIENT_ID
+        sync: false
+      - key: PAYPAL_LIVE_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_LIVE_WEBHOOK_ID
+        sync: false
       - key: CHANNEL3_API_KEY
         sync: false
+      - key: CHANNEL3_BASE_URL
+        value: https://api.trychannel3.com
       - key: ELASTICSEARCH_URL
         sync: false
       - key: ELASTICSEARCH_API_KEY
         sync: false
+      - key: ELASTICSEARCH_INDEX
+        value: paypilot-evidence
+      - key: ASTROPODS_API_KEY
+        sync: false
+      - key: ASTROPODS_DEPLOYMENT_ID
+        sync: false
+      - key: ASTROPODS_READ_ONLY_CONFIRMED
+        value: "false"
+      - key: KERNEL_API_KEY
+        sync: false
+      - key: KERNEL_KEY_ROTATED_AFTER_INCIDENT
+        value: "false"
+      - key: ZAPIER_MCP_ENDPOINT
+        sync: false
+      - key: ZAPIER_MCP_TOKEN
+        sync: false
+      - key: ZAPIER_MCP_ALLOWED_TOOLS
+        sync: false
+      - key: RENDER_API_KEY
+        sync: false
+      - key: RENDER_WORKFLOW_SLUG
+        sync: false
+
+  - type: workflow
+    name: paypilot-recovery-workflows
+    runtime: python
+    plan: flex
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python workflows/main.py
 
   - type: web
     name: paypilot-frontend
@@ -43,6 +86,10 @@ services:
           type: web
           name: paypilot-api
           property: host
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
     routes:
       - type: rewrite
         source: /*

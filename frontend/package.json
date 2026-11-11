@@ -12,31 +12,35 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "zustand": "^5.0.3",
-    "three": "^0.170.0",
+    "@bryntum/gantt": "npm:@bryntum/gantt-trial@^7.3.8",
+    "@bryntum/gantt-react": "^7.3.8",
     "ag-grid-community": "~32.3.9",
     "ag-grid-react": "~32.3.9",
-    "lucide-react": "^0.460.0",
+    "ag-studio": "^3.1.0",
+    "ag-studio-react": "^3.1.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.4"
+    "lucide-react": "^0.460.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "three": "^0.170.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@types/three": "^0.170.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
-    "tailwindcss": "^3.4.15",
-    "postcss": "^8.4.49",
-    "autoprefixer": "^10.4.20",
-    "vitest": "^2.1.5",
-    "jsdom": "^25.0.1",
-    "@testing-library/react": "^16.0.1",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/user-event": "^14.5.2"
+    "vitest": "^2.1.5"
   }
 }

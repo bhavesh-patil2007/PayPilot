@@ -1,11 +1,18 @@
 import hashlib
+import io
+import ipaddress
 import json
+import re
+import socket
+import uuid
 from datetime import datetime, timezone
 from typing import Any
+from urllib.parse import urlsplit
 
 import asyncpg
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
+from pydantic import BaseModel, Field
 from urllib.parse import quote
 
 from ...core.auth import AuthenticatedUser, require_supabase_user
@@ -18,6 +25,66 @@ from ...schemas.commitments import CommitmentAssessmentRequest, CommitmentAssess
 router = APIRouter()
 
 
+class InvestigatorRequest(BaseModel):
+    question: str = Field(min_length=5, max_length=1200)
+
+
+class KernelEvidenceRequest(BaseModel):
+    url: str = Field(min_length=10, max_length=1500)
+
+
+class ZapierActionRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    arguments: dict[str, Any] = Field(default_factory=dict)
+    approved: bool
+
+
+class RenderReviewRequest(BaseModel):
+    case_id: str = Field(min_length=1, max_length=120)
+    idempotency_key: str = Field(min_length=16, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
+
+
+async def _user_workspace(pool: asyncpg.Pool, user_id: str) -> tuple[uuid.UUID, uuid.UUID]:
+    try:
+        actor_id = uuid.UUID(user_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=401, detail="Authenticated user identity is invalid.") from exc
+    async with pool.acquire() as connection:
+        row = await connection.fetchrow(
+            """SELECT w.id FROM public.workspaces w
+               LEFT JOIN public.workspace_members wm ON wm.workspace_id = w.id
+               WHERE w.created_by = $1 OR (wm.user_id = $1 AND wm.status = 'active')
+               ORDER BY (w.created_by = $1) DESC, w.created_at ASC LIMIT 1""",
+            actor_id,
+        )
+    if row is None:
+        raise HTTPException(status_code=403, detail="Create or join a workspace before using sponsor tools.")
+    return row["id"], actor_id
+
+
+async def _write_sponsor_trace(
+    pool: asyncpg.Pool,
+    workspace_id: uuid.UUID,
+    actor_id: uuid.UUID,
+    vendor: str,
+    target_id: str | None,
+    metadata: dict[str, Any],
+) -> int:
+    async with pool.acquire() as connection:
+        return await connection.fetchval(
+            """INSERT INTO public.audit_logs
+               (workspace_id, actor_id, action, target_type, target_id, reason, metadata)
+               VALUES ($1, $2, $3, 'sponsor_task', $4, $5, $6::jsonb) RETURNING id""",
+            workspace_id, actor_id, f"sponsor.{vendor}", target_id,
+            "User-authorized sponsor workflow", json.dumps(metadata, default=str),
+        )
+
+
+def _zapier_tool_is_financial(name: str, description: str | None) -> bool:
+    text = f"{name} {description or ''}".casefold()
+    return any(term in text for term in ("payment", "refund", "payout", "transfer", "charge", "checkout", "money movement"))
+
+
 @router.get("/health")
 async def health(request: Request, settings: Settings = Depends(get_settings)) -> dict[str, Any]:
     return {
@@ -25,8 +92,10 @@ async def health(request: Request, settings: Settings = Depends(get_settings)) -
         "service": "paypilot-api",
         "environment": settings.app_env,
         "database_configured": bool(request.app.state.database_pool),
-        "supabase_auth_configured": bool(settings.supabase_url and settings.supabase_publishable_key),
-        "paypal_sandbox_configured": settings.paypal_configured,
+        "supabase_auth_configured": settings.supabase_auth_configured,
+        "paypal_sandbox_configured": settings.paypal_sandbox_configured,
+        "paypal_configured": settings.paypal_configured,
+        "paypal_environment": settings.paypal_environment,
         "paypal_webhooks_configured": settings.paypal_webhooks_configured,
     }
 
@@ -40,7 +109,7 @@ async def commitment_assessment(payload: CommitmentAssessmentRequest) -> Commitm
 async def paypal_status(settings: Settings = Depends(get_settings)) -> dict[str, str | bool]:
     return {
         "provider": "paypal",
-        "environment": "sandbox",
+        "environment": settings.paypal_environment,
         "configured": settings.paypal_configured,
         "webhooks_configured": settings.paypal_webhooks_configured,
     }
@@ -53,18 +122,266 @@ async def integration_status(settings: Settings = Depends(get_settings)) -> dict
         "integrations": [
             {"id": "paypal", "name": "PayPal", "implemented": True, "configured": settings.paypal_webhooks_configured, "h8_status": "partial", "evidence": "Sandbox OAuth and signature-verified webhook intake; invoice/payment judge path and case/Digital-Twin update remain incomplete."},
             {"id": "ag-grid", "name": "AG Grid", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Interactive recovery, reconciliation, and ledger grids are present; separate AG Studio widget and guarded natural-language dashboard change are missing."},
-            {"id": "ag-studio", "name": "AG Studio", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "Requires licensed AG Studio React package and configured AI provider."},
-            {"id": "apimatic", "name": "APIMatic", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "OpenAPI is exposed; no APIMatic Context Plugin or generated typed PayPal client used by the adapter yet."},
-            {"id": "astropods", "name": "Astropods", "implemented": False, "configured": settings.astropods_configured, "h8_status": "blocked", "evidence": "Agent run workflow is not connected to scoped PayPilot tools or persisted traces."},
-            {"id": "bryntum", "name": "Bryntum", "implemented": False, "configured": False, "h8_status": "blocked", "evidence": "Current commitment timeline is custom SVG; Bryntum package and license are not installed."},
+            {"id": "ag-studio", "name": "AG Studio", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "AG Studio React hosts a recovery analytics grid with guarded natural-language status filters; local evaluation is available, production needs the vendor license."},
+            {"id": "apimatic", "name": "APIMatic", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "APIMatic PayPal Context Plugin is installed in VS Code; the backend PayPal adapter uses the APIMatic-generated official Server SDK typed OAuth token model."},
+            {"id": "astropods", "name": "Astropods", "implemented": True, "configured": settings.astropods_configured, "h8_status": "partial", "evidence": "Authenticated read-only investigator conversations return a trace and write a workspace audit record; the deployed agent must be configured with scoped PayPilot tools."},
+            {"id": "bryntum", "name": "Bryntum", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Bryntum Gantt trial shows commitment milestones and computes a local reserve-breach preview when dates move; saving a changed scenario requires explicit follow-up."},
             {"id": "channel3", "name": "Channel3", "implemented": True, "configured": settings.channel3_configured, "h8_status": "partial", "evidence": "Server-side live product-search adapter returns provider provenance and fetch timestamp; it is not yet connected to purchase analysis."},
             {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "h8_status": "partial", "evidence": "Authenticated evidence search derives active workspaces and applies a mandatory workspace filter; populated index and isolation evidence are missing."},
-            {"id": "kernel", "name": "KERNEL", "implemented": False, "configured": settings.kernel_configured, "h8_status": "blocked", "evidence": "User-authorized browser-task policy and persisted review trace are not implemented."},
-            {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Versioned collection is present; replay/tamper/workspace negative cases and successful run evidence remain incomplete."},
-            {"id": "render", "name": "Render", "implemented": True, "configured": False, "h8_status": "partial", "evidence": "Blueprint is present; hosted health and durable idempotent job workflow are not verified or implemented."},
-            {"id": "zapier", "name": "Zapier MCP", "implemented": False, "configured": settings.zapier_mcp_configured, "h8_status": "blocked", "evidence": "Approved allow-listed MCP action and saved result/audit flow are not implemented."},
+            {"id": "kernel", "name": "KERNEL", "implemented": True, "configured": settings.kernel_configured, "h8_status": "partial", "evidence": "User-triggered public-page retrieval is restricted to a single public hostname, has no form/click actions, and persists a reviewable title/text trace."},
+            {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Versioned collection covers health, assessment, integration status, credential checks, product search, and workspace-scoped evidence; run evidence remains to be captured."},
+            {"id": "render", "name": "Render", "implemented": True, "configured": settings.render_workflow_configured, "h8_status": "partial", "evidence": "A Render Workflow service is defined for idempotent evidence jobs; hosted execution requires deploy-time Render credentials and workflow slug."},
+            {"id": "zapier", "name": "Zapier MCP", "implemented": True, "configured": settings.zapier_configured, "h8_status": "partial", "evidence": "MCP tools can be discovered and only environment-allowlisted actions can run after explicit user approval; action result metadata is audited."},
         ]
     }
+
+
+@router.post("/integrations/astropods/investigate")
+async def astropods_investigate(
+    payload: InvestigatorRequest,
+    request: Request,
+    user: AuthenticatedUser = Depends(require_supabase_user),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Run a user-triggered, read-only investigator turn and persist its trace."""
+    if not settings.astropods_configured:
+        raise HTTPException(status_code=503, detail="Configure Astropods credentials and set ASTROPODS_READ_ONLY_CONFIRMED=true only after restricting deployment tools to read-only.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is required to save the investigator trace.")
+    workspace_id, actor_id = await _user_workspace(pool, user.id)
+    base = "https://astropods.com/api/v1"
+    headers = {"Authorization": f"Bearer {settings.astropods_api_key.get_secret_value()}", "Accept": "application/json"}
+    deployment = quote(settings.astropods_deployment_id, safe="")
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(45.0, connect=10.0)) as client:
+            created = await client.post(f"{base}/deployments/{deployment}/messaging/conversations", headers=headers)
+            created.raise_for_status()
+            conversation_id = created.json().get("conversation_id")
+            if not isinstance(conversation_id, str) or not conversation_id:
+                raise HTTPException(status_code=502, detail="Astropods returned no conversation ID.")
+            safe_prompt = (
+                "This is a read-only PayPilot recovery investigation. Answer only with evidence/status and a suggested next review step. "
+                "Do not initiate, approve, or claim to execute payments, refunds, or any other financial action. "
+                "Do not request credentials or secrets. User question: " + payload.question.strip()
+            )
+            sent = await client.post(
+                f"{base}/deployments/{deployment}/messaging/conversations/{quote(conversation_id, safe='')}/messages",
+                headers={**headers, "Content-Type": "application/json"}, json={"content": safe_prompt},
+            )
+            sent.raise_for_status()
+            stream = await client.get(
+                f"{base}/deployments/{deployment}/messaging/conversations/{quote(conversation_id, safe='')}/stream",
+                headers={"Authorization": headers["Authorization"], "Accept": "text/event-stream"},
+            )
+            stream.raise_for_status()
+    except HTTPException:
+        raise
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(status_code=502, detail=f"Astropods rejected the investigator request (HTTP {exc.response.status_code}).") from exc
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="Astropods investigator is temporarily unavailable.") from exc
+
+    # Consume the completed SSE response; only the resulting text and trace ID are stored.
+    answer_parts: list[str] = []
+    for line in stream.text.splitlines():
+        if not line.startswith("data:"):
+            continue
+        raw = line[5:].strip()
+        if not raw or raw == "[DONE]":
+            continue
+        try:
+            event = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            chunk = event.get("content")
+            if isinstance(chunk, str):
+                answer_parts.append(chunk)
+    answer = "".join(answer_parts)[:12000]
+    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "astropods", conversation_id, {
+        "conversation_id": conversation_id, "question": payload.question.strip()[:1200],
+        "answer_excerpt": answer[:1500], "read_only": True,
+    })
+    return {"provider": "Astropods", "conversation_id": conversation_id, "trace_id": str(audit_id), "answer": answer}
+
+
+@router.post("/integrations/kernel/evidence")
+async def kernel_public_evidence(
+    payload: KernelEvidenceRequest,
+    request: Request,
+    user: AuthenticatedUser = Depends(require_supabase_user),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Read a public URL in a short-lived KERNEL browser, then destroy the session."""
+    if not settings.kernel_configured:
+        raise HTTPException(status_code=503, detail="Configure KERNEL_API_KEY on the backend.")
+    if not settings.kernel_key_rotated_after_incident:
+        raise HTTPException(status_code=503, detail="Before browser retrieval, rotate KERNEL_API_KEY and set KERNEL_KEY_ROTATED_AFTER_INCIDENT=true.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is required to save the browser-task trace.")
+    parsed = urlsplit(payload.url.strip())
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise HTTPException(status_code=400, detail="Use a public HTTPS page URL without credentials, query parameters, or fragments.")
+    if parsed.port not in (None, 443):
+        raise HTTPException(status_code=400, detail="Only HTTPS on the default port is allowed.")
+    try:
+        addresses = socket.getaddrinfo(parsed.hostname, 443, type=socket.SOCK_STREAM)
+        if not addresses or any(not ipaddress.ip_address(item[4][0]).is_global for item in addresses):
+            raise ValueError("non-public destination")
+    except (OSError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="The URL must resolve only to public internet addresses.") from exc
+    host = parsed.hostname.lower()
+    if host in {"localhost", "metadata.google.internal"} or host.endswith((".local", ".internal")):
+        raise HTTPException(status_code=400, detail="Private and local hosts are not allowed.")
+
+    from kernel import AsyncKernel
+    from playwright.async_api import async_playwright
+
+    kernel = AsyncKernel(api_key=settings.kernel_api_key.get_secret_value())
+    browser = None
+    try:
+        browser = await kernel.browsers.create(
+            name=f"paypilot-evidence-{uuid.uuid4().hex[:10]}",
+            headless=True,
+            start_url=payload.url.strip(),
+            timeout_seconds=60,
+            network={"allowed_hosts": [host]},
+        )
+        async with async_playwright() as playwright:
+            chromium = await playwright.chromium.connect_over_cdp(browser.cdp_ws_url)
+            context = chromium.contexts[0]
+            page = context.pages[0] if context.pages else await context.new_page()
+            async def keep_to_authorized_host(route_handler):
+                requested = urlsplit(route_handler.request.url)
+                if requested.scheme not in {"http", "https"} or requested.hostname != host:
+                    await route_handler.abort()
+                else:
+                    await route_handler.continue_()
+            await context.route("**/*", keep_to_authorized_host)
+            await page.goto(payload.url.strip(), wait_until="domcontentloaded", timeout=20000)
+            final_url = page.url
+            if urlsplit(final_url).hostname != host:
+                raise HTTPException(status_code=400, detail="Navigation left the authorized hostname; no evidence was saved.")
+            title = (await page.title())[:250]
+            text = (await page.locator("body").inner_text(timeout=5000))[:8000]
+            await chromium.close()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="KERNEL could not retrieve the authorized public page.") from exc
+    finally:
+        if browser is not None:
+            try:
+                await kernel.browsers.delete_by_id(browser.session_id)
+            except Exception:
+                pass
+        await kernel.close()
+
+    workspace_id, actor_id = await _user_workspace(pool, user.id)
+    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "kernel", host, {
+        "url": final_url, "title": title, "text_excerpt": text[:1500], "retrieved_at": datetime.now(timezone.utc).isoformat(),
+        "read_only": True, "review_required": True,
+    })
+    return {"provider": "KERNEL", "trace_id": str(audit_id), "url": final_url, "title": title, "text": text, "review_required": True}
+
+
+@router.get("/integrations/zapier/tools")
+async def zapier_list_tools(
+    user: AuthenticatedUser = Depends(require_supabase_user), settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    del user
+    if not settings.zapier_configured:
+        raise HTTPException(status_code=503, detail="Configure ZAPIER_MCP_ENDPOINT and ZAPIER_MCP_TOKEN on the backend.")
+    from mcp import ClientSession
+    from mcp.client.streamable_http import streamablehttp_client
+    try:
+        async with streamablehttp_client(settings.zapier_mcp_endpoint, headers={"Authorization": f"Bearer {settings.zapier_mcp_token.get_secret_value()}"}) as (read_stream, write_stream, _):
+            async with ClientSession(read_stream, write_stream) as session:
+                await session.initialize()
+                result = await session.list_tools()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Zapier MCP tool discovery failed.") from exc
+    allowed = settings.zapier_allowed_tool_names
+    tools = [{"name": tool.name, "description": tool.description or "", "input_schema": tool.inputSchema,
+              "allowlisted": tool.name in allowed and not _zapier_tool_is_financial(tool.name, tool.description)} for tool in result.tools]
+    return {"provider": "Zapier MCP", "tools": tools}
+
+
+@router.post("/integrations/zapier/actions")
+async def zapier_run_action(
+    payload: ZapierActionRequest, request: Request,
+    user: AuthenticatedUser = Depends(require_supabase_user), settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    if not payload.approved:
+        raise HTTPException(status_code=400, detail="Review and approve the action in the app before running it.")
+    if not settings.zapier_configured or payload.name not in settings.zapier_allowed_tool_names:
+        raise HTTPException(status_code=403, detail="This Zapier action is not enabled in the backend allowlist.")
+    if len(json.dumps(payload.arguments, default=str)) > 8000:
+        raise HTTPException(status_code=413, detail="Action arguments exceed the 8 KB limit.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is required to audit Zapier actions.")
+    from mcp import ClientSession
+    from mcp.client.streamable_http import streamablehttp_client
+    try:
+        async with streamablehttp_client(settings.zapier_mcp_endpoint, headers={"Authorization": f"Bearer {settings.zapier_mcp_token.get_secret_value()}"}) as (read_stream, write_stream, _):
+            async with ClientSession(read_stream, write_stream) as session:
+                await session.initialize()
+                tools = await session.list_tools()
+                selected_tool = next((tool for tool in tools.tools if tool.name == payload.name), None)
+                if selected_tool is None:
+                    raise HTTPException(status_code=404, detail="Zapier did not publish the allowlisted action.")
+                if _zapier_tool_is_financial(selected_tool.name, selected_tool.description):
+                    raise HTTPException(status_code=403, detail="Financial or money-movement Zapier actions are blocked.")
+                result = await session.call_tool(payload.name, payload.arguments)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Zapier MCP action failed.") from exc
+    if result.isError:
+        raise HTTPException(status_code=502, detail="Zapier reported an action error.")
+    result_text = [item.text[:1000] for item in result.content if getattr(item, "text", None)]
+    workspace_id, actor_id = await _user_workspace(pool, user.id)
+    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "zapier", payload.name, {
+        "tool": payload.name, "arguments": payload.arguments, "result_excerpt": result_text, "approved": True,
+    })
+    return {"provider": "Zapier MCP", "tool": payload.name, "trace_id": str(audit_id), "result": result_text}
+
+
+@router.post("/integrations/render/recovery-review")
+async def render_recovery_review(
+    payload: RenderReviewRequest, request: Request,
+    user: AuthenticatedUser = Depends(require_supabase_user), settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Start an idempotent Render Workflow run for a user-requested review."""
+    if not settings.render_workflow_configured:
+        raise HTTPException(status_code=503, detail="Configure RENDER_API_KEY and RENDER_WORKFLOW_SLUG on the backend.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is required to audit workflow requests.")
+    workspace_id, actor_id = await _user_workspace(pool, user.id)
+    scoped_idempotency_key = hashlib.sha256(f"{workspace_id}:{payload.idempotency_key}".encode()).hexdigest()
+    from render import RenderAsync
+    client = RenderAsync(token=settings.render_api_key.get_secret_value())
+    try:
+        run = await client.workflows.start_task(
+            f"{settings.render_workflow_slug}/recovery_review",
+            {"workspace_id": str(workspace_id), "case_id": payload.case_id,
+             "requested_by": str(actor_id), "idempotency_key": scoped_idempotency_key},
+            idempotency_key=scoped_idempotency_key,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Render Workflow could not accept the review job.") from exc
+    finally:
+        await client.close()
+    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "render.workflow", payload.case_id, {
+        "run_id": run.id, "task_slug": f"{settings.render_workflow_slug}/recovery_review",
+        "idempotency_key": scoped_idempotency_key, "status": run.status,
+    })
+    return {"provider": "Render Workflows", "run_id": run.id, "status": run.status,
+            "trace_id": str(audit_id), "financial_action_executed": False}
 
 
 @router.post("/integrations/channel3/search")
@@ -77,7 +394,7 @@ async def channel3_product_search(
     """Search Channel3 through a server-side key and return provenance."""
     del user  # Validate the caller before using the shared provider credential.
     if not settings.channel3_configured:
-        raise HTTPException(status_code=503, detail="Channel3 API key is not configured on the backend.")
+        raise HTTPException(status_code=503, detail="CHANNEL3_API_KEY is not configured on the backend.")
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.post(
@@ -110,7 +427,10 @@ async def elastic_evidence_search(
 ) -> dict[str, Any]:
     """Search evidence only inside workspace IDs resolved from the auth user."""
     if not settings.elasticsearch_configured:
-        raise HTTPException(status_code=503, detail="Elastic evidence search is not configured on the backend.")
+        raise HTTPException(
+            status_code=503,
+            detail="Set ELASTICSEARCH_URL and ELASTICSEARCH_API_KEY on the backend to enable Elastic evidence search.",
+        )
     pool: asyncpg.Pool | None = request.app.state.database_pool
     if pool is None:
         raise HTTPException(status_code=503, detail="Workspace database is required for tenant-scoped evidence search.")
@@ -172,6 +492,84 @@ async def elastic_evidence_search(
             "score": hit.get("_score"),
         })
     return {"provider": "Elastic", "query": query, "fetched_at": datetime.now(timezone.utc).isoformat(), "evidence": evidence}
+
+
+@router.post("/integrations/elastic/evidence-upload")
+async def elastic_evidence_upload(
+    request: Request,
+    file: UploadFile = File(...),
+    user: AuthenticatedUser = Depends(require_supabase_user),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Store an evidence file privately and index page text with tenant metadata."""
+    if not settings.elasticsearch_configured or not settings.supabase_auth_configured:
+        raise HTTPException(status_code=503, detail="Configure Elastic and Supabase on the backend before uploading evidence.")
+    pool: asyncpg.Pool | None = request.app.state.database_pool
+    if pool is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is required for workspace-scoped evidence uploads.")
+    workspace_id, actor_id = await _user_workspace(pool, user.id)
+    raw = await file.read(8 * 1024 * 1024 + 1)
+    if len(raw) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Evidence files are limited to 8 MB.")
+    filename = (file.filename or "evidence.txt").split("/")[-1].split("\\")[-1]
+    safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", filename)[:100] or "evidence.txt"
+    suffix = safe_name.lower().rsplit(".", 1)[-1] if "." in safe_name else ""
+    if suffix == "pdf" or file.content_type == "application/pdf":
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(io.BytesIO(raw), strict=True)
+            if len(reader.pages) > 100:
+                raise HTTPException(status_code=413, detail="PDF evidence is limited to 100 pages.")
+            pages = [(number, (page.extract_text() or "").strip()) for number, page in enumerate(reader.pages, start=1)]
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail="The uploaded PDF could not be read.") from exc
+    elif suffix in {"txt", "md", "csv"}:
+        try:
+            pages = [(1, raw.decode("utf-8-sig").strip())]
+        except UnicodeDecodeError as exc:
+            raise HTTPException(status_code=400, detail="Text evidence must use UTF-8 encoding.") from exc
+    else:
+        raise HTTPException(status_code=415, detail="Supported evidence formats are PDF, TXT, MD, and CSV.")
+    pages = [(number, text[:50000]) for number, text in pages if text][:100]
+    if not pages:
+        raise HTTPException(status_code=400, detail="No extractable text was found in this file.")
+
+    document_id = str(uuid.uuid4())
+    storage_path = f"{workspace_id}/{document_id}/{safe_name}"
+    bearer = request.headers.get("authorization", "")
+    storage_url = f"{settings.supabase_url.rstrip('/')}/storage/v1/object/paypilot-evidence-private/{quote(storage_path, safe='/')}"
+    storage_headers = {
+        "apikey": settings.supabase_publishable_key.get_secret_value(),
+        "Authorization": bearer,
+        "Content-Type": file.content_type or "application/octet-stream",
+        "x-upsert": "false",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            stored = await client.post(storage_url, headers=storage_headers, content=raw)
+            if stored.status_code >= 400:
+                raise HTTPException(status_code=502, detail="Supabase private storage rejected the evidence upload; check the storage migration and workspace policy.")
+            indexed: list[str] = []
+            for page_number, text in pages:
+                response = await client.put(
+                    f"{settings.elasticsearch_url.rstrip('/')}/{quote(settings.elasticsearch_index, safe='-_')}/_doc/{document_id}-{page_number}?refresh=wait_for",
+                    headers={"Authorization": f"ApiKey {settings.elasticsearch_api_key.get_secret_value()}", "Content-Type": "application/json"},
+                    json={"workspace_id": str(workspace_id), "document_id": document_id, "title": safe_name,
+                          "content": text[:50000], "source_url": f"paypilot://evidence/{document_id}",
+                          "page": page_number, "uploaded_by": str(actor_id), "created_at": datetime.now(timezone.utc).isoformat()},
+                )
+                if response.status_code >= 400:
+                    raise HTTPException(status_code=502, detail="Elastic indexing failed after private upload; remove the uploaded file and retry.")
+                indexed.append(str(page_number))
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=502, detail="Evidence storage or indexing is temporarily unavailable.") from exc
+    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "elastic.upload", document_id, {
+        "filename": safe_name, "pages_indexed": indexed, "private_storage": True,
+    })
+    return {"provider": "Elastic", "document_id": document_id, "filename": safe_name,
+            "pages_indexed": len(indexed), "trace_id": str(audit_id), "private_storage": True}
 
 
 @router.post("/integrations/paypal/connection-check")
