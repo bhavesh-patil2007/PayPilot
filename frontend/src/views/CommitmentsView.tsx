@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { usePayPilotStore } from '../store/usePayPilotStore';
+import { sandboxService } from '../services/sandboxService';
+import { assessCommitment } from '../services/backendApi';
 import { CommitmentGanttChart } from '../components/charts/CommitmentGanttChart';
 import { ThreeCanvasContainer } from '../components/3d/ThreeCanvasContainer';
 import { FirewallScene } from '../components/3d/scenes/FirewallScene';
@@ -42,7 +44,7 @@ export function CommitmentsView() {
   const [vendorName, setVendorName] = useState('');
   const [amountStr, setAmountStr] = useState('');
   const [targetDate, setTargetDate] = useState(() => {
-    const d = new Date('2024-11-06');
+    const d = new Date();
     d.setDate(d.getDate() + 14);
     return d.toISOString().split('T')[0];
   });
@@ -50,6 +52,8 @@ export function CommitmentsView() {
   const [paymentTerms, setPaymentTerms] = useState<'DUE_ON_RECEIPT' | 'NET_15' | 'NET_30' | 'NET_60'>('NET_30');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [commitSuccess, setCommitSuccess] = useState<string | null>(null);
+  const [backendPreview, setBackendPreview] = useState<{ key: string; result: FirewallEvaluationResult } | null>(null);
+  const [isAssessing, setIsAssessing] = useState(false);
 
   // Parse amount
   const parsedAmount = parseFloat(amountStr) || 0;
@@ -85,9 +89,13 @@ export function CommitmentsView() {
     return lastFirewallEvaluation;
   }, [parsedAmount, vendorName, executiveKpis.totalAvailableCash, minimumSafetyBuffer, lastFirewallEvaluation]);
 
-  const currentEvaluation = liveEvaluation;
+  const apiConfig = sandboxService.getConfig();
+  const formKey = `${vendorName.trim()}|${amountStr}|${targetDate}|${executiveKpis.totalAvailableCash}|${minimumSafetyBuffer}`;
+  const currentEvaluation = apiConfig.useLiveBackend
+    ? (backendPreview?.key === formKey ? backendPreview.result : null)
+    : liveEvaluation;
 
-  const handleSimulate = (e: React.FormEvent) => {
+  const handleSimulate = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
     setCommitSuccess(null);
@@ -101,13 +109,55 @@ export function CommitmentsView() {
       return;
     }
 
-    evaluateCommitmentOrder({
-      vendorName: vendorName.trim(),
-      amount: parsedAmount,
-      category,
-      paymentTerms,
-      targetDate,
-    });
+    if (!apiConfig.useLiveBackend) {
+      evaluateCommitmentOrder({
+        vendorName: vendorName.trim(),
+        amount: parsedAmount,
+        category,
+        paymentTerms,
+        targetDate,
+      });
+      return;
+    }
+
+    setIsAssessing(true);
+    try {
+      const result = await assessCommitment(apiConfig.apiBaseUrl, {
+        currency: 'USD',
+        starting_cash: executiveKpis.totalAvailableCash,
+        starting_cash_source: 'manual_estimate',
+        required_reserve: minimumSafetyBuffer,
+        cash_flows: [{
+          date: targetDate,
+          direction: 'outflow',
+          amount: parsedAmount,
+          label: `${vendorName.trim()} commitment`,
+        }],
+      });
+      const safe = result.status === 'safe';
+      const mappedEvaluation: FirewallEvaluationResult = {
+        status: result.status === 'safe'
+          ? 'APPROVED_SAFE'
+          : result.status === 'warning'
+            ? 'WARNING_BUFFER_TIGHT'
+            : 'CRITICAL_BUFFER_BREACH',
+        safe,
+        orderAmount: parsedAmount,
+        currentBuffer: executiveKpis.totalAvailableCash - minimumSafetyBuffer,
+        lowestProjectedBuffer: Number(result.minimum_projected_cash),
+        breachDate: result.first_reserve_breach_date ?? undefined,
+        verdictHeadline: safe ? 'Backend assessment: within reserve' : 'Backend assessment: reserve breach',
+        verdictExplanation: `The ${result.scenario_version} assessment projects a minimum cash balance of $${Number(result.minimum_projected_cash).toLocaleString()} against a $${Number(result.required_reserve).toLocaleString()} reserve. ${result.missing_inputs.join(' ')}`.trim(),
+        mitigationOptions: result.recommendations.map((recommendation) =>
+          `${recommendation.type.replace(/_/g, ' ')}${recommendation.amount ? `: $${recommendation.amount}` : ''}`
+        ),
+      };
+      setBackendPreview({ key: formKey, result: mappedEvaluation });
+    } catch (error) {
+      setValidationError(error instanceof Error ? error.message : 'Backend assessment failed.');
+    } finally {
+      setIsAssessing(false);
+    }
   };
 
   const handleCommitOrder = () => {
@@ -123,21 +173,30 @@ export function CommitmentsView() {
       return;
     }
 
-    const evaluation = evaluateCommitmentOrder({
-      vendorName: vendorName.trim(),
-      amount: parsedAmount,
-      category,
-      paymentTerms,
-      targetDate,
-    });
+    let evaluation: FirewallEvaluationResult;
+    if (apiConfig.useLiveBackend) {
+      if (!backendPreview || backendPreview.key !== formKey) {
+        setValidationError('Run the backend assessment for these exact inputs before adding this commitment.');
+        return;
+      }
+      evaluation = backendPreview.result;
+    } else {
+      evaluation = evaluateCommitmentOrder({
+        vendorName: vendorName.trim(),
+        amount: parsedAmount,
+        category,
+        paymentTerms,
+        targetDate,
+      });
+    }
 
     const newCommitment: CommitmentItem = {
       id: `CMT-${Date.now()}`,
-      referenceNumber: `PO-2024-${Math.floor(100 + Math.random() * 900)}`,
+      referenceNumber: `PO-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
       title: `${vendorName.trim()} (${category})`,
       counterparty: vendorName.trim(),
       category,
-      startDate: new Date('2024-11-06').toISOString().split('T')[0],
+      startDate: new Date().toISOString().split('T')[0],
       dueDate: targetDate,
       totalCommittedAmount: parsedAmount,
       amountPaidToDate: paymentTerms === 'DUE_ON_RECEIPT' ? parsedAmount : 0,
@@ -277,7 +336,9 @@ export function CommitmentsView() {
             <div className="h-[260px] relative w-full overflow-hidden mt-2">
               <ThreeCanvasContainer
                 controllerFactory={() => new FirewallScene()}
-                data={currentEvaluation || { status: 'APPROVED_SAFE', safe: true }}
+                data={currentEvaluation || (apiConfig.useLiveBackend
+                  ? { status: 'WARNING_BUFFER_TIGHT', safe: false }
+                  : { status: 'APPROVED_SAFE', safe: true })}
                 ariaLabel="Commitment Firewall 3D Animated Shield"
                 className="w-full h-full"
               />
@@ -290,7 +351,9 @@ export function CommitmentsView() {
                   ? 'bg-rose-950/40 border-rose-500 text-rose-300'
                   : currentEvaluation?.status === 'WARNING_BUFFER_TIGHT'
                   ? 'bg-amber-950/40 border-amber-500 text-amber-300'
-                  : 'bg-emerald-950/40 border-emerald-500 text-emerald-300'
+                  : currentEvaluation
+                    ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
               }`}
               data-testid="firewall-verdict-banner"
             >
@@ -299,11 +362,14 @@ export function CommitmentsView() {
                   ? 'BLOCK: Force-Field Collapse'
                   : currentEvaluation?.status === 'WARNING_BUFFER_TIGHT'
                   ? 'WARN: Force-Field Buffer Tight'
-                  : 'PASS: Force-Field Buffer Clear'}
+                  : currentEvaluation
+                    ? 'PASS: Force-Field Buffer Clear'
+                    : 'AWAITING ASSESSMENT'}
               </div>
               <div className="text-[11px] opacity-80 mt-0.5">
-                {currentEvaluation?.verdictExplanation ||
-                  'Headroom maintained above safety floor.'}
+                {currentEvaluation?.verdictExplanation || (apiConfig.useLiveBackend
+                  ? 'Run a backend assessment to calculate the reserve position.'
+                  : 'Headroom maintained above safety floor.')}
               </div>
             </div>
           </div>
@@ -423,12 +489,20 @@ export function CommitmentsView() {
               {/* Commit Button */}
               <div className="pt-2 flex flex-col gap-2">
                 <button
+                  type="submit"
+                  disabled={isAssessing}
+                  className="w-full py-2.5 rounded-lg bg-gradient-to-r from-paypal-blue to-paypal-dark hover:from-paypal-blue/90 hover:to-paypal-dark/90 text-white font-semibold shadow-glow-paypal transition"
+                  data-testid="btn-assess-order"
+                >
+                  {isAssessing ? 'Assessing...' : apiConfig.useLiveBackend ? 'Assess with FastAPI' : 'Evaluate Commitment'}
+                </button>
+                <button
                   type="button"
                   onClick={handleCommitOrder}
-                  className="w-full py-2.5 rounded-lg bg-gradient-to-r from-paypal-blue to-paypal-dark hover:from-paypal-blue/90 hover:to-paypal-dark/90 text-white font-semibold shadow-glow-paypal transition"
+                  className="w-full py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition"
                   data-testid="btn-commit-order"
                 >
-                  Commit Order to Schedule
+                  Add Commitment to Demo Schedule
                 </button>
               </div>
             </form>
