@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePayPilotStore } from '../store/usePayPilotStore';
 import { sandboxService, SandboxAuditEntry } from '../services/sandboxService';
+import { BackendHealth, getBackendHealth, normalizeApiBaseUrl } from '../services/backendApi';
 import {
   Settings,
   ShieldCheck,
@@ -47,11 +48,15 @@ export const SettingsView: React.FC = () => {
   );
 
   // Backend Endpoints
-  const [useLiveBackend, setUseLiveBackend] = useState(false);
-  const [fastApiUrl, setFastApiUrl] = useState('http://localhost:8000');
+  const [useLiveBackend, setUseLiveBackend] = useState(() => sandboxService.getConfig().useLiveBackend);
+  const [fastApiUrl, setFastApiUrl] = useState(() =>
+    sandboxService.getConfig().apiBaseUrl.replace(/\/api\/v1\/?$/, '')
+  );
   const [supabaseUrl, setSupabaseUrl] = useState('https://your-project.supabase.co');
-  const [supabaseAnonKey, setSupabaseAnonKey] = useState('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
   const [backendSaved, setBackendSaved] = useState(false);
+  const [backendHealth, setBackendHealth] = useState<BackendHealth | null>(null);
+  const [backendHealthError, setBackendHealthError] = useState<string | null>(null);
+  const [checkingBackend, setCheckingBackend] = useState(false);
 
   // Webhook Ping Test
   const [isPinging, setIsPinging] = useState(false);
@@ -139,10 +144,23 @@ export const SettingsView: React.FC = () => {
   const handleSaveBackend = () => {
     sandboxService.configure({
       useLiveBackend,
-      apiBaseUrl: fastApiUrl,
+      apiBaseUrl: normalizeApiBaseUrl(fastApiUrl),
     });
     setBackendSaved(true);
     setTimeout(() => setBackendSaved(false), 2500);
+  };
+
+  const handleCheckBackend = async () => {
+    setCheckingBackend(true);
+    setBackendHealthError(null);
+    try {
+      setBackendHealth(await getBackendHealth(fastApiUrl));
+    } catch (error) {
+      setBackendHealth(null);
+      setBackendHealthError(error instanceof Error ? error.message : 'Backend health check failed.');
+    } finally {
+      setCheckingBackend(false);
+    }
   };
 
   const handleJudgeReset = () => {
@@ -453,7 +471,7 @@ export const SettingsView: React.FC = () => {
               <div>
                 <span className="font-semibold text-white block text-xs">Backend Execution Mode</span>
                 <span className="text-[10px] text-slate-400">
-                  {useLiveBackend ? 'Routing to live FastAPI server' : 'Standalone Simulated Mock Services (Default)'}
+                  {useLiveBackend ? 'API selected; PayPal actions remain simulated' : 'Standalone simulated mode'}
                 </span>
               </div>
               <button
@@ -466,7 +484,7 @@ export const SettingsView: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 border-slate-700'
                 }`}
               >
-                {useLiveBackend ? 'LIVE API' : 'MOCK'}
+                {useLiveBackend ? 'API MODE' : 'MOCK'}
               </button>
             </div>
 
@@ -496,17 +514,46 @@ export const SettingsView: React.FC = () => {
               />
             </div>
 
-            {/* Save Button */}
+            {backendHealth && (
+              <div className="rounded-xl border border-slate-800 bg-obsidian-950 p-3 text-[10px] font-mono text-slate-300">
+                <div className="flex items-center gap-2 text-emerald-300">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> FastAPI is online ({backendHealth.environment})
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-1.5 text-slate-400">
+                  <span>Postgres: {backendHealth.database_configured ? 'configured' : 'not configured'}</span>
+                  <span>Supabase Auth: {backendHealth.supabase_auth_configured ? 'configured' : 'not configured'}</span>
+                  <span>PayPal Sandbox: {backendHealth.paypal_sandbox_configured ? 'configured' : 'not configured'}</span>
+                  <span>Webhooks: {backendHealth.paypal_webhooks_configured ? 'configured' : 'not configured'}</span>
+                </div>
+              </div>
+            )}
+            {backendHealthError && (
+              <div role="status" className="text-[10px] font-mono text-amber-300">Backend unavailable: {backendHealthError}</div>
+            )}
+
+            {/* Save and health-check controls */}
             <div className="pt-2 flex items-center justify-between">
-              <button
-                type="button"
-                data-testid="save-backend-settings-btn"
-                onClick={handleSaveBackend}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono transition"
-              >
-                <Save className="w-3.5 h-3.5 text-paypal-cyan" />
-                <span>Save Backend Config</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  data-testid="save-backend-settings-btn"
+                  onClick={handleSaveBackend}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono transition"
+                >
+                  <Save className="w-3.5 h-3.5 text-paypal-cyan" />
+                  <span>Save Backend Config</span>
+                </button>
+                <button
+                  type="button"
+                  data-testid="check-backend-health-btn"
+                  onClick={handleCheckBackend}
+                  disabled={checkingBackend}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-200 text-xs font-mono transition disabled:opacity-50"
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>{checkingBackend ? 'Checking...' : 'Check API'}</span>
+                </button>
+              </div>
               {backendSaved && (
                 <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
                   <Check className="w-3.5 h-3.5" /> Saved!
