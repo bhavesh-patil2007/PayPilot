@@ -1,0 +1,1 @@
+-- Demo financial data remains in the frontend store until a tenant-scoped seed workflow exists.
