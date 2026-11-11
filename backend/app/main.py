@@ -5,6 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api.v1.routes import router as v1_router
+from .api.v1.disputes import router as disputes_router
+from .api.v1.vendor_invoices import router as vendor_invoices_router
+from .api.v1.obligations import router as obligations_router
 from .core.config import get_settings
 
 
@@ -36,3 +39,6 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
 )
 app.include_router(v1_router, prefix="/api/v1")
+app.include_router(disputes_router, prefix="/api/v1")
+app.include_router(vendor_invoices_router, prefix="/api/v1")
+app.include_router(obligations_router, prefix="/api/v1")
