@@ -43,8 +43,6 @@ class Settings(BaseSettings):
     zapier_mcp_endpoint: str | None = None
     zapier_mcp_token: SecretStr | None = None
     zapier_mcp_allowed_tools: str = ""
-    render_api_key: SecretStr | None = None
-    render_workflow_slug: str | None = None
     cors_origins: str = "http://localhost:5173"
 
     @field_validator(
@@ -63,7 +61,6 @@ class Settings(BaseSettings):
         "elasticsearch_api_key",
         "kernel_api_key",
         "zapier_mcp_token",
-        "render_api_key",
         mode="before",
     )
     @classmethod
@@ -222,12 +219,6 @@ class Settings(BaseSettings):
     @property
     def zapier_allowed_tool_names(self) -> set[str]:
         return {name.strip() for name in self.zapier_mcp_allowed_tools.split(",") if name.strip()}
-
-    @property
-    def render_workflow_configured(self) -> bool:
-        return bool(self.render_api_key and self.render_workflow_slug)
-
-
 
 @lru_cache
 def get_settings() -> Settings:

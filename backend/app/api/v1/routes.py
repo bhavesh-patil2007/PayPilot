@@ -35,11 +35,6 @@ class ZapierActionRequest(BaseModel):
     approved: bool
 
 
-class RenderReviewRequest(BaseModel):
-    case_id: str = Field(min_length=1, max_length=120)
-    idempotency_key: str = Field(min_length=16, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
-
-
 async def _user_workspace(pool: asyncpg.Pool, user_id: str) -> tuple[uuid.UUID, uuid.UUID]:
     try:
         actor_id = uuid.UUID(user_id)
@@ -125,7 +120,6 @@ async def integration_status(settings: Settings = Depends(get_settings)) -> dict
             {"id": "elastic", "name": "Elastic", "implemented": True, "configured": settings.elasticsearch_configured, "h8_status": "partial", "evidence": "Authenticated evidence search derives active workspaces and applies a mandatory workspace filter; populated index and isolation evidence are missing."},
             {"id": "kernel", "name": "KERNEL", "implemented": True, "configured": settings.kernel_configured, "h8_status": "partial", "evidence": "User-triggered public-page retrieval is restricted to a single public hostname, has no form/click actions, and persists a reviewable title/text trace."},
             {"id": "postman", "name": "Postman", "implemented": True, "configured": True, "h8_status": "partial", "evidence": "Versioned collection covers health, assessment, integration status, credential checks, product search, and workspace-scoped evidence; run evidence remains to be captured."},
-            {"id": "render", "name": "Render", "implemented": True, "configured": settings.render_workflow_configured, "h8_status": "partial", "evidence": "A Render Workflow service is defined for idempotent evidence jobs; hosted execution requires deploy-time Render credentials and workflow slug."},
             {"id": "zapier", "name": "Zapier MCP", "implemented": True, "configured": settings.zapier_configured, "h8_status": "partial", "evidence": "MCP tools can be discovered and only environment-allowlisted actions can run after explicit user approval; action result metadata is audited."},
         ]
     }
@@ -273,40 +267,6 @@ async def zapier_run_action(
         "tool": payload.name, "arguments": payload.arguments, "result_excerpt": result_text, "approved": True,
     })
     return {"provider": "Zapier MCP", "tool": payload.name, "trace_id": str(audit_id), "result": result_text}
-
-
-@router.post("/integrations/render/recovery-review")
-async def render_recovery_review(
-    payload: RenderReviewRequest, request: Request,
-    user: AuthenticatedUser = Depends(require_supabase_user), settings: Settings = Depends(get_settings),
-) -> dict[str, Any]:
-    """Start an idempotent Render Workflow run for a user-requested review."""
-    if not settings.render_workflow_configured:
-        raise HTTPException(status_code=503, detail="Configure RENDER_API_KEY and RENDER_WORKFLOW_SLUG on the backend.")
-    pool: asyncpg.Pool | None = request.app.state.database_pool
-    if pool is None:
-        raise HTTPException(status_code=503, detail="DATABASE_URL is required to audit workflow requests.")
-    workspace_id, actor_id = await _user_workspace(pool, user.id)
-    scoped_idempotency_key = hashlib.sha256(f"{workspace_id}:{payload.idempotency_key}".encode()).hexdigest()
-    from render import RenderAsync
-    client = RenderAsync(token=settings.render_api_key.get_secret_value())
-    try:
-        run = await client.workflows.start_task(
-            f"{settings.render_workflow_slug}/recovery_review",
-            {"workspace_id": str(workspace_id), "case_id": payload.case_id,
-             "requested_by": str(actor_id), "idempotency_key": scoped_idempotency_key},
-            idempotency_key=scoped_idempotency_key,
-        )
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail="Render Workflow could not accept the review job.") from exc
-    finally:
-        await client.close()
-    audit_id = await _write_sponsor_trace(pool, workspace_id, actor_id, "render.workflow", payload.case_id, {
-        "run_id": run.id, "task_slug": f"{settings.render_workflow_slug}/recovery_review",
-        "idempotency_key": scoped_idempotency_key, "status": run.status,
-    })
-    return {"provider": "Render Workflows", "run_id": run.id, "status": run.status,
-            "trace_id": str(audit_id), "financial_action_executed": False}
 
 
 @router.post("/integrations/channel3/search")

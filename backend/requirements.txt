@@ -8,5 +8,4 @@ python-multipart>=0.0.20,<1
 mcp>=1.30,<2
 kernel>=0.146,<0.147
 playwright>=1.55,<2
-render>=1.8,<2
 paypal-server-sdk==2.4.0

@@ -54,19 +54,6 @@ services:
         sync: false
       - key: ZAPIER_MCP_ALLOWED_TOOLS
         sync: false
-      - key: RENDER_API_KEY
-        sync: false
-      - key: RENDER_WORKFLOW_SLUG
-        sync: false
-
-  - type: workflow
-    name: paypilot-recovery-workflows
-    runtime: python
-    plan: flex
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: python workflows/main.py
-
   - type: web
     name: paypilot-frontend
     runtime: static

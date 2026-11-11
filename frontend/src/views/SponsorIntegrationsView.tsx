@@ -40,7 +40,6 @@ const sponsorGuidance: Record<string, string> = {
   elastic: 'Upload private PDF/TXT/MD/CSV evidence, index page text and search only within the authenticated user’s workspaces.',
   kernel: 'Retrieve title/text from a user-authorized public HTTPS page on one host and save a reviewable trace; no clicks or form actions.',
   postman: 'Add replay, approval-tampering, and workspace-authorization negative cases; run the collection successfully.',
-  render: 'Start a durable, idempotent review workflow and save its run ID; hosted execution requires Render setup.',
   zapier: 'Discover MCP tools, run only configured allowlisted actions after explicit approval, and save result metadata in the audit log.',
 };
 

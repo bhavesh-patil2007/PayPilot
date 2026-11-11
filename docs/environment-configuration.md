@@ -13,7 +13,6 @@ The backend reads the repository-root `.env`; Vite reads `frontend/.env`. Both f
 | `ELASTICSEARCH_URL`, `ELASTICSEARCH_API_KEY`, `ELASTICSEARCH_INDEX` | Private document-page indexing and tenant-filtered evidence search. A Postgres workspace lookup is required. |
 | `KERNEL_API_KEY`, `KERNEL_KEY_ROTATED_AFTER_INCIDENT=true` | User-triggered, read-only browser retrieval for public HTTPS pages. The key must be rotated and scoped before this route is enabled. Requires Postgres to save the review trace. |
 | `ZAPIER_MCP_ENDPOINT`, `ZAPIER_MCP_TOKEN`, `ZAPIER_MCP_ALLOWED_TOOLS` | Discover Zapier MCP tools and run only explicitly allowlisted actions after in-app user approval. Leave the allowlist empty until each connected action has been reviewed. |
-| `RENDER_API_KEY`, `RENDER_WORKFLOW_SLUG` | Trigger the included hosted Render review workflow. They are not required to run locally. |
 
 The PayPal adapter uses PayPal's APIMatic-generated Python Server SDK for its typed OAuth token model. The APIMatic Context Plugin is installed in VS Code user settings; reload VS Code to activate it. The Postman collection requires no Postman API key.
 
@@ -39,7 +38,7 @@ Apply the migrations in `supabase/migrations/` to the Supabase project before up
 - **Elastic:** Evidence originals are stored in private Supabase Storage; extracted pages are indexed and searched with a mandatory tenant filter. Apply migrations and configure an Elastic index before use.
 - **KERNEL:** A signed-in user can retrieve title and text from a public HTTPS page on one hostname. The task performs no clicks or form submissions, saves a review trace, and destroys its short-lived browser session. The vendor disclosed a Nov. 4, 2026 security incident involving a small number of API keys and third-party secrets; keep this integration disabled until using a newly rotated scoped key and setting the explicit rotation flag. [KERNEL incident notice](https://www.headfulbrowsercompany.com/blog/public-notice-of-security-incident-nov-4-2026)
 - **Postman:** The versioned collection includes API health, commitment assessment, integration status, auth-gating checks, and an unsigned PayPal webhook replay check. Run `npx newman run postman/PayPilot.postman_collection.json --env-var baseUrl=http://localhost:8000` or open it in Postman. Authenticated collection requests need a real Supabase access token.
-- **Render:** `render.yaml` defines the API, static frontend, and Render Workflow service. The API can enqueue an idempotent recovery review run when the Render API key and workflow slug are configured. Hosted deployment and run evidence are not produced by a local build.
+- **Render hosting:** `render.yaml` defines the API and static frontend deployment.
 - **Zapier MCP:** The app lists configured MCP actions; execution requires an explicit server allowlist and user approval. Results are written to workspace audit history. No external action runs during startup or automatically.
 
 ## Not claimed as complete

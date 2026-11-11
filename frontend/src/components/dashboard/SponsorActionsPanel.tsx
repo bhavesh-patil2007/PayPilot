@@ -13,7 +13,6 @@ export const SponsorActionsPanel: React.FC<Props> = ({ apiBaseUrl, accessToken }
   const [zapierTool, setZapierTool] = useState('');
   const [zapierArgs, setZapierArgs] = useState('{}');
   const [zapierApproved, setZapierApproved] = useState(false);
-  const [caseId, setCaseId] = useState('recovery-review-demo');
   const [busy, setBusy] = useState('');
   const [message, setMessage] = useState('');
 
@@ -59,7 +58,7 @@ export const SponsorActionsPanel: React.FC<Props> = ({ apiBaseUrl, accessToken }
     setZapierApproved(false);
   };
 
-  if (!accessToken) return <section className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Sign in above to use KERNEL, private evidence uploads, Render Workflows, or Zapier. Secrets stay on the backend.</section>;
+  if (!accessToken) return <section className="rounded-xl border border-slate-800 bg-obsidian-900 p-4 text-xs text-slate-400">Sign in above to use KERNEL, private evidence uploads, or Zapier. Secrets stay on the backend.</section>;
 
   return <section className="space-y-4 rounded-2xl border border-paypal-cyan/20 bg-obsidian-900 p-5" data-testid="sponsor-actions-panel">
     <div><h2 className="text-sm font-semibold text-white">Run sponsor workflows</h2><p className="mt-1 text-[11px] text-slate-400">Each action is user-triggered, scoped to your active workspace, and recorded in audit history. Browser retrieval and integrations do not execute payments.</p></div>
@@ -75,11 +74,6 @@ export const SponsorActionsPanel: React.FC<Props> = ({ apiBaseUrl, accessToken }
         <h3 className="text-xs font-semibold text-white">Elastic · private evidence indexing</h3>
         <div className="flex items-center gap-2"><input type="file" accept=".pdf,.txt,.md,.csv" onChange={(event) => setFile(event.target.files?.[0] || null)} className="min-w-0 flex-1 text-[10px] text-slate-300" /><button type="button" disabled={!file || !!busy} onClick={() => void upload()} className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><Upload className="h-3.5 w-3.5" />Index</button></div>
         <p className="text-[10px] text-slate-500">PDF/TXT/MD/CSV · 8 MB max · original stored in private Supabase bucket; extracted pages indexed with a server-derived workspace ID.</p>
-      </div>
-      <div className="space-y-2 rounded-xl border border-slate-800 bg-obsidian-950 p-3">
-        <h3 className="text-xs font-semibold text-white">Render · idempotent review workflow</h3>
-        <div className="flex gap-2"><input value={caseId} onChange={(event) => setCaseId(event.target.value)} maxLength={120} className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-obsidian-900 p-2 text-xs text-white" aria-label="Recovery case ID" /><button type="button" disabled={!!busy || !caseId.trim()} onClick={() => { const safeCase = caseId.trim().replace(/[^A-Za-z0-9._:-]/g, '-'); const stableKey = `review-${safeCase.padEnd(10, '0').slice(0, 80)}`; void run('Render workflow', () => post('/integrations/render/recovery-review', { case_id: caseId.trim(), idempotency_key: stableKey })); }} className="rounded-lg bg-paypal-blue px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{busy === 'Render workflow' ? 'Starting…' : 'Start review job'}</button></div>
-        <p className="text-[10px] text-slate-500">Repeated requests for the same case share an idempotency key. The workflow saves a review task only; no financial action.</p>
       </div>
       <div className="space-y-2 rounded-xl border border-slate-800 bg-obsidian-950 p-3 xl:col-span-2">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-xs font-semibold text-white">Zapier MCP · approved actions</h3><button type="button" disabled={!!busy} onClick={() => void discoverZapier()} className="inline-flex items-center gap-1 rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-200 disabled:opacity-50"><RefreshCw className="h-3 w-3" />Discover actions</button></div>

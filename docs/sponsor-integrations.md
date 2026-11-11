@@ -13,7 +13,6 @@ This page tracks the sponsor integrations still present in FinCora and their cur
 | Elastic | Private Supabase evidence storage, page indexing, and tenant-filtered evidence search. | Apply the evidence storage migration and configure Elastic/Supabase before upload. |
 | KERNEL | User-triggered read-only public-page retrieval with a review trace. | Disabled until a newly rotated scoped key is configured and the rotation flag is set. |
 | Postman | Versioned collection with smoke and authorization-negative requests. | Newman run succeeds locally; authenticated integration calls still need a real Supabase session. |
-| Render | API, static frontend, and idempotent review workflow defined in `render.yaml`. | Hosted run needs Render API credentials and the workflow slug. |
 | Zapier MCP | Tool discovery and an explicit-approval action flow with audit metadata; financial tools are blocked. | No action is enabled until a tool name is placed on the server allowlist. |
 
 Secrets stay on the backend and must not be committed or exposed through `VITE_` variables. See [environment configuration](environment-configuration.md) for variable names and setup details.
